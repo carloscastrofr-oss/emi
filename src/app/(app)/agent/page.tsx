@@ -1,3 +1,5 @@
+"use client";
+
 import { PageHeader } from "@/components/page-header";
 import { AgentCard } from "./agent-card";
 import { Palette, MessageSquareText, ShieldAlert, Briefcase } from "lucide-react";
