@@ -4,7 +4,13 @@ import { BacklogTab } from "./backlog-tab";
 import { VotingTab } from "./voting-tab";
 import { ChangelogTab } from "./changelog-tab";
 
-export default function WorkbenchPage() {
+export default function WorkbenchPage({
+  params,
+  searchParams,
+}: {
+  params: {};
+  searchParams: {};
+}) {
   return (
     <div>
       <PageHeader

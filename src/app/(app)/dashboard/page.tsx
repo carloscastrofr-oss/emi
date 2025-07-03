@@ -37,7 +37,13 @@ const kpis = [
   },
 ];
 
-export default function DashboardPage() {
+export default function DashboardPage({
+  params,
+  searchParams,
+}: {
+  params: {};
+  searchParams: {};
+}) {
   return (
     <div>
       <PageHeader

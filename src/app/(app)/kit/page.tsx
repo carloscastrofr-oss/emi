@@ -38,7 +38,13 @@ const kits = [
   },
 ];
 
-export default function KitPage() {
+export default function KitPage({
+  params,
+  searchParams,
+}: {
+  params: {};
+  searchParams: {};
+}) {
   return (
     <div>
       <PageHeader

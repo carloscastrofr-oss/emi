@@ -11,7 +11,13 @@ import {
 import { Logo } from "@/components/logo";
 import { ArrowRight } from "lucide-react";
 
-export default function OnboardingPage() {
+export default function OnboardingPage({
+  params,
+  searchParams,
+}: {
+  params: {};
+  searchParams: {};
+}) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
        <Card className="w-full max-w-md">
