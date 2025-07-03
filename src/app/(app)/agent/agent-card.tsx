@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Sparkles, Bot } from "lucide-react";
+import { Loader2, Bot } from "lucide-react";
 
 interface AgentCardProps {
   title: string;
@@ -20,7 +20,6 @@ interface AgentCardProps {
 }
 
 export function AgentCard({ title, description, icon: Icon, flow, formFields, placeholder, initialValues }: AgentCardProps) {
-  const [result, setResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -41,15 +40,17 @@ export function AgentCard({ title, description, icon: Icon, flow, formFields, pl
 
   async function onSubmit(values: Record<string, any>) {
     setIsLoading(true);
-    setResult(null);
     try {
-      const response = await flow(values);
-      setResult(response);
+      await flow(values);
+      toast({
+        title: "Agent Run Successfully",
+        description: `The ${title} has generated a new recommendation.`,
+      });
     } catch (error) {
       console.error(error);
       toast({
         title: "Error",
-        description: `Failed to run ${title}. Please try again.`,
+        description: `Failed to run ${title}. Please check the console for details.`,
         variant: "destructive",
       });
     } finally {
@@ -102,21 +103,6 @@ export function AgentCard({ title, description, icon: Icon, flow, formFields, pl
           </form>
         </Form>
       </CardContent>
-      {result && (
-        <CardFooter className="flex-col items-start gap-2 pt-0">
-            <h3 className="mb-2 flex items-center text-lg font-semibold">
-                <Sparkles className="mr-2 h-5 w-5 text-accent" />
-                Agent Response
-            </h3>
-            <Card className="w-full">
-                <CardContent className="p-4">
-                    <pre className="whitespace-pre-wrap text-sm text-muted-foreground">
-                    {JSON.stringify(result, null, 2)}
-                    </pre>
-                </CardContent>
-            </Card>
-        </CardFooter>
-      )}
     </Card>
   );
 }

@@ -3,11 +3,12 @@
  * @fileOverview AI-powered business agent.
  * - agentBusiness - Analyzes component usage against business KPIs.
  * - AgentBusinessInput - The input type for the agentBusiness function.
- * - AgentBusinessOutput - The return type for the agentBusiness function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { addRecommendation } from '@/app/(app)/agent/actions';
+
 
 const AgentBusinessInputSchema = z.object({
   kpiData: z
@@ -21,9 +22,8 @@ const AgentBusinessOutputSchema = z.object({
   refactorPriority: z.string().describe('A suggested priority level (e.g., High, Medium, Low) for refactoring the component.'),
   businessRisk: z.string().describe('An assessment of business risk from inconsistent or underperforming design system elements.'),
 });
-export type AgentBusinessOutput = z.infer<typeof AgentBusinessOutputSchema>;
 
-export async function agentBusiness(input: AgentBusinessInput): Promise<AgentBusinessOutput> {
+export async function agentBusiness(input: AgentBusinessInput): Promise<void> {
     const prompt = ai.definePrompt({
         name: 'agentBusinessPrompt',
         input: {schema: AgentBusinessInputSchema},
@@ -45,5 +45,23 @@ export async function agentBusiness(input: AgentBusinessInput): Promise<AgentBus
     });
 
     const {output} = await prompt(input);
-    return output!;
+    if (!output) {
+      throw new Error("Agent did not produce an output.");
+    }
+    
+    let componentId = "Unknown Component";
+    try {
+        const kpiData = JSON.parse(input.kpiData);
+        componentId = kpiData.componentId || componentId;
+    } catch(e) {
+        console.error("Could not parse kpiData JSON");
+    }
+
+    const recommendationText = `Business Risk: ${output.businessRisk}. Refactor Priority: ${output.refactorPriority}. Estimated ROI: ${output.roiEstimate}.`;
+
+    await addRecommendation({
+        agent: "Business",
+        component: componentId,
+        recommendation: recommendationText,
+    });
 }

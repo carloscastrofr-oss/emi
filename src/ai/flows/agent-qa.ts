@@ -3,11 +3,11 @@
  * @fileOverview AI-powered QA agent.
  * - agentQA - Analyzes usability failures and suggests improvements.
  * - AgentQaInput - The input type for the agentQA function.
- * - AgentQaOutput - The return type for the agentQA function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { addRecommendation } from '@/app/(app)/agent/actions';
 
 const AgentQaInputSchema = z.object({
   qaData: z
@@ -21,9 +21,8 @@ const AgentQaOutputSchema = z.object({
   validationSuggestions: z.string().describe('Suggestions for real-time validation or structural fixes to prevent errors.'),
   testRecommendations: z.string().describe('Recommendations for new test cases or QA checklist items.'),
 });
-export type AgentQaOutput = z.infer<typeof AgentQaOutputSchema>;
 
-export async function agentQA(input: AgentQaInput): Promise<AgentQaOutput> {
+export async function agentQA(input: AgentQaInput): Promise<void> {
     const prompt = ai.definePrompt({
         name: 'agentQaPrompt',
         input: {schema: AgentQaInputSchema},
@@ -45,5 +44,21 @@ export async function agentQA(input: AgentQaInput): Promise<AgentQaOutput> {
     });
     
     const {output} = await prompt(input);
-    return output!;
+    if (!output) {
+      throw new Error("Agent did not produce an output.");
+    }
+
+    let component = "Unknown Component";
+    try {
+        const qaData = JSON.parse(input.qaData);
+        component = qaData.component || component;
+    } catch(e) {
+        console.error("Could not parse qaData JSON");
+    }
+
+    await addRecommendation({
+        agent: "QA",
+        component: output.highErrorRateComponents[0] || component,
+        recommendation: `${output.validationSuggestions}. Consider adding these tests: ${output.testRecommendations}`
+    });
 }

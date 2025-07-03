@@ -1,8 +1,23 @@
-"use client";
+'use client';
 
+import { useEffect, useState } from 'react';
+import { collection, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { PageHeader } from "@/components/page-header";
 import { AgentCard } from "./agent-card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Palette, MessageSquareText, ShieldAlert, Briefcase } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+
 import { agentDesign } from "@/ai/flows/agent-design";
 import { agentContent } from "@/ai/flows/agent-content";
 import { agentQA } from "@/ai/flows/agent-qa";
@@ -11,7 +26,7 @@ import { agentBusiness } from "@/ai/flows/agent-business";
 const agents = [
   {
     title: "EMI.Agent.Design",
-    description: "Analyze token values, visual properties, and accessibility metrics.",
+    description: "Analyze component usage for contrast and accessibility.",
     icon: Palette,
     flow: agentDesign,
     formFields: [{ name: "componentUsage", label: "Component Usage Data (JSON)" }],
@@ -19,19 +34,17 @@ const agents = [
       componentId: "button-primary",
       token_color: "#8B8B8B",
       contrast_ratio: 2.1,
-      accessibility: { contrastRatio: 2.1 }
     }, null, 2),
   },
   {
     title: "EMI.Agent.Content",
-    description: "Analyze UX writing, microcopy issues, and tone consistency.",
+    description: "Analyze user feedback for unclear microcopy.",
     icon: MessageSquareText,
     flow: agentContent,
     formFields: [
         { name: "uiText", label: "UI Text" },
-        { name: "userFeedback", label: "User Feedback (Optional)" }
+        { name: "userFeedback", label: "User Feedback" }
     ],
-    placeholder: "Your password must contain at least 8 characters.",
     initialValues: {
       uiText: "Your password must contain at least 8 characters.",
       userFeedback: "This password instruction is confusing, I don't understand what is required.",
@@ -39,53 +52,138 @@ const agents = [
   },
   {
     title: "EMI.Agent.QA",
-    description: "Identify patterns of usability failures or interaction bugs.",
+    description: "Analyze UI analytics for high error rates.",
     icon: ShieldAlert,
     flow: agentQA,
     formFields: [{ name: "qaData", label: "QA Data (JSON)" }],
     placeholder: JSON.stringify({
       component: "checkout-form",
       error_rate: 42,
-      error_type: "form_failure",
       users_affected: 89
     }, null, 2),
   },
   {
     title: "EMI.Agent.Business",
-    description: "Correlate component usage with business KPIs.",
+    description: "Analyze KPI data for business impact.",
     icon: Briefcase,
     flow: agentBusiness,
     formFields: [{ name: "kpiData", label: "KPI Data (JSON)" }],
     placeholder: JSON.stringify({
       componentId: "add-to-cart-button",
-      conversionRate: "1.2%",
       impact: "negative",
-      relatedKpi: "sales"
+      relatedKpi: "sales-conversion"
     }, null, 2),
   },
 ];
 
+interface Recommendation {
+    id: string;
+    agent: "Design" | "Content" | "QA" | "Business";
+    component: string;
+    recommendation: string;
+    figmaPrompt?: string;
+    timestamp: Timestamp;
+}
+
 export default function AgentPage() {
-  return (
-    <div>
-      <PageHeader
-        title="EMI.Agent Suite"
-        description="Trigger AI agents to analyze and improve your design system."
-      />
-      <div className="grid gap-6 md:grid-cols-2">
-        {agents.map((agent) => (
-          <AgentCard
-            key={agent.title}
-            title={agent.title}
-            description={agent.description}
-            icon={agent.icon}
-            flow={agent.flow}
-            formFields={agent.formFields}
-            placeholder={agent.placeholder}
-            initialValues={agent.initialValues}
-          />
-        ))}
-      </div>
-    </div>
-  );
+    const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const q = query(collection(db, "recommendations"), orderBy("timestamp", "desc"));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const newRecommendations: Recommendation[] = [];
+            querySnapshot.forEach((doc) => {
+                newRecommendations.push({ id: doc.id, ...doc.data() } as Recommendation);
+            });
+            setRecommendations(newRecommendations);
+            setIsLoading(false);
+        }, (error) => {
+            console.error("Error fetching recommendations: ", error);
+            setIsLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const getBadgeVariant = (agent: Recommendation['agent']) => {
+        switch (agent) {
+            case 'Design': return 'default';
+            case 'Content': return 'secondary';
+            case 'QA': return 'destructive';
+            case 'Business': return 'outline';
+            default: return 'default';
+        }
+    };
+
+    return (
+        <div>
+            <PageHeader
+                title="EMI.Agent Suite"
+                description="Trigger AI agents and view their real-time recommendations."
+            />
+            <div className="grid gap-6 md:grid-cols-2 mb-8">
+                {agents.map((agent) => (
+                    <AgentCard
+                        key={agent.title}
+                        title={agent.title}
+                        description={agent.description}
+                        icon={agent.icon}
+                        flow={agent.flow}
+                        formFields={agent.formFields}
+                        placeholder={agent.placeholder}
+                        initialValues={agent.initialValues}
+                    />
+                ))}
+            </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Agent Recommendations Log</CardTitle>
+                    <CardDescription>
+                        Real-time log of insights generated by the EMI.Agent Suite.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[120px]">Agent</TableHead>
+                                <TableHead className="w-[180px]">Component</TableHead>
+                                <TableHead>Recommendation</TableHead>
+                                <TableHead className="w-[180px]">Timestamp</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading ? (
+                                Array.from({ length: 3 }).map((_, i) => (
+                                    <TableRow key={i}>
+                                        <TableCell><Skeleton className="h-6 w-[100px]" /></TableCell>
+                                        <TableCell><Skeleton className="h-6 w-[150px]" /></TableCell>
+                                        <TableCell><Skeleton className="h-6 w-full" /></TableCell>
+                                        <TableCell><Skeleton className="h-6 w-[150px]" /></TableCell>
+                                    </TableRow>
+                                ))
+                            ) : recommendations.length > 0 ? (
+                                recommendations.map((rec) => (
+                                    <TableRow key={rec.id}>
+                                        <TableCell><Badge variant={getBadgeVariant(rec.agent)}>{rec.agent}</Badge></TableCell>
+                                        <TableCell className="font-medium">{rec.component}</TableCell>
+                                        <TableCell className="text-muted-foreground whitespace-pre-wrap">{rec.recommendation}</TableCell>
+                                        <TableCell>{rec.timestamp?.toDate().toLocaleString()}</TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={4} className="h-24 text-center">
+                                        No recommendations yet. Run an agent to get started.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </div>
+    );
 }
