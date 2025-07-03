@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Card,
   CardContent,
@@ -37,13 +39,7 @@ const kpis = [
   },
 ];
 
-export default function DashboardPage({
-  params,
-  searchParams,
-}: {
-  params: {};
-  searchParams: {};
-}) {
+export default function DashboardPage() {
   return (
     <div>
       <PageHeader
