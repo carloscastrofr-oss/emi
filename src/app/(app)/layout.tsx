@@ -10,6 +10,7 @@ import {
   Package,
   PanelLeft,
   Settings,
+  Bot,
 } from "lucide-react";
 
 import {
@@ -41,6 +42,7 @@ const navItems = [
   { href: "/kit", icon: Package, label: "EMI.Kit" },
   { href: "/labs", icon: FlaskConical, label: "EMI.Labs" },
   { href: "/workbench", icon: KanbanSquare, label: "EMI.Workbench" },
+  { href: "/agent", icon: Bot, label: "EMI.Agent" },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
