@@ -13,26 +13,26 @@ import { Download } from "lucide-react";
 
 const kits = [
   {
-    title: "Core Component Kit",
-    description: "The essential set of UI components for any new project.",
+    title: "Kit de Componentes Principales",
+    description: "El conjunto esencial de componentes de UI para cualquier proyecto nuevo.",
     image: "https://placehold.co/600x400.png",
     hint: "abstract geometric"
   },
   {
-    title: "Token Starter Pack",
-    description: "Design tokens for colors, typography, and spacing.",
+    title: "Paquete de Inicio de Tokens",
+    description: "Tokens de diseño para colores, tipografía y espaciado.",
     image: "https://placehold.co/600x400.png",
     hint: "vibrant colors"
   },
   {
-    title: "E-commerce UI Kit",
-    description: "Components tailored for online retail experiences.",
+    title: "Kit de UI para E-commerce",
+    description: "Componentes diseñados para experiencias de venta en línea.",
     image: "https://placehold.co/600x400.png",
     hint: "shopping cart"
   },
   {
-    title: "SaaS Dashboard Kit",
-    description: "A complete kit for building data-driven dashboards.",
+    title: "Kit de Panel para SaaS",
+    description: "Un kit completo para construir paneles de control basados en datos.",
     image: "https://placehold.co/600x400.png",
     hint: "dashboard interface"
   },
@@ -43,7 +43,7 @@ export default function KitPage() {
     <div>
       <PageHeader
         title="EMI.Kit"
-        description="Download starter kits to bootstrap your projects."
+        description="Descarga kits de inicio para arrancar tus proyectos."
       />
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {kits.map((kit) => (
@@ -67,7 +67,7 @@ export default function KitPage() {
             <CardFooter>
               <Button className="w-full">
                 <Download className="mr-2 h-4 w-4" />
-                Download
+                Descargar
               </Button>
             </CardFooter>
           </Card>

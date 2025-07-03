@@ -17,18 +17,18 @@ export default function OnboardingPage() {
        <Card className="w-full max-w-md">
         <CardHeader className="items-center text-center">
             <Logo />
-            <CardTitle className="mt-4 text-2xl">Welcome to DesignOS</CardTitle>
-            <CardDescription>Your AI-powered design system toolkit.</CardDescription>
+            <CardTitle className="mt-4 text-2xl">Bienvenido a DesignOS</CardTitle>
+            <CardDescription>Tu kit de herramientas para sistemas de diseño impulsado por IA.</CardDescription>
         </CardHeader>
         <CardContent>
             <p className="text-center text-muted-foreground">
-                This guided tour will adapt to your role (Designer, Developer, or PM) to help you get the most out of DesignOS.
+                Este tour guiado se adaptará a tu rol (Diseñador, Desarrollador o PM) para ayudarte a aprovechar al máximo DesignOS.
             </p>
         </CardContent>
         <CardFooter>
             <Button asChild className="w-full">
                 <Link href="/dashboard">
-                    Start Onboarding <ArrowRight className="ml-2 h-4 w-4" />
+                    Comenzar Tour <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
             </Button>
         </CardFooter>

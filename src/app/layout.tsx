@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "DesignOS: AI Design System Toolkit",
-  description: "A modular AI-enhanced design system toolkit by EMI.Agent Suite.",
+  title: "DesignOS: Herramientas de Sistema de Diseño con IA",
+  description: "Un kit de herramientas modular para sistemas de diseño mejorado con IA por EMI.Agent Suite.",
 };
 
 export default function RootLayout({
@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="es" className="dark" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

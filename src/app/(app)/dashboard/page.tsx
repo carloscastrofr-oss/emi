@@ -12,27 +12,27 @@ import { UsageChart } from "./usage-chart";
 
 const kpis = [
   {
-    title: "Component Adoption",
+    title: "Adopción de Componentes",
     value: "82%",
-    change: "+5.2% from last month",
+    change: "+5.2% desde el mes pasado",
     icon: Package,
   },
   {
-    title: "Token Usage",
+    title: "Uso de Tokens",
     value: "95%",
-    change: "+1.0% from last month",
+    change: "+1.0% desde el mes pasado",
     icon: TrendingUp,
   },
   {
-    title: "Accessibility Issues",
+    title: "Problemas de Accesibilidad",
     value: "12",
-    change: "-3 from last week",
+    change: "-3 desde la semana pasada",
     icon: AlertTriangle,
   },
   {
-    title: "Estimated ROI",
+    title: "ROI Estimado",
     value: "$120,500",
-    change: "+$15k this quarter",
+    change: "+$15k este trimestre",
     icon: DollarSign,
   },
 ];
@@ -41,8 +41,8 @@ export default function DashboardPage() {
   return (
     <div>
       <PageHeader
-        title="EMI.Metrics"
-        description="Key performance indicators for your design system."
+        title="EMI.Métricas"
+        description="Indicadores clave de rendimiento para tu sistema de diseño."
       />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {kpis.map((kpi) => (
@@ -61,9 +61,9 @@ export default function DashboardPage() {
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Component Adoption Rate</CardTitle>
+            <CardTitle>Tasa de Adopción de Componentes</CardTitle>
             <CardDescription>
-              Percentage of projects using core components.
+              Porcentaje de proyectos que usan componentes principales.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -72,9 +72,9 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Token Usage Frequency</CardTitle>
+            <CardTitle>Frecuencia de Uso de Tokens</CardTitle>
             <CardDescription>
-              Usage of design tokens over the last 6 months.
+              Uso de tokens de diseño en los últimos 6 meses.
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -11,18 +11,18 @@ import { ThumbsUp, ThumbsDown } from "lucide-react";
 
 const proposals = [
   {
-    title: "New Token: --color-brand-secondary",
-    description: "Proposal to add a new secondary brand color for marketing materials.",
+    title: "Nuevo Token: --color-brand-secondary",
+    description: "Propuesta para añadir un nuevo color secundario de marca para materiales de marketing.",
     votes: 23,
   },
   {
-    title: "New Component: Stepper",
-    description: "A multi-step progress indicator for forms and onboarding flows.",
+    title: "Nuevo Componente: Stepper",
+    description: "Un indicador de progreso de varios pasos para formularios y flujos de bienvenida.",
     votes: 15,
   },
   {
-    title: "Deprecate: Old 'Grid' component",
-    description: "Proposing to deprecate the legacy Grid component in favor of the new Flex layout utilities.",
+    title: "Obsoleto: Antiguo componente 'Grid'",
+    description: "Se propone declarar obsoleto el componente Grid heredado en favor de las nuevas utilidades de layout Flex.",
     votes: 8,
   },
 ];
@@ -32,8 +32,8 @@ export function VotingTab() {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-            <CardTitle>Proposals</CardTitle>
-            <CardDescription>Vote on new components, tokens, and other changes to the design system.</CardDescription>
+            <CardTitle>Propuestas</CardTitle>
+            <CardDescription>Vota sobre nuevos componentes, tokens y otros cambios al sistema de diseño.</CardDescription>
         </CardHeader>
       </Card>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -45,14 +45,14 @@ export function VotingTab() {
             </CardHeader>
             <CardContent className="flex-grow flex items-end">
                 <div className="text-3xl font-bold">{proposal.votes}</div>
-                <div className="ml-2 text-muted-foreground">Votes</div>
+                <div className="ml-2 text-muted-foreground">Votos</div>
             </CardContent>
             <CardFooter className="gap-2">
               <Button variant="outline" className="w-full">
-                <ThumbsUp className="mr-2 h-4 w-4" /> Upvote
+                <ThumbsUp className="mr-2 h-4 w-4" /> Votar a favor
               </Button>
               <Button variant="outline" className="w-full">
-                <ThumbsDown className="mr-2 h-4 w-4" /> Downvote
+                <ThumbsDown className="mr-2 h-4 w-4" /> Votar en contra
               </Button>
             </CardFooter>
           </Card>

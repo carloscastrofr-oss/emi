@@ -7,7 +7,7 @@ export default function LabsPage() {
     <div>
       <PageHeader
         title="EMI.Labs"
-        description="Experiment with AI to generate new component ideas."
+        description="Experimenta con IA para generar nuevas ideas de componentes."
       />
       <div className="mx-auto max-w-2xl">
         <div className="mb-8 flex items-center justify-center">

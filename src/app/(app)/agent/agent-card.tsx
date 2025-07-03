@@ -43,14 +43,14 @@ export function AgentCard({ title, description, icon: Icon, flow, formFields, pl
     try {
       await flow(values);
       toast({
-        title: "Agent Run Successfully",
-        description: `The ${title} has generated a new recommendation.`,
+        title: "Agente Ejecutado Exitosamente",
+        description: `El agente ${title} ha generado una nueva recomendación.`,
       });
     } catch (error) {
       console.error(error);
       toast({
         title: "Error",
-        description: `Failed to run ${title}. Please check the console for details.`,
+        description: `Falló la ejecución de ${title}. Revisa la consola para más detalles.`,
         variant: "destructive",
       });
     } finally {
@@ -82,7 +82,7 @@ export function AgentCard({ title, description, icon: Icon, flow, formFields, pl
                     <FormLabel>{field.label}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder={`Provide ${field.label}`}
+                        placeholder={`Proporciona ${field.label.toLowerCase()}`}
                         className="min-h-[120px] font-mono text-xs"
                         {...formField}
                       />
@@ -98,7 +98,7 @@ export function AgentCard({ title, description, icon: Icon, flow, formFields, pl
               ) : (
                 <Bot className="mr-2 h-4 w-4" />
               )}
-              Run Agent
+              Ejecutar Agente
             </Button>
           </form>
         </Form>

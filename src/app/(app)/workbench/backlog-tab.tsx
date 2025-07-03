@@ -18,39 +18,39 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const backlogItems = [
   {
-    task: "Create new DatePicker component",
-    status: "In Progress",
-    priority: "High",
+    task: "Crear nuevo componente DatePicker",
+    status: "En Progreso",
+    priority: "Alta",
     assignee: "Alex",
     avatar: "https://placehold.co/40x40.png"
   },
   {
-    task: "Update primary button style",
-    status: "To Do",
-    priority: "Medium",
+    task: "Actualizar estilo del botón primario",
+    status: "Pendiente",
+    priority: "Media",
     assignee: "Sam",
     avatar: "https://placehold.co/40x40.png"
   },
   {
-    task: "Add accessibility documentation",
-    status: "Done",
-    priority: "Low",
+    task: "Añadir documentación de accesibilidad",
+    status: "Hecho",
+    priority: "Baja",
     assignee: "Jordan",
     avatar: "https://placehold.co/40x40.png"
   },
   {
-    task: "Refactor Card component API",
-    status: "In Review",
-    priority: "High",
+    task: "Refactorizar API del componente Card",
+    status: "En Revisión",
+    priority: "Alta",
     assignee: "Taylor",
     avatar: "https://placehold.co/40x40.png"
   },
 ];
 
 const priorityVariant: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
-    High: "destructive",
-    Medium: "secondary",
-    Low: "outline"
+    Alta: "destructive",
+    Media: "secondary",
+    Baja: "outline"
 }
 
 
@@ -58,17 +58,17 @@ export function BacklogTab() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Design System Backlog</CardTitle>
-        <CardDescription>Tasks and improvements for the current sprint.</CardDescription>
+        <CardTitle>Backlog del Sistema de Diseño</CardTitle>
+        <CardDescription>Tareas y mejoras para el sprint actual.</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Task</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Priority</TableHead>
-              <TableHead>Assignee</TableHead>
+              <TableHead>Tarea</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>Prioridad</TableHead>
+              <TableHead>Asignado a</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -76,7 +76,7 @@ export function BacklogTab() {
               <TableRow key={item.task}>
                 <TableCell className="font-medium">{item.task}</TableCell>
                 <TableCell>
-                    <Badge variant={item.status === 'Done' ? 'default' : 'secondary'} className={item.status === 'Done' ? 'bg-green-600' : ''}>{item.status}</Badge>
+                    <Badge variant={item.status === 'Hecho' ? 'default' : 'secondary'} className={item.status === 'Hecho' ? 'bg-green-600' : ''}>{item.status}</Badge>
                 </TableCell>
                 <TableCell>
                     <Badge variant={priorityVariant[item.priority]}>{item.priority}</Badge>

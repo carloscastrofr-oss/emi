@@ -22,7 +22,7 @@ import { Wand2, Loader2, Sparkles } from "lucide-react";
 
 const formSchema = z.object({
   prompt: z.string().min(10, {
-    message: "Prompt must be at least 10 characters.",
+    message: "El prompt debe tener al menos 10 caracteres.",
   }),
 });
 
@@ -48,7 +48,7 @@ export function LabsForm() {
       console.error(error);
       toast({
         title: "Error",
-        description: "Failed to generate ideas. Please try again.",
+        description: "No se pudieron generar ideas. Por favor, inténtalo de nuevo.",
         variant: "destructive",
       });
     } finally {
@@ -65,10 +65,10 @@ export function LabsForm() {
             name="prompt"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Component Prompt</FormLabel>
+                <FormLabel>Prompt para Componente</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="e.g., A responsive pricing table with a toggle for monthly/annual plans"
+                    placeholder="Ej: Una tabla de precios responsiva con un selector para planes mensuales/anuales"
                     className="min-h-[100px]"
                     {...field}
                   />
@@ -83,7 +83,7 @@ export function LabsForm() {
             ) : (
               <Wand2 className="mr-2 h-4 w-4" />
             )}
-            Generate Ideas
+            Generar Ideas
           </Button>
         </form>
       </Form>
@@ -93,7 +93,7 @@ export function LabsForm() {
           <CardContent className="p-6">
             <h3 className="mb-4 flex items-center text-lg font-semibold">
               <Sparkles className="mr-2 h-5 w-5 text-accent" />
-              Generated Ideas
+              Ideas Generadas
             </h3>
             <ul className="list-inside list-disc space-y-2 text-muted-foreground">
               {ideas.map((idea, index) => (

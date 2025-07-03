@@ -12,26 +12,26 @@ const changelog = [
     version: "v2.1.0",
     date: "2024-05-15",
     changes: [
-      { type: "Added", text: "New 'AvatarGroup' component." },
-      { type: "Fixed", text: "Improved responsive behavior of 'Table' component." },
-      { type: "Improved", text: "Updated focus styles for better accessibility." },
+      { type: "Añadido", text: "Nuevo componente 'AvatarGroup'." },
+      { type: "Corregido", text: "Comportamiento responsivo mejorado del componente 'Table'." },
+      { type: "Mejorado", text: "Estilos de foco actualizados para mejor accesibilidad." },
     ],
   },
   {
     version: "v2.0.0",
     date: "2024-04-20",
     changes: [
-      { type: "Breaking", text: "Overhauled the entire color token system." },
-      { type: "Added", text: "Dark mode support across all components." },
-      { type: "Improved", text: "Performance improvements for the 'Select' component." },
+      { type: "Breaking", text: "Se ha revisado todo el sistema de tokens de color." },
+      { type: "Añadido", text: "Soporte para modo oscuro en todos los componentes." },
+      { type: "Mejorado", text: "Mejoras de rendimiento para el componente 'Select'." },
     ],
   },
 ];
 
 const badgeVariant : {[key:string]: "default" | "secondary" | "destructive" | "outline"} = {
-    Added: "default",
-    Fixed: "secondary",
-    Improved: "outline",
+    Añadido: "default",
+    Corregido: "secondary",
+    Mejorado: "outline",
     Breaking: "destructive",
 }
 
@@ -39,8 +39,8 @@ export function ChangelogTab() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Changelog</CardTitle>
-        <CardDescription>Release notes and updates for the design system.</CardDescription>
+        <CardTitle>Historial de Cambios</CardTitle>
+        <CardDescription>Notas de lanzamiento y actualizaciones para el sistema de diseño.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-8">

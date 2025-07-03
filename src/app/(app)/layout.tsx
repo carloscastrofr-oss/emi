@@ -38,7 +38,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/dashboard", icon: LayoutDashboard, label: "Panel" },
   { href: "/kit", icon: Package, label: "EMI.Kit" },
   { href: "/labs", icon: FlaskConical, label: "EMI.Labs" },
   { href: "/workbench", icon: KanbanSquare, label: "EMI.Workbench" },
@@ -79,14 +79,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   <SidebarMenuButton asChild className="w-full justify-start">
                     <Link href="/onboarding">
                       <BookUser className="mr-2 h-5 w-5" />
-                      <span>Onboarding</span>
+                      <span>Inducción</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton className="w-full justify-start">
                     <Settings className="mr-2 h-5 w-5" />
-                    <span>Settings</span>
+                    <span>Configuración</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
@@ -120,17 +120,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">User</p>
+                    <p className="text-sm font-medium leading-none">Usuario</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      user@example.com
+                      usuario@example.com
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuItem>Perfil</DropdownMenuItem>
+                <DropdownMenuItem>Configuración</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Log out</DropdownMenuItem>
+                <DropdownMenuItem>Cerrar sesión</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </header>

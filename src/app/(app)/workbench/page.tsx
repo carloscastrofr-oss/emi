@@ -9,13 +9,13 @@ export default function WorkbenchPage() {
     <div>
       <PageHeader
         title="EMI.Workbench"
-        description="Govern your design system with collaborative tools."
+        description="Gobierna tu sistema de diseño con herramientas colaborativas."
       />
       <Tabs defaultValue="backlog" className="w-full">
         <TabsList>
-          <TabsTrigger value="backlog">DS Backlog</TabsTrigger>
-          <TabsTrigger value="voting">Voting</TabsTrigger>
-          <TabsTrigger value="changelog">Changelog</TabsTrigger>
+          <TabsTrigger value="backlog">Backlog del DS</TabsTrigger>
+          <TabsTrigger value="voting">Votación</TabsTrigger>
+          <TabsTrigger value="changelog">Historial de Cambios</TabsTrigger>
         </TabsList>
         <TabsContent value="backlog">
           <BacklogTab />
