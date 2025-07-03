@@ -9,14 +9,14 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const AgentBusinessInputSchema = z.object({
+const AgentBusinessInputSchema = z.object({
   kpiData: z
     .string()
     .describe('JSON data correlating component usage with business KPIs like conversion and retention.'),
 });
 export type AgentBusinessInput = z.infer<typeof AgentBusinessInputSchema>;
 
-export const AgentBusinessOutputSchema = z.object({
+const AgentBusinessOutputSchema = z.object({
   roiEstimate: z.string().describe('An estimated Return on Investment (ROI) of using or reusing a specific component.'),
   refactorPriority: z.string().describe('A suggested priority level (e.g., High, Medium, Low) for refactoring the component.'),
   businessRisk: z.string().describe('An assessment of business risk from inconsistent or underperforming design system elements.'),

@@ -9,14 +9,14 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const AgentQaInputSchema = z.object({
+const AgentQaInputSchema = z.object({
   errorEvents: z
     .string()
     .describe('JSON data representing UI error events, like `ui_error` or `form_failure`.'),
 });
 export type AgentQaInput = z.infer<typeof AgentQaInputSchema>;
 
-export const AgentQaOutputSchema = z.object({
+const AgentQaOutputSchema = z.object({
   highErrorRateComponents: z.array(z.string()).describe('A list of component names flagged for high error rates.'),
   validationSuggestions: z.string().describe('Suggestions for real-time validation or structural fixes to prevent errors.'),
   testRecommendations: z.string().describe('Recommendations for new test cases or QA checklist items.'),

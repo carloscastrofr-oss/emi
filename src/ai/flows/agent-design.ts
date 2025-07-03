@@ -9,14 +9,14 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const AgentDesignInputSchema = z.object({
+const AgentDesignInputSchema = z.object({
   componentUsage: z
     .string()
     .describe('JSON data representing component usage, including token values, visual properties, and accessibility metrics.'),
 });
 export type AgentDesignInput = z.infer<typeof AgentDesignInputSchema>;
 
-export const AgentDesignOutputSchema = z.object({
+const AgentDesignOutputSchema = z.object({
   contrastScore: z.string().describe('The calculated contrast score of the component.'),
   designTokenSuggestions: z.object({
     colors: z.array(z.string()).describe('Suggested new color tokens.'),

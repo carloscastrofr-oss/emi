@@ -9,13 +9,13 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const AgentContentInputSchema = z.object({
+const AgentContentInputSchema = z.object({
   uiText: z.string().describe('Current UI text to be analyzed (e.g., labels, placeholders, error messages).'),
   userFeedback: z.string().optional().describe('User feedback from a feedback collection.'),
 });
 export type AgentContentInput = z.infer<typeof AgentContentInputSchema>;
 
-export const AgentContentOutputSchema = z.object({
+const AgentContentOutputSchema = z.object({
   rewriteProposals: z.array(z.object({
     original: z.string(),
     suggestion: z.string(),
