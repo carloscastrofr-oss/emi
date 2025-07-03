@@ -16,16 +16,19 @@ interface AgentCardProps {
   flow: (input: any) => Promise<any>;
   formFields: { name: string; label: string }[];
   placeholder?: string;
+  initialValues?: Record<string, string>;
 }
 
-export function AgentCard({ title, description, icon: Icon, flow, formFields, placeholder }: AgentCardProps) {
+export function AgentCard({ title, description, icon: Icon, flow, formFields, placeholder, initialValues }: AgentCardProps) {
   const [result, setResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const defaultValues = formFields.reduce((acc, field) => {
-    if (field.name === formFields[0].name) {
-        acc[field.name] = placeholder || "";
+    if (initialValues && initialValues[field.name]) {
+      acc[field.name] = initialValues[field.name];
+    } else if (field.name === formFields[0].name) {
+      acc[field.name] = placeholder || "";
     } else {
         acc[field.name] = "";
     }

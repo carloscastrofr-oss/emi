@@ -10,7 +10,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const AgentQaInputSchema = z.object({
-  errorEvents: z
+  qaData: z
     .string()
     .describe('JSON data representing UI error events, like `ui_error` or `form_failure`.'),
 });
@@ -28,17 +28,17 @@ export async function agentQA(input: AgentQaInput): Promise<AgentQaOutput> {
         name: 'agentQaPrompt',
         input: {schema: AgentQaInputSchema},
         output: {schema: AgentQaOutputSchema},
-        prompt: `You are EMI.Agent.QA, a quality assurance expert. Analyze the provided UI error event data.
+        prompt: `You are EMI.Agent.QA, a quality assurance expert. Analyze the provided UI QA data.
 
-        Error Events Data:
+        QA Data:
         \`\`\`json
-        {{{errorEvents}}}
+        {{{qaData}}}
         \`\`\`
 
         Your tasks are:
-        1. Identify patterns of usability failures or interaction bugs.
-        2. Flag components that have a high error rate.
-        3. Suggest improvements to validation logic or component structure to fix these issues.
+        1. If the error_rate is above 30%, suggest real-time validation or structural fixes.
+        2. Identify patterns of usability failures or interaction bugs.
+        3. Flag components that have a high error rate.
         4. Recommend new test cases or items to add to a QA checklist.
 
         Provide the output in the specified JSON format.`,

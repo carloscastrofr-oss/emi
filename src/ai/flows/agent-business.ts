@@ -36,9 +36,10 @@ export async function agentBusiness(input: AgentBusinessInput): Promise<AgentBus
         \`\`\`
 
         Your tasks are:
-        1. Estimate the ROI of using/reusing the component.
-        2. Suggest a priority level for refactoring the component based on its business impact.
-        3. Indicate the business risk associated with this component or inconsistent design system elements.
+        1. If the 'impact' is negative, suggest revising the layout or messaging.
+        2. Estimate the ROI of using/reusing the component.
+        3. Suggest a priority level for refactoring the component based on its business impact.
+        4. Indicate the business risk associated with this component or inconsistent design system elements.
 
         Provide the output in the specified JSON format.`,
     });

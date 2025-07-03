@@ -42,10 +42,10 @@ export async function agentDesign(input: AgentDesignInput): Promise<AgentDesignO
 
     Your tasks are:
     1.  Analyze token values, visual properties, and accessibility metrics.
-    2.  Provide a component contrast score analysis.
+    2.  If the contrast_ratio is less than 4.5, suggest a better color.
     3.  Suggest updated design tokens (colors, spacing, typography).
     4.  Suggest layout or responsiveness improvements.
-    5.  Generate a detailed prompt for Figma to create an improved version of the component.
+    5.  Generate a detailed prompt for Figma to create an improved version of the component based on the findings.
 
     Provide the output in the specified JSON format.`,
   });

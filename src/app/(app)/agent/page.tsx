@@ -17,9 +17,9 @@ const agents = [
     formFields: [{ name: "componentUsage", label: "Component Usage Data (JSON)" }],
     placeholder: JSON.stringify({
       componentId: "button-primary",
-      tokenValues: { color: "#455ADE", padding: "12px 24px" },
-      visualProperties: { borderRadius: "8px" },
-      accessibility: { contrastRatio: 3.5 }
+      token_color: "#8B8B8B",
+      contrast_ratio: 2.1,
+      accessibility: { contrastRatio: 2.1 }
     }, null, 2),
   },
   {
@@ -32,17 +32,21 @@ const agents = [
         { name: "userFeedback", label: "User Feedback (Optional)" }
     ],
     placeholder: "Your password must contain at least 8 characters.",
+    initialValues: {
+      uiText: "Your password must contain at least 8 characters.",
+      userFeedback: "This password instruction is confusing, I don't understand what is required.",
+    }
   },
   {
     title: "EMI.Agent.QA",
     description: "Identify patterns of usability failures or interaction bugs.",
     icon: ShieldAlert,
     flow: agentQA,
-    formFields: [{ name: "errorEvents", label: "Error Events (JSON)" }],
+    formFields: [{ name: "qaData", label: "QA Data (JSON)" }],
     placeholder: JSON.stringify({
       component: "checkout-form",
+      error_rate: 42,
       error_type: "form_failure",
-      count: 152,
       users_affected: 89
     }, null, 2),
   },
@@ -54,8 +58,8 @@ const agents = [
     formFields: [{ name: "kpiData", label: "KPI Data (JSON)" }],
     placeholder: JSON.stringify({
       componentId: "add-to-cart-button",
-      usage: 12000,
-      conversionRate: "2.5%",
+      conversionRate: "1.2%",
+      impact: "negative",
       relatedKpi: "sales"
     }, null, 2),
   },
@@ -78,6 +82,7 @@ export default function AgentPage() {
             flow={agent.flow}
             formFields={agent.formFields}
             placeholder={agent.placeholder}
+            initialValues={agent.initialValues}
           />
         ))}
       </div>

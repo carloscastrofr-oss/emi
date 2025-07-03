@@ -39,7 +39,7 @@ export async function agentContent(input: AgentContentInput): Promise<AgentConte
         {{/if}}
 
         Your tasks are:
-        1. Analyze the text for clarity, conciseness, and brand voice.
+        1. If the user feedback contains words like "confusing" or "don't understand", suggest a microcopy improvement.
         2. Propose rewrites for any problematic text. For each, provide the original, the suggestion, and reasoning.
         3. Analyze the tone and provide feedback.
         4. Offer accessibility hints to improve the user experience.
