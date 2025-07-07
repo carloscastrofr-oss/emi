@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
@@ -45,6 +46,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // If firebase config is not valid, app will be an empty object, so we check one of its properties
+    if (!app.options?.apiKey) {
+      console.warn("Firebase not initialized, using mock user. All gated features will be available.");
+      // Set a default mock user profile for UI to render correctly without auth
+      setUserProfile({
+          uid: 'mock-user',
+          email: 'usuario@example.com',
+          displayName: 'Usuario de Muestra',
+          role: 'admin' // Give admin role so all UI is visible for development
+      });
+      setLoading(false);
+      return;
+    }
+
     const auth = getAuth(app);
     
     const unsubscribeAuth = onAuthStateChanged(auth, (authUser) => {
