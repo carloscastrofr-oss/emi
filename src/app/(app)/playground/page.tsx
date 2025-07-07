@@ -6,7 +6,7 @@ export default function PlaygroundPage() {
   return (
     <div>
       <PageHeader
-        title="EMI.Playground"
+        title="Playground"
         description="Experimenta con tokens de diseño y temas en tiempo real."
       />
       <Card className="rounded-expressive">

@@ -28,7 +28,7 @@ export async function agentBusiness(input: AgentBusinessInput): Promise<void> {
         name: 'agentBusinessPrompt',
         input: {schema: AgentBusinessInputSchema},
         output: {schema: AgentBusinessOutputSchema},
-        prompt: `You are EMI.Agent.Business, a business analyst specializing in design systems. Analyze the provided data correlating component usage with business KPIs.
+        prompt: `You are a business analyst AI agent specializing in design systems. Analyze the provided data correlating component usage with business KPIs.
 
         KPI Data:
         \`\`\`json

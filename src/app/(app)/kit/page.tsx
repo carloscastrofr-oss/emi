@@ -56,7 +56,7 @@ export default function KitPage({
   return (
     <div>
       <PageHeader
-        title="EMI.Kit"
+        title="Kit"
         description="Descarga kits de inicio para arrancar tus proyectos."
       />
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

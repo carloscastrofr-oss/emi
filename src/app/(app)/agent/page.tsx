@@ -26,7 +26,7 @@ import { agentBusiness } from "@/ai/flows/agent-business";
 
 const agents = [
   {
-    title: "EMI.Agent.Diseño",
+    title: "Agente de Diseño",
     description: "Analiza el uso de componentes para contraste y accesibilidad.",
     icon: Palette,
     flow: agentDesign,
@@ -38,7 +38,7 @@ const agents = [
     }, null, 2),
   },
   {
-    title: "EMI.Agent.Contenido",
+    title: "Agente de Contenido",
     description: "Analiza el feedback de usuarios en busca de microcopy poco claro.",
     icon: MessageSquareText,
     flow: agentContent,
@@ -52,7 +52,7 @@ const agents = [
     }
   },
   {
-    title: "EMI.Agent.QA",
+    title: "Agente de QA",
     description: "Analiza las analíticas de UI en busca de altas tasas de error.",
     icon: ShieldAlert,
     flow: agentQA,
@@ -64,7 +64,7 @@ const agents = [
     }, null, 2),
   },
   {
-    title: "EMI.Agent.Negocio",
+    title: "Agente de Negocio",
     description: "Analiza datos de KPI para ver el impacto en el negocio.",
     icon: Briefcase,
     flow: agentBusiness,
@@ -139,7 +139,7 @@ export default function AgentPage({
     return (
         <div>
             <PageHeader
-                title="Suite EMI.Agent"
+                title="Suite de Agentes"
                 description="Activa agentes de IA y ve sus recomendaciones en tiempo real."
             />
             <div className="grid gap-6 md:grid-cols-2 mb-8">
@@ -161,7 +161,7 @@ export default function AgentPage({
                 <CardHeader>
                     <CardTitle>Registro de Recomendaciones de Agentes</CardTitle>
                     <CardDescription>
-                        Registro en tiempo real de ideas generadas por la Suite EMI.Agent.
+                        Registro en tiempo real de ideas generadas por la Suite de Agentes.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>

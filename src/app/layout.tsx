@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "DesignOS: Herramientas de Sistema de Diseño con IA",
-  description: "Un kit de herramientas modular para sistemas de diseño mejorado con IA por EMI.Agent Suite.",
+  title: "EMI Design OS: Herramientas de Sistema de Diseño con IA",
+  description: "Un kit de herramientas modular para sistemas de diseño impulsado por IA.",
 };
 
 export default function RootLayout({

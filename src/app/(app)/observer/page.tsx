@@ -6,7 +6,7 @@ export default function ObserverPage() {
   return (
     <div>
       <PageHeader
-        title="EMI.Observer"
+        title="Observer"
         description="Visualiza la interacción del usuario y la adopción de componentes."
       />
       <Card className="rounded-expressive">

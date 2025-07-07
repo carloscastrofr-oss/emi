@@ -13,7 +13,7 @@ export default function WorkbenchPage({
   return (
     <div>
       <PageHeader
-        title="EMI.Workbench"
+        title="Workbench"
         description="Gobierna tu sistema de diseño con herramientas colaborativas."
       />
       <Tabs defaultValue="backlog" className="w-full">

@@ -40,7 +40,7 @@ export default function ChangelogPage() {
   return (
     <div>
       <PageHeader
-        title="EMI.Changelog"
+        title="Changelog"
         description="Notas de lanzamiento y actualizaciones para el sistema de diseño."
       />
       <Card>

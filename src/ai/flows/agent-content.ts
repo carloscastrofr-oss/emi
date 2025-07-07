@@ -30,7 +30,7 @@ export async function agentContent(input: AgentContentInput): Promise<void> {
         name: 'agentContentPrompt',
         input: {schema: AgentContentInputSchema},
         output: {schema: AgentContentOutputSchema},
-        prompt: `You are EMI.Agent.Content, a UX writing expert. Analyze the provided UI text and optional user feedback.
+        prompt: `You are a UX writing expert AI agent. Analyze the provided UI text and optional user feedback.
 
         UI Text: "{{uiText}}"
         {{#if userFeedback}}

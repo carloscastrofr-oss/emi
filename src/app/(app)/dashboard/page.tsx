@@ -82,7 +82,7 @@ export default function DashboardPage({
   return (
     <div>
       <PageHeader
-        title="EMI.Métricas"
+        title="Métricas"
         description="Indicadores clave de rendimiento para tu sistema de diseño."
       />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

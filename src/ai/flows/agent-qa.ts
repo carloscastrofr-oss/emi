@@ -27,7 +27,7 @@ export async function agentQA(input: AgentQaInput): Promise<void> {
         name: 'agentQaPrompt',
         input: {schema: AgentQaInputSchema},
         output: {schema: AgentQaOutputSchema},
-        prompt: `You are EMI.Agent.QA, a quality assurance expert. Analyze the provided UI QA data.
+        prompt: `You are a quality assurance expert AI agent. Analyze the provided UI QA data.
 
         QA Data:
         \`\`\`json

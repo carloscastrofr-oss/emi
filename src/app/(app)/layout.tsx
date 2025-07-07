@@ -44,13 +44,13 @@ import { Badge } from "@/components/ui/badge";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Panel", roles: ["viewer", "producer", "core", "admin"] },
-  { href: "/kit", icon: Package, label: "EMI.Kit", roles: ["viewer", "producer", "core", "admin"] },
-  { href: "/labs", icon: FlaskConical, label: "EMI.Labs", roles: ["producer", "core", "admin"] },
-  { href: "/workbench", icon: KanbanSquare, label: "EMI.Workbench", roles: ["producer", "core", "admin"] },
-  { href: "/agent", icon: Bot, label: "EMI.Agent", roles: ["core", "admin"] },
-  { href: "/observer", icon: View, label: "EMI.Observer", roles: ["core", "admin"] },
-  { href: "/playground", icon: Beaker, label: "EMI.Playground", roles: ["core", "admin"] },
-  { href: "/changelog", icon: ClipboardList, label: "EMI.Changelog", roles: ["viewer", "producer", "core", "admin"] },
+  { href: "/kit", icon: Package, label: "Kit", roles: ["viewer", "producer", "core", "admin"] },
+  { href: "/labs", icon: FlaskConical, label: "Labs", roles: ["producer", "core", "admin"] },
+  { href: "/workbench", icon: KanbanSquare, label: "Workbench", roles: ["producer", "core", "admin"] },
+  { href: "/agent", icon: Bot, label: "Agent", roles: ["core", "admin"] },
+  { href: "/observer", icon: View, label: "Observer", roles: ["core", "admin"] },
+  { href: "/playground", icon: Beaker, label: "Playground", roles: ["core", "admin"] },
+  { href: "/changelog", icon: ClipboardList, label: "Changelog", roles: ["viewer", "producer", "core", "admin"] },
 ];
 
 

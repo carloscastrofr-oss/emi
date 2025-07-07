@@ -12,7 +12,7 @@ export default function LabsPage({
   return (
     <div>
       <PageHeader
-        title="EMI.Labs"
+        title="Labs"
         description="Experimenta con IA para generar nuevas ideas de componentes."
       />
       <div className="mx-auto max-w-2xl">

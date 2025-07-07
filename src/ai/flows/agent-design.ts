@@ -32,7 +32,7 @@ export async function agentDesign(input: AgentDesignInput): Promise<void> {
     name: 'agentDesignPrompt',
     input: {schema: AgentDesignInputSchema},
     output: {schema: AgentDesignOutputSchema},
-    prompt: `You are EMI.Agent.Design, an expert in design systems. Analyze the provided component usage data.
+    prompt: `You are a design systems expert AI agent. Analyze the provided component usage data.
 
     Component Usage Data:
     \`\`\`json
