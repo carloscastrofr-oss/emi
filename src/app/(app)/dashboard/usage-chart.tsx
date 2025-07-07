@@ -36,9 +36,9 @@ export function UsageChart() {
         <YAxis tickLine={false} axisLine={false} />
         <Tooltip cursor={false} content={<ChartTooltipContent />} />
         <defs>
-          <linearGradient id="colorTokens" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.8} />
-            <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
+          <linearGradient id="colorArea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="var(--color-primary-container)" stopOpacity={0.8} />
+            <stop offset="95%" stopColor="var(--color-primary-container)" stopOpacity={0} />
           </linearGradient>
         </defs>
         <Area
@@ -46,7 +46,7 @@ export function UsageChart() {
           dataKey="tokens"
           stroke="var(--color-primary)"
           fillOpacity={1}
-          fill="url(#colorTokens)"
+          fill="url(#colorArea)"
         />
       </AreaChart>
     </ChartContainer>

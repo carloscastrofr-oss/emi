@@ -96,14 +96,14 @@ const OnboardingTeaser = () => {
                 whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
             >
-                <Card className="rounded-expressive shadow-e2 bg-primary/10 h-full">
+                <Card className="rounded-expressive shadow-e2 bg-primary-container text-on-primary-container h-full">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Comienza tu Inducción</CardTitle>
-                    <BookUser className="h-4 w-4 text-muted-foreground" />
+                    <BookUser className="h-4 w-4 text-on-primary-container/80" />
                     </CardHeader>
                     <CardContent>
                     <div className="text-2xl font-bold">Continúa aprendiendo</div>
-                    <p className="text-xs text-muted-foreground">{progress}</p>
+                    <p className="text-xs text-on-primary-container/80">{progress}</p>
                     </CardContent>
                 </Card>
             </motion.div>
@@ -134,14 +134,14 @@ export default function DashboardPage({
                     whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 >
-                    <Card className="rounded-expressive shadow-e2 h-full">
+                    <Card className="rounded-expressive shadow-e2 h-full bg-primary-container text-on-primary-container">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">{kpi.title}</CardTitle>
-                        <kpi.icon className="h-4 w-4 text-muted-foreground" />
+                        <kpi.icon className="h-4 w-4 text-on-primary-container/80" />
                         </CardHeader>
                         <CardContent>
                         <div className="text-2xl font-bold">{kpi.value}</div>
-                        <p className="text-xs text-muted-foreground">{kpi.change}</p>
+                        <p className="text-xs text-on-primary-container/80">{kpi.change}</p>
                         </CardContent>
                     </Card>
                 </motion.div>

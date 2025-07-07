@@ -32,7 +32,7 @@ export function AdoptionChart() {
           axisLine={false}
         />
         <Tooltip cursor={false} content={<ChartTooltipContent />} />
-        <Bar dataKey="adoption" fill="var(--color-primary)" radius={8} />
+        <Bar dataKey="adoption" fill="var(--color-primary)" radius={[12, 12, 0, 0]} />
       </BarChart>
     </ChartContainer>
   );
