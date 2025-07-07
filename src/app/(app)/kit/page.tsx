@@ -43,9 +43,6 @@ const kits = [
   },
 ];
 
-const MotionCard = motion(Card);
-
-
 export default function KitPage({
   params,
   searchParams,
@@ -61,37 +58,39 @@ export default function KitPage({
       />
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {kits.map((kit) => (
-            <MotionCard 
+            <motion.div
                 key={kit.title} 
-                className="flex flex-col rounded-expressive shadow-e2"
+                className="h-full"
                 whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
             >
-                <CardHeader>
-                <CardTitle>{kit.title}</CardTitle>
-                <CardDescription>{kit.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                <div className="aspect-video overflow-hidden rounded-md">
-                    <Image
-                    src={kit.image}
-                    alt={kit.title}
-                    width={600}
-                    height={400}
-                    data-ai-hint={kit.hint}
-                    className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                    />
-                </div>
-                </CardContent>
-                <CardFooter>
-                    <RequireRole roles={['producer', 'core', 'admin']} showIsBlocked>
-                        <Button className="w-full">
-                            <Download className="mr-2 h-4 w-4" />
-                            Descargar
-                        </Button>
-                    </RequireRole>
-                </CardFooter>
-            </MotionCard>
+                <Card className="flex flex-col rounded-expressive shadow-e2 h-full">
+                    <CardHeader>
+                    <CardTitle>{kit.title}</CardTitle>
+                    <CardDescription>{kit.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                    <div className="aspect-video overflow-hidden rounded-md">
+                        <Image
+                        src={kit.image}
+                        alt={kit.title}
+                        width={600}
+                        height={400}
+                        data-ai-hint={kit.hint}
+                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                        />
+                    </div>
+                    </CardContent>
+                    <CardFooter>
+                        <RequireRole roles={['producer', 'core', 'admin']} showIsBlocked>
+                            <Button className="w-full">
+                                <Download className="mr-2 h-4 w-4" />
+                                Descargar
+                            </Button>
+                        </RequireRole>
+                    </CardFooter>
+                </Card>
+            </motion.div>
         ))}
       </div>
     </div>

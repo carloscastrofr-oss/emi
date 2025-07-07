@@ -72,8 +72,6 @@ const kpis: Kpi[] = [
   },
 ];
 
-const MotionCard = motion(Card);
-
 const OnboardingTeaser = () => {
     const { userProfile } = useAuth();
 
@@ -92,22 +90,24 @@ const OnboardingTeaser = () => {
     const progress = `${completedCount} / ${relevantSteps.length} Pasos Completados`;
 
     return (
-         <MotionCard
-            className="rounded-expressive shadow-e2 bg-primary/10"
-            whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-        >
-            <Link href="/onboarding">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Comienza tu Inducción</CardTitle>
-                <BookUser className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                <div className="text-2xl font-bold">Continúa aprendiendo</div>
-                <p className="text-xs text-muted-foreground">{progress}</p>
-                </CardContent>
-            </Link>
-        </MotionCard>
+        <Link href="/onboarding" className="block h-full">
+            <motion.div
+                className="h-full"
+                whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            >
+                <Card className="rounded-expressive shadow-e2 bg-primary/10 h-full">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Comienza tu Inducción</CardTitle>
+                    <BookUser className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                    <div className="text-2xl font-bold">Continúa aprendiendo</div>
+                    <p className="text-xs text-muted-foreground">{progress}</p>
+                    </CardContent>
+                </Card>
+            </motion.div>
+        </Link>
     )
 }
 
@@ -129,20 +129,22 @@ export default function DashboardPage({
         <OnboardingTeaser/>
         {kpis.map((kpi) => (
             <RequireRole key={kpi.title} roles={kpi.roles} showIsBlocked>
-                <MotionCard
-                    className="rounded-expressive shadow-e2"
+                <motion.div
+                    className="h-full"
                     whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 >
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">{kpi.title}</CardTitle>
-                    <kpi.icon className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                    <div className="text-2xl font-bold">{kpi.value}</div>
-                    <p className="text-xs text-muted-foreground">{kpi.change}</p>
-                    </CardContent>
-                </MotionCard>
+                    <Card className="rounded-expressive shadow-e2 h-full">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">{kpi.title}</CardTitle>
+                        <kpi.icon className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                        <div className="text-2xl font-bold">{kpi.value}</div>
+                        <p className="text-xs text-muted-foreground">{kpi.change}</p>
+                        </CardContent>
+                    </Card>
+                </motion.div>
             </RequireRole>
         ))}
       </div>
