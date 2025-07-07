@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from "next/link";
@@ -10,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { PageHeader } from "@/components/page-header";
-import { DollarSign, Package, AlertTriangle, TrendingUp, LucideIcon } from "lucide-react";
+import { DollarSign, Package, AlertTriangle, TrendingUp, LucideIcon, LayoutGrid, Users } from "lucide-react";
 import { AdoptionChart } from "./adoption-chart";
 import { UsageChart } from "./usage-chart";
 import { RequireRole } from "@/components/auth/require-role";
@@ -39,6 +40,20 @@ const kpis: Kpi[] = [
     icon: TrendingUp,
     roles: ["viewer", "producer", "core", "admin"],
   },
+   {
+    title: "Cobertura de Componentes",
+    value: "65%",
+    change: "+10 componentes esta semana",
+    icon: LayoutGrid,
+    roles: ["producer", "core", "admin"],
+  },
+  {
+    title: "Contribuciones del Equipo",
+    value: "18",
+    change: "4 nuevos contribuidores",
+    icon: Users,
+    roles: ["core", "admin"],
+  },
   {
     title: "Problemas de Accesibilidad",
     value: "12",
@@ -57,14 +72,20 @@ const kpis: Kpi[] = [
 
 const MotionCard = motion(Card);
 
-export default function DashboardPage() {
+export default function DashboardPage({
+  params,
+  searchParams,
+}: {
+  params: {};
+  searchParams: {};
+}) {
   return (
     <div>
       <PageHeader
         title="EMI.Métricas"
         description="Indicadores clave de rendimiento para tu sistema de diseño."
       />
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {kpis.map((kpi) => (
             <RequireRole key={kpi.title} roles={kpi.roles} showIsBlocked>
                 <MotionCard
