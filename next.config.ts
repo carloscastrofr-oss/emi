@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -18,12 +19,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  devServer: {
-    allowedDevOrigins: [
-        'https://*.cloudworkstations.dev',
-        'https://*.firebase.app',
-    ],
-  },
+  allowedDevOrigins: [
+      'https://*.cloudworkstations.dev',
+      'https://*.firebase.app',
+  ],
 };
 
 export default nextConfig;
