@@ -145,7 +145,7 @@ export default function AgentPage() {
                 ))}
             </div>
 
-            <Card>
+            <Card className="rounded-expressive">
                 <CardHeader>
                     <CardTitle>Registro de Recomendaciones de Agentes</CardTitle>
                     <CardDescription>

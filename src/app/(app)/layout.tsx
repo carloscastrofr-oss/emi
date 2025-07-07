@@ -11,6 +11,9 @@ import {
   PanelLeft,
   Settings,
   Bot,
+  View,
+  Beaker,
+  ClipboardList
 } from "lucide-react";
 
 import {
@@ -26,7 +29,6 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
-import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,18 +38,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { RequireRole } from "@/components/auth/require-role";
+import { Badge } from "@/components/ui/badge";
 
 const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Panel" },
-  { href: "/kit", icon: Package, label: "EMI.Kit" },
-  { href: "/labs", icon: FlaskConical, label: "EMI.Labs" },
-  { href: "/workbench", icon: KanbanSquare, label: "EMI.Workbench" },
-  { href: "/agent", icon: Bot, label: "EMI.Agent" },
+  { href: "/dashboard", icon: LayoutDashboard, label: "Panel", roles: ["viewer", "producer", "core", "admin"] },
+  { href: "/kit", icon: Package, label: "EMI.Kit", roles: ["viewer", "producer", "core", "admin"] },
+  { href: "/labs", icon: FlaskConical, label: "EMI.Labs", roles: ["producer", "core", "admin"] },
+  { href: "/workbench", icon: KanbanSquare, label: "EMI.Workbench", roles: ["producer", "core", "admin"] },
+  { href: "/agent", icon: Bot, label: "EMI.Agent", roles: ["core", "admin"] },
+  { href: "/observer", icon: View, label: "EMI.Observer", roles: ["core", "admin"] },
+  { href: "/playground", icon: Beaker, label: "EMI.Playground", roles: ["core", "admin"] },
+  { href: "/changelog", icon: ClipboardList, label: "EMI.Changelog", roles: ["viewer", "producer", "core", "admin"] },
 ];
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
 
+function AppLayoutContent({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const { userProfile } = useAuth();
+  
   return (
     <SidebarProvider>
       <div className="flex min-h-screen">
@@ -58,18 +68,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <SidebarContent className="p-2">
             <SidebarMenu>
               {navItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.href}
-                    className="w-full justify-start"
-                  >
-                    <Link href={item.href}>
-                      <item.icon className="mr-2 h-5 w-5" />
-                      <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <RequireRole key={item.href} roles={item.roles}>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname.startsWith(item.href)}
+                      className="w-full justify-start"
+                    >
+                      <Link href={item.href}>
+                        <item.icon className="mr-2 h-5 w-5" />
+                        <span>{item.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </RequireRole>
               ))}
             </SidebarMenu>
           </SidebarContent>
@@ -113,19 +125,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="https://placehold.co/40x40.png" alt="@shadcn" data-ai-hint="person avatar" />
-                    <AvatarFallback>U</AvatarFallback>
+                    <AvatarFallback>{userProfile?.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">Usuario</p>
+                    <p className="text-sm font-medium leading-none">{userProfile?.displayName || "Usuario"}</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      usuario@example.com
+                      {userProfile?.email || "usuario@example.com"}
                     </p>
                   </div>
                 </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {userProfile && <Badge variant="secondary" className="w-fit m-2 capitalize">{userProfile.role}</Badge>}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Perfil</DropdownMenuItem>
                 <DropdownMenuItem>Configuración</DropdownMenuItem>
@@ -138,5 +152,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </div>
     </SidebarProvider>
-  );
+  )
+}
+
+export default function AppLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AuthProvider>
+      <AppLayoutContent>{children}</AppLayoutContent>
+    </AuthProvider>
+  )
 }

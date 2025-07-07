@@ -1,3 +1,6 @@
+
+'use client';
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
+import { RequireRole } from "@/components/auth/require-role";
 
 const proposals = [
   {
@@ -27,10 +31,12 @@ const proposals = [
   },
 ];
 
+const MotionCard = motion(Card);
+
 export function VotingTab() {
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="rounded-expressive">
         <CardHeader>
             <CardTitle>Propuestas</CardTitle>
             <CardDescription>Vota sobre nuevos componentes, tokens y otros cambios al sistema de diseño.</CardDescription>
@@ -38,7 +44,12 @@ export function VotingTab() {
       </Card>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {proposals.map((proposal) => (
-          <Card key={proposal.title} className="flex flex-col">
+          <MotionCard 
+            key={proposal.title} 
+            className="flex flex-col rounded-expressive shadow-e2"
+            whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          >
             <CardHeader>
               <CardTitle className="text-lg">{proposal.title}</CardTitle>
               <CardDescription>{proposal.description}</CardDescription>
@@ -48,14 +59,18 @@ export function VotingTab() {
                 <div className="ml-2 text-muted-foreground">Votos</div>
             </CardContent>
             <CardFooter className="gap-2">
-              <Button variant="outline" className="w-full">
-                <ThumbsUp className="mr-2 h-4 w-4" /> Votar a favor
-              </Button>
-              <Button variant="outline" className="w-full">
-                <ThumbsDown className="mr-2 h-4 w-4" /> Votar en contra
-              </Button>
+                <RequireRole roles={['producer', 'core', 'admin']} showIsBlocked>
+                    <Button variant="outline" className="w-full">
+                        <ThumbsUp className="mr-2 h-4 w-4" /> Votar a favor
+                    </Button>
+                </RequireRole>
+                 <RequireRole roles={['producer', 'core', 'admin']} showIsBlocked>
+                    <Button variant="outline" className="w-full">
+                        <ThumbsDown className="mr-2 h-4 w-4" /> Votar en contra
+                    </Button>
+                </RequireRole>
             </CardFooter>
-          </Card>
+          </MotionCard>
         ))}
       </div>
     </div>

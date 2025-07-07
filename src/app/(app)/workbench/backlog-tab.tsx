@@ -56,7 +56,7 @@ const priorityVariant: { [key: string]: "default" | "secondary" | "destructive" 
 
 export function BacklogTab() {
   return (
-    <Card>
+    <Card className="rounded-expressive">
       <CardHeader>
         <CardTitle>Backlog del Sistema de Diseño</CardTitle>
         <CardDescription>Tareas y mejoras para el sprint actual.</CardDescription>

@@ -1,5 +1,7 @@
 'use client';
 
+import Link from "next/link";
+import { motion } from 'framer-motion';
 import {
   Card,
   CardContent,
@@ -8,36 +10,52 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { PageHeader } from "@/components/page-header";
-import { DollarSign, Package, AlertTriangle, TrendingUp } from "lucide-react";
+import { DollarSign, Package, AlertTriangle, TrendingUp, LucideIcon } from "lucide-react";
 import { AdoptionChart } from "./adoption-chart";
 import { UsageChart } from "./usage-chart";
+import { RequireRole } from "@/components/auth/require-role";
+import { UserRole } from "@/hooks/use-auth";
 
-const kpis = [
+interface Kpi {
+    title: string;
+    value: string;
+    change: string;
+    icon: LucideIcon;
+    roles: UserRole[];
+}
+
+const kpis: Kpi[] = [
   {
     title: "Adopción de Componentes",
     value: "82%",
     change: "+5.2% desde el mes pasado",
     icon: Package,
+    roles: ["viewer", "producer", "core", "admin"],
   },
   {
     title: "Uso de Tokens",
     value: "95%",
     change: "+1.0% desde el mes pasado",
     icon: TrendingUp,
+    roles: ["viewer", "producer", "core", "admin"],
   },
   {
     title: "Problemas de Accesibilidad",
     value: "12",
     change: "-3 desde la semana pasada",
     icon: AlertTriangle,
+    roles: ["producer", "core", "admin"],
   },
   {
     title: "ROI Estimado",
     value: "$120,500",
     change: "+$15k este trimestre",
     icon: DollarSign,
+    roles: ["core", "admin"],
   },
 ];
+
+const MotionCard = motion(Card);
 
 export default function DashboardPage() {
   return (
@@ -48,20 +66,26 @@ export default function DashboardPage() {
       />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {kpis.map((kpi) => (
-          <Card key={kpi.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{kpi.title}</CardTitle>
-              <kpi.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{kpi.value}</div>
-              <p className="text-xs text-muted-foreground">{kpi.change}</p>
-            </CardContent>
-          </Card>
+            <RequireRole key={kpi.title} roles={kpi.roles} showIsBlocked>
+                <MotionCard
+                    className="rounded-expressive shadow-e2"
+                    whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                >
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">{kpi.title}</CardTitle>
+                    <kpi.icon className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                    <div className="text-2xl font-bold">{kpi.value}</div>
+                    <p className="text-xs text-muted-foreground">{kpi.change}</p>
+                    </CardContent>
+                </MotionCard>
+            </RequireRole>
         ))}
       </div>
       <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <Card>
+        <Card className="rounded-expressive">
           <CardHeader>
             <CardTitle>Tasa de Adopción de Componentes</CardTitle>
             <CardDescription>
@@ -72,7 +96,7 @@ export default function DashboardPage() {
             <AdoptionChart />
           </CardContent>
         </Card>
-        <Card>
+        <Card className="rounded-expressive">
           <CardHeader>
             <CardTitle>Frecuencia de Uso de Tokens</CardTitle>
             <CardDescription>

@@ -28,6 +28,11 @@ export default {
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
+          container: 'hsl(var(--primary-container))',
+        },
+        'on-primary': {
+          DEFAULT: 'hsl(var(--on-primary))',
+          container: 'hsl(var(--on-primary-container))',
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
@@ -70,6 +75,11 @@ export default {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+        expressive: '1.5rem',
+      },
+      boxShadow: {
+        e2: '0 1px 2px rgba(0,0,0,.12)',
+        e8: '0 4px 8px rgba(0,0,0,.14)',
       },
       keyframes: {
         'accordion-down': {
