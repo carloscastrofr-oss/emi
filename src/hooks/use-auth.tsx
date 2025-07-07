@@ -3,8 +3,8 @@
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
-import { getFirestore, doc, onSnapshot, setDoc } from 'firebase/firestore';
-import { app, db } from '@/lib/firebase';
+import { getFirestore, doc, onSnapshot, setDoc, arrayUnion } from 'firebase/firestore';
+import { app, db, isFirebaseConfigValid } from '@/lib/firebase';
 
 export type UserRole = "viewer" | "producer" | "core" | "admin";
 
@@ -13,6 +13,9 @@ export interface UserProfile {
   email: string | null;
   displayName: string | null;
   role: UserRole;
+  onboarding?: {
+    completed: string[];
+  }
 }
 
 interface AuthContextType {
@@ -30,10 +33,13 @@ const AuthContext = createContext<AuthContextType>({
 // Helper function to create a default user profile in Firestore
 const createDefaultUserProfile = async (user: User) => {
     const userDocRef = doc(db, 'users', user.uid);
-    const defaultProfile = {
+    const defaultProfile: Omit<UserProfile, 'uid'> = {
       email: user.email,
       displayName: user.displayName || 'New User',
-      role: 'viewer' // Assign a default role
+      role: 'viewer', // Assign a default role
+      onboarding: {
+        completed: []
+      }
     };
     await setDoc(userDocRef, defaultProfile, { merge: true });
     return { uid: user.uid, ...defaultProfile } as UserProfile;
@@ -46,15 +52,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // If firebase config is not valid, app will be an empty object, so we check one of its properties
-    if (!app.options?.apiKey) {
+    if (!isFirebaseConfigValid) {
       console.warn("Firebase not initialized, using mock user. All gated features will be available.");
-      // Set a default mock user profile for UI to render correctly without auth
       setUserProfile({
           uid: 'mock-user',
           email: 'usuario@example.com',
           displayName: 'Usuario de Muestra',
-          role: 'admin' // Give admin role so all UI is visible for development
+          role: 'admin',
+          onboarding: {
+            completed: ['view_dashboard']
+          }
       });
       setLoading(false);
       return;
@@ -71,12 +78,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (docSnap.exists()) {
             setUserProfile({
               uid: authUser.uid,
-              email: authUser.email,
-              displayName: authUser.displayName,
               ...docSnap.data(),
             } as UserProfile);
           } else {
-             // If user document doesn't exist, create one with a default role
             createDefaultUserProfile(authUser).then(profile => {
                 setUserProfile(profile);
             });

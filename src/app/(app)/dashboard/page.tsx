@@ -11,11 +11,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { PageHeader } from "@/components/page-header";
-import { DollarSign, Package, AlertTriangle, TrendingUp, LucideIcon, LayoutGrid, Users } from "lucide-react";
+import { DollarSign, Package, AlertTriangle, TrendingUp, LucideIcon, LayoutGrid, Users, BookUser } from "lucide-react";
 import { AdoptionChart } from "./adoption-chart";
 import { UsageChart } from "./usage-chart";
 import { RequireRole } from "@/components/auth/require-role";
-import { UserRole } from "@/hooks/use-auth";
+import { UserRole, useAuth } from "@/hooks/use-auth";
+import { ONBOARDING_STEPS } from "@/lib/onboarding-data";
+import { useMemo } from "react";
 
 interface Kpi {
     title: string;
@@ -72,6 +74,43 @@ const kpis: Kpi[] = [
 
 const MotionCard = motion(Card);
 
+const OnboardingTeaser = () => {
+    const { userProfile } = useAuth();
+
+    const relevantSteps = useMemo(() => {
+        return ONBOARDING_STEPS.filter(step => step.roles.includes(userProfile?.role || 'viewer'));
+    }, [userProfile?.role]);
+
+    const completedCount = useMemo(() => {
+        return userProfile?.onboarding?.completed?.length || 0;
+    }, [userProfile?.onboarding]);
+    
+    if (completedCount >= relevantSteps.length) {
+        return null; // All steps completed
+    }
+
+    const progress = `${completedCount} / ${relevantSteps.length} Pasos Completados`;
+
+    return (
+         <MotionCard
+            className="rounded-expressive shadow-e2 bg-primary/10"
+            whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        >
+            <Link href="/onboarding">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Comienza tu Inducción</CardTitle>
+                <BookUser className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                <div className="text-2xl font-bold">Continúa aprendiendo</div>
+                <p className="text-xs text-muted-foreground">{progress}</p>
+                </CardContent>
+            </Link>
+        </MotionCard>
+    )
+}
+
 export default function DashboardPage({
   params,
   searchParams,
@@ -84,8 +123,10 @@ export default function DashboardPage({
       <PageHeader
         title="Métricas"
         description="Indicadores clave de rendimiento para tu sistema de diseño."
+        className="dashboard-header"
       />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <OnboardingTeaser/>
         {kpis.map((kpi) => (
             <RequireRole key={kpi.title} roles={kpi.roles} showIsBlocked>
                 <MotionCard

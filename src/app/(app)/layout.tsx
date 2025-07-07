@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -41,16 +42,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { RequireRole } from "@/components/auth/require-role";
 import { Badge } from "@/components/ui/badge";
+import { ONBOARDING_STEPS } from "@/lib/onboarding-data";
+import { useMemo } from "react";
 
 const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Panel", roles: ["viewer", "producer", "core", "admin"] },
-  { href: "/kit", icon: Package, label: "Kit", roles: ["viewer", "producer", "core", "admin"] },
-  { href: "/labs", icon: FlaskConical, label: "Labs", roles: ["producer", "core", "admin"] },
-  { href: "/workbench", icon: KanbanSquare, label: "Workbench", roles: ["producer", "core", "admin"] },
-  { href: "/agent", icon: Bot, label: "Agent", roles: ["core", "admin"] },
-  { href: "/observer", icon: View, label: "Observer", roles: ["core", "admin"] },
-  { href: "/playground", icon: Beaker, label: "Playground", roles: ["core", "admin"] },
-  { href: "/changelog", icon: ClipboardList, label: "Changelog", roles: ["viewer", "producer", "core", "admin"] },
+  { href: "/dashboard", icon: LayoutDashboard, label: "Panel", roles: ["viewer", "producer", "core", "admin"], className: "dashboard-page-link" },
+  { href: "/kit", icon: Package, label: "Kit", roles: ["viewer", "producer", "core", "admin"], className: "kit-page-link" },
+  { href: "/labs", icon: FlaskConical, label: "Labs", roles: ["producer", "core", "admin"], className: "labs-page-link" },
+  { href: "/workbench", icon: KanbanSquare, label: "Workbench", roles: ["producer", "core", "admin"], className: "workbench-page-link" },
+  { href: "/agent", icon: Bot, label: "Agent", roles: ["core", "admin"], className: "agent-page-link" },
+  { href: "/observer", icon: View, label: "Observer", roles: ["core", "admin"], className: "observer-page-link" },
+  { href: "/playground", icon: Beaker, label: "Playground", roles: ["core", "admin"], className: "playground-page-link" },
+  { href: "/changelog", icon: ClipboardList, label: "Changelog", roles: ["viewer", "producer", "core", "admin"], className: "changelog-page-link" },
 ];
 
 
@@ -58,6 +61,16 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { userProfile } = useAuth();
   
+  const relevantSteps = useMemo(() => {
+    return ONBOARDING_STEPS.filter(step => step.roles.includes(userProfile?.role || 'viewer'));
+  }, [userProfile?.role]);
+
+  const completedStepsCount = useMemo(() => {
+    return userProfile?.onboarding?.completed?.length || 0;
+  }, [userProfile?.onboarding]);
+
+  const remainingSteps = relevantSteps.length - completedStepsCount;
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen">
@@ -73,7 +86,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
                     <SidebarMenuButton
                       asChild
                       isActive={pathname.startsWith(item.href)}
-                      className="w-full justify-start"
+                      className={`w-full justify-start ${item.className}`}
                     >
                       <Link href={item.href}>
                         <item.icon className="mr-2 h-5 w-5" />
@@ -88,10 +101,15 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
           <SidebarFooter>
             <SidebarMenu>
                <SidebarMenuItem>
-                  <SidebarMenuButton asChild className="w-full justify-start">
-                    <Link href="/onboarding">
+                  <SidebarMenuButton asChild className="w-full justify-start" href="/onboarding">
+                    <Link href="/onboarding" className="relative">
                       <BookUser className="mr-2 h-5 w-5" />
                       <span>Inducción</span>
+                      {remainingSteps > 0 && (
+                        <Badge variant="destructive" className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 p-0 flex items-center justify-center">
+                            {remainingSteps}
+                        </Badge>
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
