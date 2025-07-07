@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { collection, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { db, isFirebaseConfigValid } from '@/lib/firebase';
 import { PageHeader } from "@/components/page-header";
 import { AgentCard } from "./agent-card";
 import {
@@ -93,11 +94,22 @@ const agentNameTranslations: Record<Recommendation['agent'], string> = {
 };
 
 
-export default function AgentPage() {
+export default function AgentPage({
+  params,
+  searchParams,
+}: {
+  params: {};
+  searchParams: {};
+}) {
     const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        if (!isFirebaseConfigValid) {
+            setIsLoading(false);
+            return;
+        }
+
         const q = query(collection(db, "recommendations"), orderBy("timestamp", "desc"));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const newRecommendations: Recommendation[] = [];

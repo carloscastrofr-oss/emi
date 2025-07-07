@@ -1,7 +1,8 @@
+
 'use server';
 
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db, isFirebaseConfigValid } from "@/lib/firebase";
 
 export interface Recommendation {
   agent: "Design" | "Content" | "QA" | "Business",
@@ -11,8 +12,14 @@ export interface Recommendation {
 }
 
 export async function addRecommendation(recommendation: Recommendation) {
+  if (!isFirebaseConfigValid) {
+    console.log("Firebase no está configurado. Saltando addRecommendation.");
+    console.log("Datos de la recomendación:", recommendation);
+    return;
+  }
+
   if (!recommendation.agent || !recommendation.component || !recommendation.recommendation) {
-    throw new Error("Invalid recommendation data.");
+    throw new Error("Datos de recomendación no válidos.");
   }
   
   try {
@@ -21,7 +28,7 @@ export async function addRecommendation(recommendation: Recommendation) {
       timestamp: serverTimestamp(),
     });
   } catch (e) {
-    console.error("Error adding document: ", e);
-    throw new Error("Could not add recommendation to Firestore.");
+    console.error("Error al añadir el documento: ", e);
+    throw new Error("No se pudo añadir la recomendación a Firestore.");
   }
 }

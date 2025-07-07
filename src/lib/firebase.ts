@@ -12,7 +12,7 @@ const firebaseConfig = {
 };
 
 // We only want to initialize firebase if all the required config values are present and not placeholders
-const isFirebaseConfigValid = 
+export const isFirebaseConfigValid = 
     firebaseConfig.apiKey &&
     firebaseConfig.authDomain &&
     firebaseConfig.projectId &&
