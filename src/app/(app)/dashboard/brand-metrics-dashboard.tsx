@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -22,7 +23,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 const mockBrands: Brand[] = [
     { id: 'core', name: 'Design System Core', primary: '#2DB660', primaryContainer: '#B7F2CB', onPrimary: '#FFFFFF', metrics: { adoption: 82, tokenUsage: 95, coverage: 65, teamContrib: 18, a11yIssues: 12, roi: 120500, adoptionTrend: [98, 92, 78, 65, 55, 88], tokenFreqTrend: [186, 305, 237, 273, 209, 214] }, updatedAt: null as any },
     { id: 'bank', name: 'Sub-producto A', primary: '#0047AB', primaryContainer: '#B1D0FF', onPrimary: '#FFFFFF', metrics: { adoption: 71, tokenUsage: 88, coverage: 50, teamContrib: 12, a11yIssues: 25, roi: 95000, adoptionTrend: [80, 85, 70, 60, 50, 75], tokenFreqTrend: [150, 250, 200, 240, 190, 200] }, updatedAt: null as any },
-    { id: 'aero', name: 'AeroJet', primary: '#8A2BE2', primaryContainer: '#E0C8FF', onPrimary: '#FFFFFF', metrics: { adoption: 65, tokenUsage: 75, coverage: 40, teamContrib: 8, a11yIssues: 30, roi: 72000, adoptionTrend: [70, 65, 50, 45, 40, 60], tokenFreqTrend: [120, 180, 150, 190, 140, 160] }, updatedAt: null as any }
+    { id: 'aero', name: 'Sub-producto B', primary: '#8A2BE2', primaryContainer: '#E0C8FF', onPrimary: '#FFFFFF', metrics: { adoption: 65, tokenUsage: 75, coverage: 40, teamContrib: 8, a11yIssues: 30, roi: 72000, adoptionTrend: [70, 65, 50, 45, 40, 60], tokenFreqTrend: [120, 180, 150, 190, 140, 160] }, updatedAt: null as any }
 ];
 
 // Helper to inject CSS variables for the selected brand's theme
