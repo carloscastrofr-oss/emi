@@ -12,34 +12,59 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, Github, FileText, SwatchBook, Package, Palette, ShoppingCart, LayoutDashboard } from "lucide-react";
 import { RequireRole } from "@/components/auth/require-role";
 
 
 const kits = [
   {
+    title: "Consulta de Repositorio",
+    description: "Accede al repositorio de código fuente y la documentación técnica.",
+    image: "https://placehold.co/600x400.png",
+    hint: "code repository",
+    icon: Github
+  },
+  {
+    title: "Research",
+    description: "Todos los artefactos y hallazgos de la investigación de usuarios.",
+    image: "https://placehold.co/600x400.png",
+    hint: "user research",
+    icon: FileText
+  },
+  {
+    title: "Branding",
+    description: "Logos, paleta de colores, tipografía y guías de estilo de la marca.",
+    image: "https://placehold.co/600x400.png",
+    hint: "brand guidelines",
+    icon: SwatchBook
+  },
+  {
     title: "Kit de Componentes Principales",
     description: "El conjunto esencial de componentes de UI para cualquier proyecto nuevo.",
     image: "https://placehold.co/600x400.png",
-    hint: "abstract geometric"
+    hint: "abstract geometric",
+    icon: Package
   },
   {
     title: "Paquete de Inicio de Tokens",
     description: "Tokens de diseño para colores, tipografía y espaciado.",
     image: "https://placehold.co/600x400.png",
-    hint: "vibrant colors"
+    hint: "vibrant colors",
+    icon: Palette
   },
   {
     title: "Kit de UI para E-commerce",
     description: "Componentes diseñados para experiencias de venta en línea.",
     image: "https://placehold.co/600x400.png",
-    hint: "shopping cart"
+    hint: "shopping cart",
+    icon: ShoppingCart
   },
   {
     title: "Kit de Panel para SaaS",
     description: "Un kit completo para construir paneles de control basados en datos.",
     image: "https://placehold.co/600x400.png",
-    hint: "dashboard interface"
+    hint: "dashboard interface",
+    icon: LayoutDashboard
   },
 ];
 
@@ -65,9 +90,14 @@ export default function KitPage({
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
             >
                 <Card className="flex flex-col rounded-expressive shadow-e2 h-full">
-                    <CardHeader>
-                    <CardTitle>{kit.title}</CardTitle>
-                    <CardDescription>{kit.description}</CardDescription>
+                    <CardHeader className="flex flex-row items-start gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 shrink-0">
+                        <kit.icon className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <CardTitle>{kit.title}</CardTitle>
+                        <CardDescription>{kit.description}</CardDescription>
+                      </div>
                     </CardHeader>
                     <CardContent className="flex-grow">
                     <div className="aspect-video overflow-hidden rounded-md">
