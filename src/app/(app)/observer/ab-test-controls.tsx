@@ -87,7 +87,7 @@ export function ABTestControls({
                 <div className="flex flex-wrap justify-between items-center gap-4">
                     <div>
                         <CardTitle>Menú</CardTitle>
-                        <CardDescription>Selecciona una vista, experimento o análisis de rendimiento.</CardDescription>
+                        <CardDescription>Selecciona una página, rango de fechas, un test A/B o un análisis de rendimiento.</CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
                          <RequireRole roles={['core', 'admin']}>
