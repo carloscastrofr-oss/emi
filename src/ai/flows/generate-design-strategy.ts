@@ -34,10 +34,18 @@ const GenerateDesignStrategyInputSchema = z.object({
 
 export type GenerateDesignStrategyInput = z.infer<typeof GenerateDesignStrategyInputSchema>;
 
+const DesignInterpretationSchema = z.object({
+    strategicSummary: z.string().describe("A brief summary of the design strategy for a designer."),
+    componentSuggestions: z.array(z.string()).describe("A list of concrete component ideas based on the roadmap and personas."),
+    visualDirection: z.string().describe("Suggestions for the visual look and feel, referencing the design principles."),
+    userExperienceGoals: z.string().describe("Key user experience goals to focus on during implementation.")
+});
+
 const GenerateDesignStrategyOutputSchema = z.object({
   strategyId: z.string(),
   markdown: z.string(),
   json: z.string(),
+  designInterpretation: DesignInterpretationSchema,
 });
 export type GenerateDesignStrategyOutput = z.infer<typeof GenerateDesignStrategyOutputSchema>;
 
@@ -90,6 +98,30 @@ export async function generateDesignStrategy(input: GenerateDesignStrategyInput)
   return generateDesignStrategyFlow(input);
 }
 
+const interpretationPrompt = ai.definePrompt({
+    name: 'interpretDesignStrategyPrompt',
+    input: { schema: z.object({ markdownContent: z.string() }) },
+    output: { schema: DesignInterpretationSchema },
+    prompt: `You are an expert design strategist and coach. Your task is to analyze the following design strategy document (in Markdown format) and translate it into actionable insights and creative ideas for a UI/UX designer.
+
+Focus on providing concrete, inspiring, and practical advice.
+
+Design Strategy Document:
+---
+{{{markdownContent}}}
+---
+
+Based on the document, provide the following:
+1.  **Strategic Summary:** A short, motivational summary for the design team, highlighting the core mission.
+2.  **Component Suggestions:** Brainstorm specific, new components that would directly support the OKRs and roadmap. Think beyond the obvious.
+3.  **Visual Direction:** Describe the look and feel. How can the design principles (like radius, motion) be translated into a tangible visual language?
+4.  **User Experience Goals:** What are the most critical UX goals the designer should focus on to satisfy the target personas and KPIs?
+
+Provide the output in the specified JSON format.
+`,
+});
+
+
 const generateDesignStrategyFlow = ai.defineFlow(
   {
     name: 'generateDesignStrategyFlow',
@@ -98,6 +130,11 @@ const generateDesignStrategyFlow = ai.defineFlow(
   },
   async (data) => {
     const markdownContent = generateMarkdown(data);
+    
+    const { output: interpretationOutput } = await interpretationPrompt({ markdownContent });
+    if (!interpretationOutput) {
+        throw new Error("The design interpretation agent failed to produce an output.");
+    }
 
     if (!isFirebaseConfigValid) {
         console.warn("Firebase no está configurado. Se devolverá una estrategia simulada sin guardarla.");
@@ -109,6 +146,7 @@ const generateDesignStrategyFlow = ai.defineFlow(
             strategyId: "mock-strategy-" + Date.now(),
             markdown: markdownContent,
             json: JSON.stringify(mockStrategyData, null, 2),
+            designInterpretation: interpretationOutput,
         };
     }
     
@@ -124,6 +162,7 @@ const generateDesignStrategyFlow = ai.defineFlow(
         strategyId: docRef.id,
         markdown: markdownContent,
         json: JSON.stringify(strategyData, null, 2),
+        designInterpretation: interpretationOutput,
     };
   }
 );

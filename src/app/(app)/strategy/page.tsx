@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles, Wand2, PlusCircle, XCircle } from 'lucide-react';
+import { Loader2, Sparkles, Wand2, PlusCircle, XCircle, Lightbulb } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateDesignStrategy, GenerateDesignStrategyInput, GenerateDesignStrategyOutput } from '@/ai/flows/generate-design-strategy';
 
@@ -293,6 +293,7 @@ export default function StrategyPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
+                    className="space-y-8"
                 >
                     <Card className="rounded-expressive">
                         <CardHeader>
@@ -317,6 +318,38 @@ export default function StrategyPage() {
                             </pre>
                         </CardContent>
                     </Card>
+
+                    <Card className="rounded-expressive">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Lightbulb className="text-primary h-5 w-5" />
+                                Interpretación para el Diseñador
+                            </CardTitle>
+                            <CardDescription>Ideas y estrategia generadas por IA para el equipo de diseño.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4 text-sm">
+                            <div>
+                                <h4 className="font-semibold mb-1">Resumen Estratégico</h4>
+                                <p className="text-muted-foreground">{generatedResult.designInterpretation.strategicSummary}</p>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold mb-1">Dirección Visual</h4>
+                                <p className="text-muted-foreground">{generatedResult.designInterpretation.visualDirection}</p>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold mb-1">Objetivos de UX</h4>
+                                <p className="text-muted-foreground">{generatedResult.designInterpretation.userExperienceGoals}</p>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold mb-1">Sugerencias de Componentes</h4>
+                                <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                                    {generatedResult.designInterpretation.componentSuggestions.map((suggestion, index) => (
+                                        <li key={index}>{suggestion}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </motion.div>
             )}
         </div>
@@ -324,4 +357,3 @@ export default function StrategyPage() {
     </div>
   );
 }
-
