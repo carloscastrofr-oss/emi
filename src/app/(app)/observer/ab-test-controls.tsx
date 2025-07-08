@@ -99,7 +99,7 @@ export function ABTestControls({ analysis, onAnalysisChange }: ABTestControlsPro
                  <Tabs value={analysis.type ?? 'page'} onValueChange={handleTabChange} className="w-full">
                     <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="page">Mapas de Calor</TabsTrigger>
-                        <TabsTrigger value="test">Experimentos A/B</TabsTrigger>
+                        <TabsTrigger value="test">A/B Test</TabsTrigger>
                         <TabsTrigger value="performance">Rendimiento</TabsTrigger>
                     </TabsList>
                     <TabsContent value="page" className="pt-4">
