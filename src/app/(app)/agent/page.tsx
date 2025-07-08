@@ -16,25 +16,12 @@ import {
 } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShieldX, Accessibility } from "lucide-react";
+import { Accessibility } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { agentDesignDebt } from "@/ai/flows/agent-design-debt";
 import { agentAccessibility } from "@/ai/flows/agent-accessibility";
 
 const agents = [
-  {
-    title: "Agente de Deuda de Diseño y Gobernanza",
-    description: "Calcula el índice de deuda de diseño y el coste de ROI perdido.",
-    icon: ShieldX,
-    flow: agentDesignDebt,
-    formFields: [{ name: "designDebtInput", label: "Datos de Deuda de Diseño (JSON)" }],
-    placeholder: JSON.stringify({
-      componentInventory: ["button-primary-clone", "card-custom-v2"],
-      taggedIssues: 3,
-      codeRefs: ["/src/components/custom/button.tsx"]
-    }, null, 2),
-  },
   {
     title: "Agente de Accesibilidad e Inclusión",
     description: "Ejecuta una auditoría de accesibilidad en una URL para identificar problemas de WCAG.",
@@ -47,7 +34,7 @@ const agents = [
 
 interface Recommendation {
     id: string;
-    agent: "Design Debt" | "Accessibility";
+    agent: "Accessibility";
     component: string;
     recommendation: string;
     figmaPrompt?: string;
@@ -55,7 +42,6 @@ interface Recommendation {
 }
 
 const agentNameTranslations: Record<Recommendation['agent'], string> = {
-  "Design Debt": "Deuda de Diseño",
   "Accessibility": "Accesibilidad",
 };
 
@@ -81,7 +67,7 @@ export default function AgentPage({
             const newRecommendations: Recommendation[] = [];
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
-                if (data.agent === 'Design Debt' || data.agent === 'Accessibility') {
+                if (data.agent === 'Accessibility') {
                     newRecommendations.push({ id: doc.id, ...data } as Recommendation);
                 }
             });
@@ -97,7 +83,6 @@ export default function AgentPage({
 
     const getBadgeVariant = (agent: Recommendation['agent']) => {
         switch (agent) {
-            case 'Design Debt': return 'destructive';
             case 'Accessibility': return 'default';
             default: return 'secondary';
         }
