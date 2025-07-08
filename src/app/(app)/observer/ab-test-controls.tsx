@@ -44,7 +44,20 @@ export function ABTestControls({ analysis, onAnalysisChange }: ABTestControlsPro
     };
     
     const handleTabChange = (type: string) => {
-        onAnalysisChange({ type: type as AnalysisType, id: null });
+        let defaultId: string | null = null;
+        const newType = type as AnalysisType;
+        switch (newType) {
+            case 'page':
+                defaultId = '/checkout';
+                break;
+            case 'test':
+                defaultId = mockTests[0]?.id || null;
+                break;
+            case 'performance':
+                defaultId = 'button';
+                break;
+        }
+        onAnalysisChange({ type: newType, id: defaultId });
     };
 
     const handleSelectionChange = (id: string) => {
