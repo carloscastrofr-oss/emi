@@ -5,7 +5,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db, isFirebaseConfigValid } from "@/lib/firebase";
 
 export interface Recommendation {
-  agent: "Design" | "Content" | "QA" | "Business",
+  agent: "Design" | "QA" | "Business",
   component: string,
   recommendation: string,
   figmaPrompt?: string,

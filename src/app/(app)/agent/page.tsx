@@ -16,11 +16,10 @@ import {
 } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Palette, MessageSquareText, ShieldAlert, Briefcase } from "lucide-react";
+import { Palette, ShieldAlert, Briefcase } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { agentDesign } from "@/ai/flows/agent-design";
-import { agentContent } from "@/ai/flows/agent-content";
 import { agentQA } from "@/ai/flows/agent-qa";
 import { agentBusiness } from "@/ai/flows/agent-business";
 
@@ -36,20 +35,6 @@ const agents = [
       token_color: "#8B8B8B",
       contrast_ratio: 2.1,
     }, null, 2),
-  },
-  {
-    title: "Agente de Contenido",
-    description: "Analiza el feedback de usuarios en busca de microcopy poco claro.",
-    icon: MessageSquareText,
-    flow: agentContent,
-    formFields: [
-        { name: "uiText", label: "Texto de UI" },
-        { name: "userFeedback", label: "Feedback de Usuario" }
-    ],
-    initialValues: {
-      uiText: "Tu contraseña debe contener al menos 8 caracteres.",
-      userFeedback: "Esta instrucción de contraseña es confusa, no entiendo qué se requiere.",
-    }
   },
   {
     title: "Agente de QA",
@@ -79,7 +64,7 @@ const agents = [
 
 interface Recommendation {
     id: string;
-    agent: "Design" | "Content" | "QA" | "Business";
+    agent: "Design" | "QA" | "Business";
     component: string;
     recommendation: string;
     figmaPrompt?: string;
@@ -88,7 +73,6 @@ interface Recommendation {
 
 const agentNameTranslations: Record<Recommendation['agent'], string> = {
   Design: "Diseño",
-  Content: "Contenido",
   QA: "QA",
   Business: "Negocio",
 };
@@ -114,7 +98,10 @@ export default function AgentPage({
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const newRecommendations: Recommendation[] = [];
             querySnapshot.forEach((doc) => {
-                newRecommendations.push({ id: doc.id, ...doc.data() } as Recommendation);
+                const data = doc.data();
+                if (data.agent !== 'Content') {
+                    newRecommendations.push({ id: doc.id, ...data } as Recommendation);
+                }
             });
             setRecommendations(newRecommendations);
             setIsLoading(false);
@@ -129,7 +116,6 @@ export default function AgentPage({
     const getBadgeVariant = (agent: Recommendation['agent']) => {
         switch (agent) {
             case 'Design': return 'default';
-            case 'Content': return 'secondary';
             case 'QA': return 'destructive';
             case 'Business': return 'outline';
             default: return 'default';
@@ -142,7 +128,7 @@ export default function AgentPage({
                 title="Suite de Agentes"
                 description="Activa agentes de IA y ve sus recomendaciones en tiempo real."
             />
-            <div className="grid gap-6 md:grid-cols-2 mb-8">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
                 {agents.map((agent) => (
                     <AgentCard
                         key={agent.title}
