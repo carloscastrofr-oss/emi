@@ -1,14 +1,16 @@
-
 'use client';
 
+import { useState } from "react";
 import { PageHeader } from "@/components/page-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PanelBuilder } from "./cohort-builder";
+import { PanelBuilder } from "./panel-builder";
 import { TestDashboard } from "./test-dashboard";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 
 export default function SyntheticUsersPage() {
+  const [activeTab, setActiveTab] = useState("builder");
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -28,7 +30,7 @@ export default function SyntheticUsersPage() {
         </AlertDescription>
       </Alert>
 
-      <Tabs defaultValue="builder" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList>
           <TabsTrigger value="builder">Constructor de Paneles</TabsTrigger>
           <TabsTrigger value="dashboard">Panel de Pruebas</TabsTrigger>
@@ -37,7 +39,7 @@ export default function SyntheticUsersPage() {
           <PanelBuilder />
         </TabsContent>
         <TabsContent value="dashboard">
-          <TestDashboard />
+          <TestDashboard onLaunchTest={() => setActiveTab('builder')} />
         </TabsContent>
       </Tabs>
     </div>

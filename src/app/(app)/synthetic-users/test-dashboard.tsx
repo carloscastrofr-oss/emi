@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +15,11 @@ const mockTests = [
     { id: 'onboarding-v1', name: 'Flujo de onboarding para nuevos usuarios' },
 ];
 
-export function TestDashboard() {
+interface TestDashboardProps {
+    onLaunchTest: () => void;
+}
+
+export function TestDashboard({ onLaunchTest }: TestDashboardProps) {
     const { toast } = useToast();
 
     const handleExport = () => {
@@ -35,7 +38,7 @@ export function TestDashboard() {
                         <CardDescription>Visualiza los resultados de tus experimentos con usuarios sintéticos.</CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button variant="outline">
+                        <Button variant="outline" onClick={onLaunchTest}>
                             <PlayCircle className="mr-2 h-4 w-4" />
                             Lanzar Nuevo Test
                         </Button>
