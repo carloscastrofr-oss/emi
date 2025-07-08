@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Github, FileText, SwatchBook, Package, Palette, ShoppingCart, LayoutDashboard } from "lucide-react";
+import { Github, FileText, SwatchBook, Package, Palette, ShoppingCart, ArrowRight } from "lucide-react";
 import { RequireRole } from "@/components/auth/require-role";
 
 
@@ -45,11 +45,6 @@ const kits = [
     title: "Kit de UI para E-commerce",
     description: "Componentes diseñados para experiencias de venta en línea.",
     icon: ShoppingCart
-  },
-  {
-    title: "Kit de Panel para SaaS",
-    description: "Un kit completo para construir paneles de control basados en datos.",
-    icon: LayoutDashboard
   },
 ];
 
@@ -89,8 +84,8 @@ export default function KitPage({
                     <CardFooter>
                         <RequireRole roles={['producer', 'core', 'admin']} showIsBlocked>
                             <Button className="w-full">
-                                <Download className="mr-2 h-4 w-4" />
-                                Descargar
+                                <ArrowRight className="mr-2 h-4 w-4" />
+                                Consultar
                             </Button>
                         </RequireRole>
                     </CardFooter>
