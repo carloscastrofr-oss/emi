@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -87,8 +86,8 @@ export function ABTestControls({
             <CardHeader>
                 <div className="flex flex-wrap justify-between items-center gap-4">
                     <div>
-                        <CardTitle>Filtros y Experimentos</CardTitle>
-                        <CardDescription>Selecciona una página, rango de fechas, un experimento A/B o un análisis de rendimiento.</CardDescription>
+                        <CardTitle>Menú</CardTitle>
+                        <CardDescription>Selecciona una vista, experimento o análisis de rendimiento.</CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
                          <RequireRole roles={['core', 'admin']}>
