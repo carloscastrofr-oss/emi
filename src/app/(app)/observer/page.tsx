@@ -12,10 +12,38 @@ import { TrendingUp, List } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ABTestControls } from './ab-test-controls';
 import { StatsCompareCard } from './stats-compare-card';
+import { PerformanceCard } from './performance-card';
+
+const mockTests = [
+    { id: 'demoCheckout', name: 'Color del CTA en Checkout' },
+    { id: 'onboardingModal', name: 'Modal de Onboarding v3' },
+    { id: 'pricingPageLayout', name: 'Layout de Página de Precios' }
+];
 
 export default function ObserverPage() {
     const [isABMode, setABMode] = useState(false);
     const [selectedTest, setSelectedTest] = useState<string | null>(null);
+    const [selectedPerformanceItem, setSelectedPerformanceItem] = useState<string | null>(null);
+
+    const handleTestSelection = (testId: string | null) => {
+        setSelectedTest(testId);
+        if (testId) {
+            setSelectedPerformanceItem(null);
+            // A/B mode is only for actual experiments, not for page heatmaps
+            const isExperiment = mockTests.some(t => t.id === testId);
+            setABMode(isExperiment);
+        } else {
+            setABMode(false);
+        }
+    };
+
+    const handlePerformanceSelection = (itemId: string | null) => {
+        setSelectedPerformanceItem(itemId);
+        if (itemId) {
+            setSelectedTest(null);
+            setABMode(false);
+        }
+    };
 
   return (
     <div className="space-y-8">
@@ -28,10 +56,14 @@ export default function ObserverPage() {
         isABMode={isABMode}
         onModeChange={setABMode}
         selectedTest={selectedTest}
-        onTestChange={setSelectedTest}
+        onTestChange={handleTestSelection}
+        selectedPerformanceItem={selectedPerformanceItem}
+        onPerformanceItemChange={handlePerformanceSelection}
       />
 
-      {isABMode && selectedTest ? (
+      {selectedPerformanceItem ? (
+        <PerformanceCard item={selectedPerformanceItem} />
+      ) : isABMode && selectedTest ? (
         <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <HeatmapCard title="Variante A" description="Heatmap para la variante de control." />
@@ -46,7 +78,10 @@ export default function ObserverPage() {
       ) : (
         <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <HeatmapCard title="Mapa de Calor de Interacción" description="Visualización en vivo de la densidad de clics por componente." />
+                <HeatmapCard 
+                    title={selectedTest ? `Mapa de Calor: ${selectedTest}` : "Mapa de Calor de Interacción"}
+                    description={selectedTest ? `Visualización de clics para la página seleccionada.` : "Visualización en vivo de la densidad de clics por componente."}
+                />
                 <InsightsCard />
             </div>
 

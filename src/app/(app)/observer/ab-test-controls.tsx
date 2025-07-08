@@ -8,7 +8,7 @@ import { DateRangePicker } from "./date-range-picker";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Download, PlusCircle, TestTube2 } from 'lucide-react';
+import { Download, PlusCircle, TestTube2, Gauge } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { RequireRole } from '@/components/auth/require-role';
@@ -26,9 +26,18 @@ interface ABTestControlsProps {
     onModeChange: (isAB: boolean) => void;
     selectedTest: string | null;
     onTestChange: (testId: string | null) => void;
+    selectedPerformanceItem: string | null;
+    onPerformanceItemChange: (itemId: string | null) => void;
 }
 
-export function ABTestControls({ isABMode, onModeChange, selectedTest, onTestChange }: ABTestControlsProps) {
+export function ABTestControls({ 
+    isABMode, 
+    onModeChange, 
+    selectedTest, 
+    onTestChange,
+    selectedPerformanceItem,
+    onPerformanceItemChange,
+ }: ABTestControlsProps) {
     const { toast } = useToast();
     const [isDialogOpen, setDialogOpen] = useState(false);
 
@@ -39,10 +48,19 @@ export function ABTestControls({ isABMode, onModeChange, selectedTest, onTestCha
         });
     };
 
-    const handleTestChange = (value: string) => {
-        onTestChange(value);
-        if (value) {
-            onModeChange(true);
+    const handleSelectionChange = (value: string) => {
+        if (!value) {
+            onTestChange(null);
+            onPerformanceItemChange(null);
+            return;
+        }
+
+        if (value.startsWith('test-')) {
+            onTestChange(value.replace('test-', ''));
+        } else if (value.startsWith('perf-')) {
+            onPerformanceItemChange(value.replace('perf-', ''));
+        } else { // It's a page
+            onTestChange(value);
         }
     }
     
@@ -53,6 +71,10 @@ export function ABTestControls({ isABMode, onModeChange, selectedTest, onTestCha
         }
         onModeChange(checked);
     }
+    
+    const selectedValue = selectedPerformanceItem 
+        ? `perf-${selectedPerformanceItem}` 
+        : (selectedTest ? (mockTests.some(t => t.id === selectedTest) ? `test-${selectedTest}` : selectedTest) : "");
 
     return (
         <>
@@ -66,7 +88,7 @@ export function ABTestControls({ isABMode, onModeChange, selectedTest, onTestCha
                 <div className="flex flex-wrap justify-between items-center gap-4">
                     <div>
                         <CardTitle>Filtros y Experimentos</CardTitle>
-                        <CardDescription>Selecciona una página, rango de fechas o un experimento A/B.</CardDescription>
+                        <CardDescription>Selecciona una página, rango de fechas, un experimento A/B o un análisis de rendimiento.</CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
                          <RequireRole roles={['core', 'admin']}>
@@ -84,9 +106,9 @@ export function ABTestControls({ isABMode, onModeChange, selectedTest, onTestCha
             </CardHeader>
             <CardContent className="flex flex-wrap items-center gap-4">
                 <DateRangePicker />
-                <Select onValueChange={handleTestChange} value={selectedTest || ""}>
+                <Select onValueChange={handleSelectionChange} value={selectedValue}>
                 <SelectTrigger className="w-full md:w-[280px]">
-                    <SelectValue placeholder="Seleccionar experimento" />
+                    <SelectValue placeholder="Seleccionar vista" />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectGroup>
@@ -97,7 +119,7 @@ export function ABTestControls({ isABMode, onModeChange, selectedTest, onTestCha
                     <SelectGroup>
                         <SelectLabel>Experimentos A/B</SelectLabel>
                         {mockTests.map(test => (
-                            <SelectItem key={test.id} value={test.id}>
+                            <SelectItem key={test.id} value={`test-${test.id}`}>
                                 <div className="flex items-center gap-2">
                                     <TestTube2 className="h-4 w-4 text-primary"/>
                                     {test.name}
@@ -105,10 +127,25 @@ export function ABTestControls({ isABMode, onModeChange, selectedTest, onTestCha
                             </SelectItem>
                         ))}
                     </SelectGroup>
+                     <SelectGroup>
+                        <SelectLabel>Rendimiento</SelectLabel>
+                        <SelectItem value="perf-button">
+                            <div className="flex items-center gap-2">
+                                <Gauge className="h-4 w-4 text-primary" />
+                                <span>Componente: Botón Primario</span>
+                            </div>
+                        </SelectItem>
+                        <SelectItem value="perf-checkout">
+                            <div className="flex items-center gap-2">
+                                <Gauge className="h-4 w-4 text-primary" />
+                                <span>Plantilla: Checkout</span>
+                            </div>
+                        </SelectItem>
+                    </SelectGroup>
                 </SelectContent>
                 </Select>
                 <div className="flex items-center space-x-2">
-                    <Switch id="ab-mode" checked={isABMode} onCheckedChange={handleModeChange} />
+                    <Switch id="ab-mode" checked={isABMode} onCheckedChange={handleModeChange} disabled={!selectedTest || !mockTests.some(t => t.id === selectedTest)} />
                     <Label htmlFor="ab-mode">Modo A/B</Label>
                 </div>
             </CardContent>
@@ -117,4 +154,3 @@ export function ABTestControls({ isABMode, onModeChange, selectedTest, onTestCha
         </>
     );
 }
-
