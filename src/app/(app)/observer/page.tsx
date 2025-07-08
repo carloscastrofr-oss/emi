@@ -58,9 +58,14 @@ export default function ObserverPage() {
                 <SelectValue placeholder="Seleccionar página" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="/checkout">Carrito de Compras (/checkout)</SelectItem>
                 <SelectItem value="/home">Página de Inicio (/home)</SelectItem>
+                <SelectItem value="/products">Listado de Productos (/products)</SelectItem>
                 <SelectItem value="/product/123">Detalle de Producto (/product/...)</SelectItem>
+                <SelectItem value="/checkout">Carrito de Compras (/checkout)</SelectItem>
+                <SelectItem value="/orders">Historial de Pedidos (/orders)</SelectItem>
+                <SelectItem value="/profile">Perfil de Usuario (/profile)</SelectItem>
+                <SelectItem value="/settings">Configuración (/settings)</SelectItem>
+                <SelectItem value="/contact">Contacto (/contact)</SelectItem>
               </SelectContent>
             </Select>
           </CardContent>
