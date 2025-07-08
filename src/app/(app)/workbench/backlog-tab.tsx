@@ -58,7 +58,7 @@ export function BacklogTab() {
   return (
     <Card className="rounded-expressive">
       <CardHeader>
-        <CardTitle>Backlog del Sistema de Diseño</CardTitle>
+        <CardTitle>Backlog</CardTitle>
         <CardDescription>Tareas y mejoras para el sprint actual.</CardDescription>
       </CardHeader>
       <CardContent>

@@ -36,7 +36,7 @@ export function VotingTab() {
     <div className="space-y-4">
       <Card className="rounded-expressive">
         <CardHeader>
-            <CardTitle>Propuestas</CardTitle>
+            <CardTitle>Votación de Propuestas</CardTitle>
             <CardDescription>Vota sobre nuevos componentes, tokens y otros cambios al sistema de diseño.</CardDescription>
         </CardHeader>
       </Card>
