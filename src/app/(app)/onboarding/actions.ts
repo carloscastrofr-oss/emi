@@ -2,7 +2,6 @@
 'use server';
 
 import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
-import { auth } from 'firebase-admin';
 import { db, isFirebaseConfigValid } from '@/lib/firebase';
 import { revalidatePath } from 'next/cache';
 
