@@ -28,13 +28,13 @@ const formSchema = z.object({
   vision: z.string().min(1, 'La visión es requerida.').max(140, 'La visión no debe exceder los 140 caracteres.'),
   valueProp: z.string().min(1, 'La propuesta de valor es requerida.').max(200, 'La propuesta de valor no debe exceder los 200 caracteres.'),
   okrs: z.array(okrSchema).min(1, 'Debe haber al menos un OKR.').max(3, 'No más de 3 OKRs.'),
-  personas: z.array(z.object({ value: z.string().min(1) })).min(1, 'Añade al menos una persona.').max(5, 'No más de 5 personas.'),
-  principles: z.array(z.object({ value: z.string().min(1) })).min(1, 'Añade al menos un principio.').max(5, 'No más de 5 principios.'),
-  pages: z.array(z.object({ value: z.string().min(1) })).min(1, 'Añade al menos una página.').max(3, 'No más de 3 páginas.'),
-  kpis: z.array(z.object({ value: z.string().min(1) })).min(1, 'Añade al menos un KPI.').max(3, 'No más de 3 KPIs.'),
-  componentsRoadmap: z.array(z.object({ value: z.string().min(1) })).min(1, 'Añade al menos un componente.').max(5, 'No más de 5 componentes en el roadmap.'),
-  risks: z.array(z.object({ value: z.string().min(1) })).max(3, 'No más de 3 riesgos.'),
-  milestones: z.array(z.object({ value: z.string().min(1) })).max(5, 'No más de 5 hitos.'),
+  personas: z.array(z.object({ value: z.string().min(1,'Este campo es requerido.') })).min(1, 'Añade al menos una persona.').max(5, 'No más de 5 personas.'),
+  principles: z.array(z.object({ value: z.string().min(1, 'Este campo es requerido.') })).min(1, 'Añade al menos un principio.').max(5, 'No más de 5 principios.'),
+  pages: z.array(z.object({ value: z.string().min(1, 'Este campo es requerido.') })).min(1, 'Añade al menos una página.').max(3, 'No más de 3 páginas.'),
+  kpis: z.array(z.object({ value: z.string().min(1, 'Este campo es requerido.') })).min(1, 'Añade al menos un KPI.').max(3, 'No más de 3 KPIs.'),
+  componentsRoadmap: z.array(z.object({ value: z.string().min(1, 'Este campo es requerido.') })).min(1, 'Añade al menos un componente.').max(5, 'No más de 5 componentes en el roadmap.'),
+  risks: z.array(z.object({ value: z.string().min(1, 'Este campo es requerido.') })).max(3, 'No más de 3 riesgos.'),
+  milestones: z.array(z.object({ value: z.string().min(1, 'Este campo es requerido.') })).max(5, 'No más de 5 hitos.'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -75,6 +75,12 @@ const ChipInput = ({ control, name, label, placeholder, limit }: ChipInputProps)
     }
   };
 
+  const getNestedError = (name: string, index: number) => {
+    if (!errors || !errors[name as keyof typeof errors]) return null;
+    const errorArray = errors[name as keyof typeof errors] as any;
+    return errorArray[index]?.value?.message;
+  };
+  
   const arrayError = errors[name];
   
   return (
@@ -100,16 +106,23 @@ const ChipInput = ({ control, name, label, placeholder, limit }: ChipInputProps)
             exit={{ opacity: 0, x: -10 }}
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
           >
-            <Badge variant="secondary" className="text-sm py-1 pl-3 pr-2 bg-primary-container text-on-primary-container hover:bg-primary-container/80">
-              {currentValues[index]?.value}
-              <button type="button" onClick={() => remove(index)} className="ml-2 rounded-full hover:bg-black/10">
-                <XCircle className="h-4 w-4" />
-              </button>
-            </Badge>
+            <FormField
+              control={control}
+              name={`${name}.${index}.value`}
+              render={({ field }) => (
+                <Badge variant="secondary" className="text-sm py-1 pl-3 pr-2 bg-primary-container text-on-primary-container hover:bg-primary-container/80">
+                  {field.value}
+                  <button type="button" onClick={() => remove(index)} className="ml-2 rounded-full hover:bg-black/10">
+                    <XCircle className="h-4 w-4" />
+                  </button>
+                </Badge>
+              )}
+            />
+            {getNestedError(name, index) && <p className="text-xs font-medium text-destructive">{getNestedError(name, index)}</p>}
           </motion.div>
         ))}
       </div>
-      {arrayError && <p className="text-sm font-medium text-destructive">{arrayError.message}</p>}
+      {arrayError && typeof arrayError === 'object' && 'message' in arrayError && <p className="text-sm font-medium text-destructive">{arrayError.message as string}</p>}
     </FormItem>
   );
 };
@@ -272,7 +285,7 @@ export default function StrategyPage() {
                 {/* Dynamic Chip Inputs */}
                 <div className="grid md:grid-cols-2 gap-8">
                    <ChipInput control={form.control} name="personas" label="Personas" placeholder="Ej: Usuarios con baja visión" limit={5} />
-                   <ChipInput control={form.control} name="principles" label="Principios de Diseño" placeholder="Ej: escalabilidad" limit={5} />
+                   <ChipInput control={form.control} name="principles" label="Principios de Diseño" placeholder="ej: escalabilidad" limit={5} />
                    <ChipInput control={form.control} name="pages" label="Páginas Clave" placeholder="Ej: /checkout" limit={3} />
                    <ChipInput control={form.control} name="kpis" label="KPIs de UX" placeholder="Ej: CSAT ≥ 4.5" limit={3} />
                    <ChipInput control={form.control} name="componentsRoadmap" label="Roadmap de Componentes" placeholder="Ej: Badge" limit={5} />
@@ -325,7 +338,6 @@ export default function StrategyPage() {
                                 <Lightbulb className="text-primary h-5 w-5" />
                                 Interpretación para el Diseñador
                             </CardTitle>
-                            <CardDescription>Ideas y estrategia generadas por IA para el equipo de diseño.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4 text-sm">
                             <div>

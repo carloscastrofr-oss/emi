@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview AI-powered Design Strategy Generator.
@@ -35,10 +34,10 @@ const GenerateDesignStrategyInputSchema = z.object({
 export type GenerateDesignStrategyInput = z.infer<typeof GenerateDesignStrategyInputSchema>;
 
 const DesignInterpretationSchema = z.object({
-    strategicSummary: z.string().describe("A brief summary of the design strategy for a designer."),
-    componentSuggestions: z.array(z.string()).describe("A list of concrete component ideas based on the roadmap and personas."),
-    visualDirection: z.string().describe("Suggestions for the visual look and feel, referencing the design principles."),
-    userExperienceGoals: z.string().describe("Key user experience goals to focus on during implementation.")
+    strategicSummary: z.string().describe("Un resumen breve de la estrategia de diseño para un diseñador."),
+    componentSuggestions: z.array(z.string()).describe("Una lista de ideas concretas de componentes basadas en el roadmap y las personas."),
+    visualDirection: z.string().describe("Sugerencias para la apariencia y el estilo visual, haciendo referencia a los principios de diseño."),
+    userExperienceGoals: z.string().describe("Objetivos clave de experiencia de usuario en los que centrarse durante la implementación.")
 });
 
 const GenerateDesignStrategyOutputSchema = z.object({
@@ -102,22 +101,22 @@ const interpretationPrompt = ai.definePrompt({
     name: 'interpretDesignStrategyPrompt',
     input: { schema: z.object({ markdownContent: z.string() }) },
     output: { schema: DesignInterpretationSchema },
-    prompt: `You are an expert design strategist and coach. Your task is to analyze the following design strategy document (in Markdown format) and translate it into actionable insights and creative ideas for a UI/UX designer.
+    prompt: `Eres un estratega y coach de diseño experto. Tu tarea es analizar el siguiente documento de estrategia de diseño (en formato Markdown) y traducirlo en ideas accionables y creativas para un diseñador UI/UX.
 
-Focus on providing concrete, inspiring, and practical advice.
+Concéntrate en proporcionar consejos concretos, inspiradores y prácticos.
 
-Design Strategy Document:
+Documento de Estrategia de Diseño:
 ---
 {{{markdownContent}}}
 ---
 
-Based on the document, provide the following:
-1.  **Strategic Summary:** A short, motivational summary for the design team, highlighting the core mission.
-2.  **Component Suggestions:** Brainstorm specific, new components that would directly support the OKRs and roadmap. Think beyond the obvious.
-3.  **Visual Direction:** Describe the look and feel. How can the design principles (like radius, motion) be translated into a tangible visual language?
-4.  **User Experience Goals:** What are the most critical UX goals the designer should focus on to satisfy the target personas and KPIs?
+Basado en el documento, proporciona lo siguiente:
+1.  **Resumen Estratégico:** Un resumen corto y motivador para el equipo de diseño, destacando la misión principal.
+2.  **Sugerencias de Componentes:** Piensa en componentes nuevos y específicos que apoyarían directamente los OKRs y el roadmap. Piensa más allá de lo obvio.
+3.  **Dirección Visual:** Describe la apariencia y la sensación. ¿Cómo se pueden traducir los principios de diseño (como el radio, el movimiento) en un lenguaje visual tangible?
+4.  **Objetivos de Experiencia de Usuario:** ¿Cuáles son los objetivos de UX más críticos en los que el diseñador debería centrarse para satisfacer a las personas y los KPIs objetivo?
 
-Provide the output in the specified JSON format.
+Proporciona la salida en el formato JSON especificado.
 `,
 });
 
