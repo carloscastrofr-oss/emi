@@ -8,7 +8,7 @@ import { DateRangePicker } from "./date-range-picker";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { FileImport, PlusCircle, TestTube2, Gauge } from 'lucide-react';
+import { Import, PlusCircle, TestTube2, Gauge } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { RequireRole } from '@/components/auth/require-role';
@@ -98,7 +98,7 @@ export function ABTestControls({
                             </Button>
                         </RequireRole>
                         <Button onClick={handleImport} variant="outline">
-                            <FileImport className="mr-2 h-4 w-4" />
+                            <Import className="mr-2 h-4 w-4" />
                             Importar
                         </Button>
                     </div>
