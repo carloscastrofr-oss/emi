@@ -1,17 +1,17 @@
+
 'use client';
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRangePicker } from "./date-range-picker";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Import, PlusCircle, TestTube2, Gauge } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { RequireRole } from '@/components/auth/require-role';
 import { CreateABTestDialog } from './create-ab-test-dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const mockTests = [
     { id: 'demoCheckout', name: 'Color del CTA en Checkout' },
@@ -19,24 +19,19 @@ const mockTests = [
     { id: 'pricingPageLayout', name: 'Layout de Página de Precios' }
 ];
 
+type AnalysisType = 'page' | 'test' | 'performance';
 
-interface ABTestControlsProps {
-    isABMode: boolean;
-    onModeChange: (isAB: boolean) => void;
-    selectedTest: string | null;
-    onTestChange: (testId: string | null) => void;
-    selectedPerformanceItem: string | null;
-    onPerformanceItemChange: (itemId: string | null) => void;
+export interface Analysis {
+    type: AnalysisType | null;
+    id: string | null;
 }
 
-export function ABTestControls({ 
-    isABMode, 
-    onModeChange, 
-    selectedTest, 
-    onTestChange,
-    selectedPerformanceItem,
-    onPerformanceItemChange,
- }: ABTestControlsProps) {
+interface ABTestControlsProps {
+    analysis: Analysis;
+    onAnalysisChange: (analysis: Analysis) => void;
+}
+
+export function ABTestControls({ analysis, onAnalysisChange }: ABTestControlsProps) {
     const { toast } = useToast();
     const [isDialogOpen, setDialogOpen] = useState(false);
 
@@ -46,34 +41,14 @@ export function ABTestControls({
             description: "La importación de datos estará disponible próximamente.",
         });
     };
-
-    const handleSelectionChange = (value: string) => {
-        if (!value) {
-            onTestChange(null);
-            onPerformanceItemChange(null);
-            return;
-        }
-
-        if (value.startsWith('test-')) {
-            onTestChange(value.replace('test-', ''));
-        } else if (value.startsWith('perf-')) {
-            onPerformanceItemChange(value.replace('perf-', ''));
-        } else { // It's a page
-            onTestChange(value);
-        }
-    }
     
-    const handleModeChange = (checked: boolean) => {
-        if (!selectedTest && checked) {
-            toast({ title: "Selecciona un experimento", description: "Por favor, elige un experimento para activar el modo A/B."});
-            return;
-        }
-        onModeChange(checked);
-    }
-    
-    const selectedValue = selectedPerformanceItem 
-        ? `perf-${selectedPerformanceItem}` 
-        : (selectedTest ? (mockTests.some(t => t.id === selectedTest) ? `test-${selectedTest}` : selectedTest) : "");
+    const handleTabChange = (type: string) => {
+        onAnalysisChange({ type: type as AnalysisType, id: null });
+    };
+
+    const handleSelectionChange = (id: string) => {
+        onAnalysisChange({ ...analysis, id: id || null });
+    };
 
     return (
         <>
@@ -103,50 +78,63 @@ export function ABTestControls({
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="flex flex-wrap items-center gap-4">
-                <DateRangePicker />
-                <Select onValueChange={handleSelectionChange} value={selectedValue}>
-                <SelectTrigger className="w-full md:w-[280px]">
-                    <SelectValue placeholder="Seleccionar análisis" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectGroup>
-                        <SelectLabel>Páginas</SelectLabel>
-                        <SelectItem value="/checkout">Carrito de Compras (/checkout)</SelectItem>
-                         {/* Other pages can be added here */}
-                    </SelectGroup>
-                    <SelectGroup>
-                        <SelectLabel>Experimentos A/B</SelectLabel>
-                        {mockTests.map(test => (
-                            <SelectItem key={test.id} value={`test-${test.id}`}>
-                                <div className="flex items-center gap-2">
-                                    <TestTube2 className="h-4 w-4 text-primary"/>
-                                    {test.name}
-                                </div>
-                            </SelectItem>
-                        ))}
-                    </SelectGroup>
-                     <SelectGroup>
-                        <SelectLabel>Rendimiento</SelectLabel>
-                        <SelectItem value="perf-button">
-                            <div className="flex items-center gap-2">
-                                <Gauge className="h-4 w-4 text-primary" />
-                                <span>Componente: Botón Primario</span>
-                            </div>
-                        </SelectItem>
-                        <SelectItem value="perf-checkout">
-                            <div className="flex items-center gap-2">
-                                <Gauge className="h-4 w-4 text-primary" />
-                                <span>Plantilla: Checkout</span>
-                            </div>
-                        </SelectItem>
-                    </SelectGroup>
-                </SelectContent>
-                </Select>
-                <div className="flex items-center space-x-2">
-                    <Switch id="ab-mode" checked={isABMode} onCheckedChange={handleModeChange} disabled={!selectedTest || !mockTests.some(t => t.id === selectedTest)} />
-                    <Label htmlFor="ab-mode">Modo A/B</Label>
+            <CardContent className="space-y-4">
+                 <div className="flex flex-wrap items-start gap-4">
+                     <DateRangePicker />
                 </div>
+                 <Tabs value={analysis.type ?? 'page'} onValueChange={handleTabChange} className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="page">Mapas de Calor</TabsTrigger>
+                        <TabsTrigger value="test">Experimentos A/B</TabsTrigger>
+                        <TabsTrigger value="performance">Rendimiento</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="page" className="pt-4">
+                        <Label className="text-sm text-muted-foreground mb-2 block">Página</Label>
+                        <Select onValueChange={handleSelectionChange} value={analysis.type === 'page' ? analysis.id ?? '' : ''}>
+                            <SelectTrigger className="w-full md:w-[320px]"><SelectValue placeholder="Selecciona una página" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="/checkout">Carrito de Compras (/checkout)</SelectItem>
+                                <SelectItem value="/homepage">Página de Inicio (/homepage)</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </TabsContent>
+                    <TabsContent value="test" className="pt-4">
+                        <Label className="text-sm text-muted-foreground mb-2 block">Experimento</Label>
+                        <Select onValueChange={handleSelectionChange} value={analysis.type === 'test' ? analysis.id ?? '' : ''}>
+                            <SelectTrigger className="w-full md:w-[320px]"><SelectValue placeholder="Selecciona un experimento" /></SelectTrigger>
+                            <SelectContent>
+                                {mockTests.map(test => (
+                                    <SelectItem key={test.id} value={test.id}>
+                                        <div className="flex items-center gap-2">
+                                            <TestTube2 className="h-4 w-4 text-primary"/>
+                                            {test.name}
+                                        </div>
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </TabsContent>
+                    <TabsContent value="performance" className="pt-4">
+                        <Label className="text-sm text-muted-foreground mb-2 block">Ítem de Rendimiento</Label>
+                        <Select onValueChange={handleSelectionChange} value={analysis.type === 'performance' ? analysis.id ?? '' : ''}>
+                            <SelectTrigger className="w-full md:w-[320px]"><SelectValue placeholder="Selecciona un ítem de rendimiento" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="button">
+                                    <div className="flex items-center gap-2">
+                                        <Gauge className="h-4 w-4 text-primary" />
+                                        <span>Componente: Botón Primario</span>
+                                    </div>
+                                </SelectItem>
+                                <SelectItem value="checkout">
+                                    <div className="flex items-center gap-2">
+                                        <Gauge className="h-4 w-4 text-primary" />
+                                        <span>Plantilla: Checkout</span>
+                                    </div>
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </TabsContent>
+                </Tabs>
             </CardContent>
             </Card>
         </motion.div>

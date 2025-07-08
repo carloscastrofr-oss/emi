@@ -10,7 +10,7 @@ import { HeatmapCard } from './heatmap-card';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, List } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { ABTestControls } from './ab-test-controls';
+import { ABTestControls, Analysis } from './ab-test-controls';
 import { StatsCompareCard } from './stats-compare-card';
 import { PerformanceCard } from './performance-card';
 
@@ -21,29 +21,27 @@ const mockTests = [
 ];
 
 export default function ObserverPage() {
-    const [isABMode, setABMode] = useState(false);
-    const [selectedTest, setSelectedTest] = useState<string | null>(null);
-    const [selectedPerformanceItem, setSelectedPerformanceItem] = useState<string | null>(null);
+    const [analysis, setAnalysis] = useState<Analysis>({ type: 'page', id: '/checkout' });
 
-    const handleTestSelection = (testId: string | null) => {
-        setSelectedTest(testId);
-        if (testId) {
-            setSelectedPerformanceItem(null);
-            // A/B mode is only for actual experiments, not for page heatmaps
-            const isExperiment = mockTests.some(t => t.id === testId);
-            setABMode(isExperiment);
-        } else {
-            setABMode(false);
-        }
-    };
+    const isABMode = analysis.type === 'test' && !!analysis.id;
 
-    const handlePerformanceSelection = (itemId: string | null) => {
-        setSelectedPerformanceItem(itemId);
-        if (itemId) {
-            setSelectedTest(null);
-            setABMode(false);
+    const getHeatmapTitle = () => {
+        if (analysis.type === 'page' && analysis.id) {
+            return `Mapa de Calor: ${analysis.id}`;
         }
+        if (analysis.type === 'test' && analysis.id) {
+             const testName = mockTests.find(t => t.id === analysis.id)?.name;
+             return testName ? `Heatmap: ${testName} (Variante A)` : 'Mapa de Calor';
+        }
+        return "Mapa de Calor de Interacción";
     };
+    
+    const getHeatmapDescription = () => {
+        if (analysis.type === 'page' || analysis.type === 'test') {
+            return "Visualización de clics para la selección actual.";
+        }
+        return "Visualización en vivo de la densidad de clics por componente.";
+    }
 
   return (
     <div className="space-y-8">
@@ -53,17 +51,13 @@ export default function ObserverPage() {
       />
       
       <ABTestControls 
-        isABMode={isABMode}
-        onModeChange={setABMode}
-        selectedTest={selectedTest}
-        onTestChange={handleTestSelection}
-        selectedPerformanceItem={selectedPerformanceItem}
-        onPerformanceItemChange={handlePerformanceSelection}
+        analysis={analysis}
+        onAnalysisChange={setAnalysis}
       />
 
-      {selectedPerformanceItem ? (
-        <PerformanceCard item={selectedPerformanceItem} />
-      ) : isABMode && selectedTest ? (
+      {analysis.type === 'performance' && analysis.id ? (
+        <PerformanceCard item={analysis.id} />
+      ) : isABMode ? (
         <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <HeatmapCard title="Variante A" description="Heatmap para la variante de control." />
@@ -79,8 +73,8 @@ export default function ObserverPage() {
         <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <HeatmapCard 
-                    title={selectedTest ? `Mapa de Calor: ${selectedTest}` : "Mapa de Calor de Interacción"}
-                    description={selectedTest ? `Visualización de clics para la página seleccionada.` : "Visualización en vivo de la densidad de clics por componente."}
+                    title={getHeatmapTitle()}
+                    description={getHeatmapDescription()}
                 />
                 <InsightsCard />
             </div>
