@@ -102,7 +102,7 @@ export function PerformanceCard({ item }: PerformanceCardProps) {
                     </CardHeader>
                     <CardContent className="flex min-h-[250px] items-center justify-center p-6 bg-muted/50 rounded-b-expressive">
                         {item === 'button' && (
-                            <Button size="lg" style={{ backgroundColor: 'var(--color-primary-dynamic)', color: 'var(--color-on-primary-dynamic)' }}>Botón Primario</Button>
+                            <Button size="lg">Botón Primario</Button>
                         )}
                         {item === 'checkout' && (
                             <div className="w-full max-w-sm h-[300px] bg-card border rounded-lg p-4 font-sans text-sm shadow-lg flex flex-col">
