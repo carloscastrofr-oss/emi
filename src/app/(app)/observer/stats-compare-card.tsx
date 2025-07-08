@@ -79,7 +79,7 @@ export function StatsCompareCard() {
                             <TableCell className="text-center font-mono font-bold">{metric.b}</TableCell>
                             <TableCell className={`text-center font-mono font-bold ${metric.diff.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
                                 {metric.diff}
-                            </Tabel-cell>
+                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
