@@ -2,9 +2,10 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Gauge, Zap, Timer, BarChart, TrendingUp, Cpu, MemoryStick } from "lucide-react";
+import { Gauge, Zap, Timer, BarChart, TrendingUp, Cpu, MemoryStick, View } from "lucide-react";
 import { motion } from "framer-motion";
 import { ObserverTrendChart } from "./observer-trend-chart";
+import { Button } from "@/components/ui/button";
 
 const performanceData = {
     button: {
@@ -83,6 +84,55 @@ export function PerformanceCard({ item }: PerformanceCardProps) {
                     </div>
                 </CardContent>
             </Card>
+
+            <motion.div
+                className="h-full"
+                whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            >
+                <Card className="rounded-expressive shadow-e2">
+                    <CardHeader className="flex flex-row items-start gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                            <View className="h-6 w-6 text-primary" />
+                        </div>
+                        <div>
+                            <CardTitle>Vista Previa</CardTitle>
+                            <CardDescription>Representación visual del {item === 'button' ? 'componente' : 'plantilla'} bajo análisis.</CardDescription>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="flex min-h-[250px] items-center justify-center p-6 bg-muted/50 rounded-b-expressive">
+                        {item === 'button' && (
+                            <Button size="lg" style={{ backgroundColor: 'var(--color-primary-dynamic)', color: 'var(--color-on-primary-dynamic)' }}>Botón Primario</Button>
+                        )}
+                        {item === 'checkout' && (
+                            <div className="w-full max-w-sm h-[300px] bg-card border rounded-lg p-4 font-sans text-sm shadow-lg flex flex-col">
+                                <h3 className="text-base font-bold mb-2 text-card-foreground">Tu Carrito</h3>
+                                <div className="flex items-center gap-2 py-2 border-b">
+                                    <div className="w-10 h-10 bg-muted rounded-md shrink-0"></div>
+                                    <div className="flex-grow space-y-2">
+                                        <div className="h-4 bg-muted rounded w-3/4"></div>
+                                        <div className="h-3 bg-muted rounded w-1/2"></div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 py-2 border-b">
+                                    <div className="w-10 h-10 bg-muted rounded-md shrink-0"></div>
+                                    <div className="flex-grow space-y-2">
+                                        <div className="h-4 bg-muted rounded w-3/4"></div>
+                                        <div className="h-3 bg-muted rounded w-1/2"></div>
+                                    </div>
+                                </div>
+                                <div className="mt-auto space-y-2">
+                                    <div className="flex justify-between">
+                                        <div className="h-4 bg-muted rounded w-1/4"></div>
+                                        <div className="h-4 bg-muted rounded w-1/4"></div>
+                                    </div>
+                                    <Button className="w-full" disabled>Proceder al Pago</Button>
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            </motion.div>
 
             <motion.div
                 className="h-full"
