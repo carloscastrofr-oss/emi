@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState } from 'react';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import React, { useState } from 'react';
+import { useForm, useFieldArray, Controller, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
@@ -63,10 +63,12 @@ interface ChipInputProps {
 const ChipInput = ({ control, name, label, placeholder, limit }: ChipInputProps) => {
   const { fields, append, remove } = useFieldArray({ control, name });
   const [inputValue, setInputValue] = useState('');
+  const { watch } = useFormContext<FormData>();
+  const currentValues = watch(name) || [];
 
   const handleAdd = () => {
     if (inputValue.trim() && fields.length < limit) {
-      append(inputValue.trim());
+      append(inputValue.trim() as any);
       setInputValue('');
     }
   };
@@ -95,7 +97,7 @@ const ChipInput = ({ control, name, label, placeholder, limit }: ChipInputProps)
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
           >
             <Badge variant="secondary" className="text-base py-1 pl-3 pr-2 bg-primary-container text-on-primary-container hover:bg-primary-container/80">
-              {field.value}
+              {currentValues[index]}
               <button type="button" onClick={() => remove(index)} className="ml-2 rounded-full hover:bg-black/10">
                 <XCircle className="h-4 w-4" />
               </button>
@@ -128,7 +130,7 @@ export default function StrategyPage() {
     setIsLoading(true);
     setGeneratedResult(null);
     try {
-        const result = await generateDesignStrategy(values);
+        const result = await generateDesignStrategy(values as GenerateDesignStrategyInput);
         setGeneratedResult(result);
         toast({
             title: "Estrategia Generada Exitosamente",
