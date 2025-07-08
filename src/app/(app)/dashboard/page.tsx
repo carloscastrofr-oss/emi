@@ -46,7 +46,7 @@ export default function DashboardPage() {
         });
 
         return () => unsubscribe();
-    }, [activeBrandId]);
+    }, []);
 
     if (isLoadingBrands) {
         return (
