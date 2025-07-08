@@ -94,7 +94,7 @@ export function ABTestControls({
                          <RequireRole roles={['core', 'admin']}>
                             <Button onClick={() => setDialogOpen(true)} variant="outline">
                                 <PlusCircle className="mr-2 h-4 w-4" />
-                                Nuevo Experimento
+                                Nuevo A/B Test
                             </Button>
                         </RequireRole>
                         <Button onClick={handleImport} variant="outline">
