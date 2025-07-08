@@ -14,7 +14,8 @@ import {
   Bot,
   View,
   Beaker,
-  ClipboardList
+  ClipboardList,
+  FileText,
 } from "lucide-react";
 
 import {
@@ -48,6 +49,7 @@ import { useMemo } from "react";
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Panel", roles: ["viewer", "producer", "core", "admin"], className: "dashboard-page-link" },
   { href: "/kit", icon: Package, label: "Kit", roles: ["viewer", "producer", "core", "admin"], className: "kit-page-link" },
+  { href: "/contenido", icon: FileText, label: "Contenido", roles: ["producer", "core", "admin"], className: "content-page-link" },
   { href: "/labs", icon: FlaskConical, label: "Labs", roles: ["producer", "core", "admin"], className: "labs-page-link" },
   { href: "/workbench", icon: KanbanSquare, label: "Workbench", roles: ["producer", "core", "admin"], className: "workbench-page-link" },
   { href: "/agent", icon: Bot, label: "Agent", roles: ["core", "admin"], className: "agent-page-link" },
