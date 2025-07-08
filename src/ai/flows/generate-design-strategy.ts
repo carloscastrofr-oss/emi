@@ -23,14 +23,8 @@ const GenerateDesignStrategyInputSchema = z.object({
   okrs: z.array(OKRSchema).min(1).max(3),
   personas: z.array(z.string()).min(1).max(5),
   principles: z.array(z.string()).min(1).max(5),
-  // New Rich Inputs
   scopeProducts: z.array(z.string()).min(1, "Define al menos un producto en el alcance."),
   legacyConstraints: z.string().optional(),
-  tokenSeed: z.object({
-      primaryColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Debe ser un color HEX válido."),
-      radius: z.number(),
-      motion: z.string(),
-  }),
   governance: z.object({
       accountableRole: z.string(),
       workflow: z.string(),
@@ -53,7 +47,6 @@ export type GenerateDesignStrategyInput = z.infer<typeof GenerateDesignStrategyI
 const DesignInterpretationSchema = z.object({
     strategicSummary: z.string().describe("Un resumen breve de la estrategia de diseño para un diseñador."),
     componentSuggestions: z.array(z.string()).describe("Una lista de ideas concretas de componentes basadas en el roadmap y las personas."),
-    visualDirection: z.string().describe("Sugerencias para la apariencia y el estilo visual, haciendo referencia a los principios de diseño y los tokens semilla."),
     userExperienceGoals: z.string().describe("Objetivos clave de experiencia de usuario en los que centrarse durante la implementación, ponderados por los KPIs."),
     governanceModel: z.string().describe("Recomendaciones sobre cómo implementar el modelo de gobernanza propuesto."),
 });
@@ -87,6 +80,8 @@ ${scopeMd}
 **Gobernanza:**
 * **Rol Responsable:** ${data.governance.accountableRole}
 * **Flujo de Trabajo:** ${data.governance.workflow}
+**Restricciones Legacy:**
+${data.legacyConstraints || "Ninguna especificada."}
 
 ## 3. Objetivos y Métricas
 **Objetivos y Resultados Clave (OKRs):**
@@ -100,15 +95,7 @@ ${personasMd}
 **Principios de Diseño:**
 ${principlesMd}
 
-## 5. Dirección de Diseño y Ejecución
-**Tokens Semilla:**
-* **Color Primario:** \`${data.tokenSeed.primaryColor}\`
-* **Radio de Borde:** ${data.tokenSeed.radius}px
-* **Animación:** ${data.tokenSeed.motion}
-**Restricciones Legacy:**
-${data.legacyConstraints || "Ninguna especificada."}
-
-## 6. Presupuesto (Opcional)
+## 5. Presupuesto (Opcional)
 * **USD:** ${data.budget.usd || "No especificado"}
 * **Horas/Semana:** ${data.budget.hoursWeek || "No especificado"}
     `.trim();
@@ -142,9 +129,8 @@ Documento de Estrategia de Diseño:
 Basado en TODOS los datos proporcionados, genera lo siguiente:
 1.  **Resumen Estratégico:** Un resumen corto y motivador para el equipo de diseño, destacando la misión principal.
 2.  **Sugerencias de Componentes:** Piensa en componentes nuevos y específicos que apoyarían directamente los OKRs y el roadmap. Deben ser factibles considerando el presupuesto y las restricciones.
-3.  **Dirección Visual:** Describe la apariencia y el estilo. ¿Cómo se pueden traducir los principios y los tokens semilla (color, radio, animación) en un lenguaje visual tangible? Si el contraste del color primario es bajo, sugiere una alternativa.
-4.  **Objetivos de Experiencia de Usuario:** ¿Cuáles son los objetivos de UX más críticos en los que el diseñador debería centrarse? Pondera su importancia según los pesos de los KPIs definidos.
-5.  **Modelo de Gobernanza:** Ofrece consejos prácticos sobre cómo implementar el flujo de trabajo y el rol responsable definidos en el día a día.
+3.  **Objetivos de Experiencia de Usuario:** ¿Cuáles son los objetivos de UX más críticos en los que el diseñador debería centrarse? Pondera su importancia según los pesos de los KPIs definidos.
+4.  **Modelo de Gobernanza:** Ofrece consejos prácticos sobre cómo implementar el flujo de trabajo y el rol responsable definidos en el día a día.
 
 Proporciona la salida en el formato JSON especificado.
 `,

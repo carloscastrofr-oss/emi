@@ -5,7 +5,6 @@ import { useForm, useFieldArray, Controller, useFormContext } from 'react-hook-f
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
-import { HexColorPicker } from 'react-colorful';
 
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,11 +37,6 @@ const formSchema = z.object({
   // New Rich Inputs
   scopeProducts: z.array(z.object({ value: z.string().min(1, 'Este campo es requerido.') })).min(1, 'Añade al menos un producto.'),
   legacyConstraints: z.string().max(300, "Máximo 300 caracteres.").optional(),
-  tokenSeed: z.object({
-    primaryColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Debe ser un color HEX válido."),
-    radius: z.number().min(0).max(40),
-    motion: z.string(),
-  }),
   governance: z.object({
     accountableRole: z.string().min(1, 'Este campo es requerido.'),
     workflow: z.string().min(1, 'Este campo es requerido.'),
@@ -73,11 +67,6 @@ const initialValues: FormData = {
   principles: [{ value: 'accesibilidad' }, { value: 'flexibilidad' }],
   scopeProducts: [{ value: 'Producto Principal' }],
   legacyConstraints: '',
-  tokenSeed: {
-    primaryColor: '#455ADE',
-    radius: 12,
-    motion: 'Spring (Suave)',
-  },
   governance: {
     accountableRole: 'Core Team',
     workflow: 'Kanban Simplificado',
@@ -256,22 +245,8 @@ export default function StrategyPage() {
                 )} />
             </div>
 
-            {/* --- Design & Governance --- */}
+            {/* --- Governance, Metrics & Budget --- */}
             <div className="grid md:grid-cols-2 gap-8">
-                <Card className="rounded-expressive">
-                    <CardHeader><CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5"/>Tokens Semilla</CardTitle></CardHeader>
-                    <CardContent className="space-y-4">
-                        <FormField control={form.control} name="tokenSeed.primaryColor" render={({ field }) => (
-                            <FormItem><FormLabel>Color Primario</FormLabel><FormControl><HexColorPicker color={field.value} onChange={field.onChange} style={{ width: '100%'}} /></FormControl><Input className="mt-2 font-mono" {...field} /><FormMessage /></FormItem>
-                        )}/>
-                        <FormField control={form.control} name="tokenSeed.radius" render={({ field: { onChange, value } }) => (
-                            <FormItem><FormLabel>Radio de Borde: {value}px</FormLabel><FormControl><Slider value={[value]} onValueChange={(v) => onChange(v[0])} min={0} max={40} step={1} /></FormControl></FormItem>
-                        )} />
-                        <FormField control={form.control} name="tokenSeed.motion" render={({ field }) => (
-                            <FormItem><FormLabel>Animación</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl><SelectContent><SelectItem value="Spring (Suave)">Spring (Suave)</SelectItem><SelectItem value="Lineal (Rápido)">Lineal (Rápido)</SelectItem></SelectContent></Select><FormMessage /></FormItem>
-                        )}/>
-                    </CardContent>
-                </Card>
                  <Card className="rounded-expressive">
                     <CardHeader><CardTitle className="flex items-center gap-2"><Users className="h-5 w-5"/>Gobernanza</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
@@ -283,10 +258,6 @@ export default function StrategyPage() {
                         )}/>
                     </CardContent>
                 </Card>
-            </div>
-
-            {/* --- Metrics & Budget --- */}
-            <div className="grid md:grid-cols-2 gap-8">
                  <Card className="rounded-expressive">
                     <CardHeader><CardTitle className="flex items-center gap-2"><SlidersHorizontal className="h-5 w-5"/>Métricas Prioritarias</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
@@ -302,18 +273,19 @@ export default function StrategyPage() {
                         <FormMessage>{form.formState.errors.kpiWeights?.root?.message}</FormMessage>
                     </CardContent>
                 </Card>
-                 <Card className="rounded-expressive">
-                    <CardHeader><CardTitle className="flex items-center gap-2"><DollarSign className="h-5 w-5"/>Presupuesto (Opcional)</CardTitle></CardHeader>
-                    <CardContent className="space-y-4">
-                        <FormField control={form.control} name="budget.usd" render={({ field }) => (
-                            <FormItem><FormLabel>Presupuesto (USD)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name="budget.hoursWeek" render={({ field }) => (
-                            <FormItem><FormLabel>Horas por Semana</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                    </CardContent>
-                </Card>
             </div>
+            
+            <Card className="rounded-expressive">
+                <CardHeader><CardTitle className="flex items-center gap-2"><DollarSign className="h-5 w-5"/>Presupuesto (Opcional)</CardTitle></CardHeader>
+                <CardContent className="grid md:grid-cols-2 gap-8">
+                    <FormField control={form.control} name="budget.usd" render={({ field }) => (
+                        <FormItem><FormLabel>Presupuesto (USD)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="budget.hoursWeek" render={({ field }) => (
+                        <FormItem><FormLabel>Horas por Semana</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                </CardContent>
+            </Card>
             
             <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
                 {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Wand2 className="mr-2 h-5 w-5" />}
@@ -348,10 +320,6 @@ export default function StrategyPage() {
                                 <div>
                                     <h4 className="font-semibold mb-1">Resumen Estratégico</h4>
                                     <p className="text-muted-foreground">{generatedResult.designInterpretation.strategicSummary}</p>
-                                </div>
-                                 <div>
-                                    <h4 className="font-semibold mb-1">Dirección Visual</h4>
-                                    <p className="text-muted-foreground">{generatedResult.designInterpretation.visualDirection}</p>
                                 </div>
                                 <div>
                                     <h4 className="font-semibold mb-1">Objetivos de UX</h4>
