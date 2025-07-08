@@ -107,7 +107,7 @@ export function ABTestControls({
                 <DateRangePicker />
                 <Select onValueChange={handleSelectionChange} value={selectedValue}>
                 <SelectTrigger className="w-full md:w-[280px]">
-                    <SelectValue placeholder="Seleccionar vista" />
+                    <SelectValue placeholder="Seleccionar análisis" />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectGroup>
