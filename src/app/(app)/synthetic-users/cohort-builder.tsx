@@ -20,15 +20,15 @@ const segmentSchema = z.object({
     value: z.string().min(1, 'Este campo es requerido.'),
 });
 
-const cohortFormSchema = z.object({
+const panelFormSchema = z.object({
     name: z.string().min(3, "El nombre debe tener al menos 3 caracteres."),
     size: z.number().min(5).max(30),
     segments: z.array(segmentSchema).min(1, "Añade al menos un segmento.").max(5, "No más de 5 segmentos."),
 });
 
-type CohortFormData = z.infer<typeof cohortFormSchema>;
+type PanelFormData = z.infer<typeof panelFormSchema>;
 
-const initialValues: CohortFormData = {
+const initialValues: PanelFormData = {
     name: 'Checkout para compradores con baja visión',
     size: 10,
     segments: [{ value: 'Baja visión' }, { value: 'Edad: 25-35' }],
@@ -36,13 +36,13 @@ const initialValues: CohortFormData = {
 
 const segmentSuggestions = ['Baja visión', 'Estudiante', 'Gerente de Producto', 'Nuevo usuario', 'Acceso móvil', 'Poder adquisitivo alto'];
 
-export function CohortBuilder() {
+export function PanelBuilder() {
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
     const [segmentInput, setSegmentInput] = useState('');
 
-    const form = useForm<CohortFormData>({
-        resolver: zodResolver(cohortFormSchema),
+    const form = useForm<PanelFormData>({
+        resolver: zodResolver(panelFormSchema),
         defaultValues: initialValues,
     });
 
@@ -58,14 +58,14 @@ export function CohortBuilder() {
         }
     };
     
-    async function onSubmit(values: CohortFormData) {
+    async function onSubmit(values: PanelFormData) {
         setIsLoading(true);
-        console.log("Generando cohorte sintética con:", values);
+        console.log("Generando panel sintético con:", values);
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 2000));
         toast({
-            title: "Cohorte Generada",
-            description: `Se generó una cohorte de ${values.size} usuarios sintéticos.`,
+            title: "Panel Generado",
+            description: `Se generó un panel de ${values.size} usuarios sintéticos.`,
         });
         setIsLoading(false);
     }
@@ -73,7 +73,7 @@ export function CohortBuilder() {
     return (
         <Card className="rounded-expressive shadow-e2">
             <CardHeader>
-                <CardTitle>Crear una Cohorte Sintética</CardTitle>
+                <CardTitle>Crear un Panel Sintético</CardTitle>
                 <CardDescription>Define los atributos de los usuarios que quieres simular. La IA generará perfiles realistas basados en tu configuración.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -89,7 +89,7 @@ export function CohortBuilder() {
 
                     <FormField control={form.control} name="size" render={({ field: { onChange, value } }) => (
                         <FormItem>
-                            <FormLabel>Tamaño de la Cohorte (usuarios): {value}</FormLabel>
+                            <FormLabel>Tamaño del Panel (usuarios): {value}</FormLabel>
                             <FormControl>
                                 <Slider value={[value]} onValueChange={(v) => onChange(v[0])} min={5} max={30} step={1} />
                             </FormControl>
@@ -140,7 +140,7 @@ export function CohortBuilder() {
                     
                     <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
                         {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Users className="mr-2 h-5 w-5" />}
-                        Generar Cohorte
+                        Generar Panel
                     </Button>
                 </form>
                 </Form>

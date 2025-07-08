@@ -23,7 +23,7 @@ export function InsightsTab() {
             <Card>
                 <CardHeader>
                     <CardTitle>Insights y Temas Clave</CardTitle>
-                    <CardDescription>Verbatims generados por la cohorte sintética y agrupados por tema y sentimiento.</CardDescription>
+                    <CardDescription>Verbatims generados por el panel sintético y agrupados por tema y sentimiento.</CardDescription>
                 </CardHeader>
             </Card>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
