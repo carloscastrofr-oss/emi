@@ -97,12 +97,21 @@ const generateDesignStrategyFlow = ai.defineFlow(
     outputSchema: GenerateDesignStrategyOutputSchema,
   },
   async (data) => {
+    const markdownContent = generateMarkdown(data);
 
     if (!isFirebaseConfigValid) {
-        throw new Error("La configuración de Firebase no es válida. No se puede guardar la estrategia.");
+        console.warn("Firebase no está configurado. Se devolverá una estrategia simulada sin guardarla.");
+        const mockStrategyData = {
+            ...data,
+            status: 'draft',
+        };
+        return {
+            strategyId: "mock-strategy-" + Date.now(),
+            markdown: markdownContent,
+            json: JSON.stringify(mockStrategyData, null, 2),
+        };
     }
     
-    const markdownContent = generateMarkdown(data);
     const strategyData = {
         ...data,
         status: 'draft',
