@@ -8,7 +8,7 @@ import { DateRangePicker } from "./date-range-picker";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Download, PlusCircle, TestTube2, Gauge } from 'lucide-react';
+import { Upload, PlusCircle, TestTube2, Gauge } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { RequireRole } from '@/components/auth/require-role';
@@ -41,10 +41,10 @@ export function ABTestControls({
     const { toast } = useToast();
     const [isDialogOpen, setDialogOpen] = useState(false);
 
-    const handleExport = () => {
+    const handleImport = () => {
         toast({
             title: "Función no disponible",
-            description: "La exportación de datos estará disponible próximamente.",
+            description: "La importación de datos estará disponible próximamente.",
         });
     };
 
@@ -97,9 +97,9 @@ export function ABTestControls({
                                 Nuevo Experimento
                             </Button>
                         </RequireRole>
-                        <Button onClick={handleExport} variant="outline">
-                            <Download className="mr-2 h-4 w-4" />
-                            Exportar
+                        <Button onClick={handleImport} variant="outline">
+                            <Upload className="mr-2 h-4 w-4" />
+                            Importar
                         </Button>
                     </div>
                 </div>
