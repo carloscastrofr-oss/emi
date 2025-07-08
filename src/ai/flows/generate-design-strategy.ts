@@ -23,21 +23,39 @@ const GenerateDesignStrategyInputSchema = z.object({
   okrs: z.array(OKRSchema).min(1).max(3),
   personas: z.array(z.string()).min(1).max(5),
   principles: z.array(z.string()).min(1).max(5),
-  pages: z.array(z.string()).min(1).max(3),
-  kpis: z.array(z.string()).min(1).max(3),
-  componentsRoadmap: z.array(z.string()).min(1).max(5),
-  risks: z.array(z.string()).max(3),
-  milestones: z.array(z.string()).max(5),
+  // New Rich Inputs
+  scopeProducts: z.array(z.string()).min(1, "Define al menos un producto en el alcance."),
+  legacyConstraints: z.string().optional(),
+  tokenSeed: z.object({
+      primaryColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Debe ser un color HEX válido."),
+      radius: z.number(),
+      motion: z.string(),
+  }),
+  governance: z.object({
+      accountableRole: z.string(),
+      workflow: z.string(),
+  }),
+  kpiWeights: z.object({
+      csat: z.number(),
+      a11y: z.number(),
+      adoption: z.number(),
+  }),
+  budget: z.object({
+      usd: z.number().optional(),
+      hoursWeek: z.number().optional(),
+  }),
   authorUid: z.string().optional(),
 });
+
 
 export type GenerateDesignStrategyInput = z.infer<typeof GenerateDesignStrategyInputSchema>;
 
 const DesignInterpretationSchema = z.object({
     strategicSummary: z.string().describe("Un resumen breve de la estrategia de diseño para un diseñador."),
     componentSuggestions: z.array(z.string()).describe("Una lista de ideas concretas de componentes basadas en el roadmap y las personas."),
-    visualDirection: z.string().describe("Sugerencias para la apariencia y el estilo visual, haciendo referencia a los principios de diseño."),
-    userExperienceGoals: z.string().describe("Objetivos clave de experiencia de usuario en los que centrarse durante la implementación.")
+    visualDirection: z.string().describe("Sugerencias para la apariencia y el estilo visual, haciendo referencia a los principios de diseño y los tokens semilla."),
+    userExperienceGoals: z.string().describe("Objetivos clave de experiencia de usuario en los que centrarse durante la implementación, ponderados por los KPIs."),
+    governanceModel: z.string().describe("Recomendaciones sobre cómo implementar el modelo de gobernanza propuesto."),
 });
 
 const GenerateDesignStrategyOutputSchema = z.object({
@@ -53,42 +71,46 @@ function generateMarkdown(data: GenerateDesignStrategyInput): string {
     const okrsMd = data.okrs.map(okr => `* **${okr.objective}**\n  * ${okr.krs.split('\n').join('\n  * ')}`).join('\n\n');
     const personasMd = data.personas.map(p => `* ${p}`).join('\n');
     const principlesMd = data.principles.map(p => `* ${p}`).join('\n');
-    const pagesMd = data.pages.map(p => `* \`${p}\``).join('\n');
-    const kpisMd = data.kpis.map(k => `* ${k}`).join('\n');
-    const roadmapMd = data.componentsRoadmap.map(c => `* ${c}`).join('\n');
-    const risksMd = data.risks.map(r => `* ${r}`).join('\n');
-    const milestonesMd = data.milestones.map(m => `* ${m}`).join('\n');
-
+    const scopeMd = data.scopeProducts.map(p => `* ${p}`).join('\n');
+    const kpisMd = `* CSAT (Peso: ${data.kpiWeights.csat})\n* Accesibilidad (Peso: ${data.kpiWeights.a11y})\n* Adopción (Peso: ${data.kpiWeights.adoption})`;
+    
     return `
-# Visión
-${data.vision}
+# Estrategia de Sistema de Diseño
 
-## Propuesta de Valor
-${data.valueProp}
+## 1. Visión y Propuesta de Valor
+**Visión:** ${data.vision}
+**Propuesta de Valor:** ${data.valueProp}
 
-## 🎯 Objetivos y Resultados Clave (OKRs)
+## 2. Alcance y Gobernanza
+**Productos en Alcance:**
+${scopeMd}
+**Gobernanza:**
+* **Rol Responsable:** ${data.governance.accountableRole}
+* **Flujo de Trabajo:** ${data.governance.workflow}
+
+## 3. Objetivos y Métricas
+**Objetivos y Resultados Clave (OKRs):**
 ${okrsMd}
-
-## 👥 Personas
-${personasMd}
-
-## ⚖️ Principios de Diseño
-${principlesMd}
-
-## 🗺️ Alcance (Páginas Clave)
-${pagesMd}
-
-## 📊 KPIs de UX
+**KPIs Prioritarios:**
 ${kpisMd}
 
-## 🛣️ Road-map de Componentes
-${roadmapMd}
+## 4. Usuarios y Principios
+**Personas:**
+${personasMd}
+**Principios de Diseño:**
+${principlesMd}
 
-## ⚠️ Riesgos
-${risksMd}
+## 5. Dirección de Diseño y Ejecución
+**Tokens Semilla:**
+* **Color Primario:** \`${data.tokenSeed.primaryColor}\`
+* **Radio de Borde:** ${data.tokenSeed.radius}px
+* **Animación:** ${data.tokenSeed.motion}
+**Restricciones Legacy:**
+${data.legacyConstraints || "Ninguna especificada."}
 
-## 🏁 Hitos (Milestones)
-${milestonesMd}
+## 6. Presupuesto (Opcional)
+* **USD:** ${data.budget.usd || "No especificado"}
+* **Horas/Semana:** ${data.budget.hoursWeek || "No especificado"}
     `.trim();
 }
 
@@ -99,24 +121,30 @@ export async function generateDesignStrategy(input: GenerateDesignStrategyInput)
 
 const interpretationPrompt = ai.definePrompt({
     name: 'interpretDesignStrategyPrompt',
-    input: { schema: z.object({ markdownContent: z.string() }) },
+    input: { schema: z.object({ markdownContent: z.string(), inputData: GenerateDesignStrategyInputSchema }) },
     output: { schema: DesignInterpretationSchema },
-    prompt: `Eres un estratega y coach de diseño experto. Tu tarea es analizar el siguiente documento de estrategia de diseño (en formato Markdown) y traducirlo en ideas accionables y creativas para un diseñador UI/UX.
+    prompt: `Eres un estratega y coach de diseño experto. Tu tarea es analizar el siguiente documento de estrategia de diseño y los datos de entrada para traducirlo en ideas accionables y creativas para un diseñador UI/UX.
 
 IMPORTANTE: Toda la salida y las respuestas DEBEN estar en español.
 
-Concéntrate en proporcionar consejos concretos, inspiradores y prácticos.
+Concéntrate en proporcionar consejos concretos, inspiradores y prácticos. Usa el contexto completo, incluyendo presupuesto y restricciones.
+
+Datos de Entrada:
+\`\`\`json
+{{{json inputData}}}
+\`\`\`
 
 Documento de Estrategia de Diseño:
 ---
 {{{markdownContent}}}
 ---
 
-Basado en el documento, proporciona lo siguiente:
+Basado en TODOS los datos proporcionados, genera lo siguiente:
 1.  **Resumen Estratégico:** Un resumen corto y motivador para el equipo de diseño, destacando la misión principal.
-2.  **Sugerencias de Componentes:** Piensa en componentes nuevos y específicos que apoyarían directamente los OKRs y el roadmap. Piensa más allá de lo obvio.
-3.  **Dirección Visual:** Describe la apariencia y la sensación. ¿Cómo se pueden traducir los principios de diseño (como el radio, el movimiento) en un lenguaje visual tangible?
-4.  **Objetivos de Experiencia de Usuario:** ¿Cuáles son los objetivos de UX más críticos en los que el diseñador debería centrarse para satisfacer a las personas y los KPIs objetivo?
+2.  **Sugerencias de Componentes:** Piensa en componentes nuevos y específicos que apoyarían directamente los OKRs y el roadmap. Deben ser factibles considerando el presupuesto y las restricciones.
+3.  **Dirección Visual:** Describe la apariencia y el estilo. ¿Cómo se pueden traducir los principios y los tokens semilla (color, radio, animación) en un lenguaje visual tangible? Si el contraste del color primario es bajo, sugiere una alternativa.
+4.  **Objetivos de Experiencia de Usuario:** ¿Cuáles son los objetivos de UX más críticos en los que el diseñador debería centrarse? Pondera su importancia según los pesos de los KPIs definidos.
+5.  **Modelo de Gobernanza:** Ofrece consejos prácticos sobre cómo implementar el flujo de trabajo y el rol responsable definidos en el día a día.
 
 Proporciona la salida en el formato JSON especificado.
 `,
@@ -132,7 +160,7 @@ const generateDesignStrategyFlow = ai.defineFlow(
   async (data) => {
     const markdownContent = generateMarkdown(data);
     
-    const { output: interpretationOutput } = await interpretationPrompt({ markdownContent });
+    const { output: interpretationOutput } = await interpretationPrompt({ markdownContent, inputData: data });
     if (!interpretationOutput) {
         throw new Error("The design interpretation agent failed to produce an output.");
     }
