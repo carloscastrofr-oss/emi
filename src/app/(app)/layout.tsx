@@ -17,6 +17,7 @@ import {
   ClipboardList,
   FileText,
   Target,
+  Users,
 } from "lucide-react";
 
 import {
@@ -55,6 +56,7 @@ const navItems = [
   { href: "/workbench", icon: KanbanSquare, label: "Workbench", roles: ["producer", "core", "admin"], className: "workbench-page-link" },
   { href: "/agent", icon: Bot, label: "Agent", roles: ["core", "admin"], className: "agent-page-link" },
   { href: "/observer", icon: View, label: "Observer", roles: ["core", "admin"], className: "observer-page-link" },
+  { href: "/synthetic-users", icon: Users, label: "Usuarios Sintéticos", roles: ["core", "admin"], className: "synthetic-users-page-link" },
   { href: "/playground", icon: Beaker, label: "Playground", roles: ["producer", "core", "admin"], className: "playground-page-link" },
   { href: "/strategy", icon: Target, label: "Strategy", roles: ["producer", "core", "admin"], className: "strategy-page-link" },
   { href: "/changelog", icon: ClipboardList, label: "Changelog", roles: ["viewer", "producer", "core", "admin"], className: "changelog-page-link" },
