@@ -6,7 +6,11 @@ import { MessageSquare } from "lucide-react";
 const insights = {
     nps: 38,
     csat: 4.2,
-    verbatims: ["El CTA verde destaca", "Falta información de envío", "El proceso fue muy rápido"]
+    verbatims: [
+        "El botón 'Proceder al Pago' es claro, pero me gustaría ver los métodos de pago aceptados antes de hacer clic.",
+        "No encontraba dónde introducir mi código de descuento. Tuve que buscar un poco hasta que vi el enlace debajo del subtotal.",
+        "El proceso de pago fue increíblemente rápido. Añadir y ajustar cantidades fue muy intuitivo."
+    ]
 };
 
 export function InsightsCard() {
