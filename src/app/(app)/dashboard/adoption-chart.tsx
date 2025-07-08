@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
@@ -6,19 +7,14 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-const chartData = [
-  { component: "Button", adoption: 98 },
-  { component: "Input", adoption: 92 },
-  { component: "Card", adoption: 78 },
-  { component: "Modal", adoption: 65 },
-  { component: "Table", adoption: 55 },
-  { component: "Avatar", adoption: 88 },
-];
+interface AdoptionChartProps {
+    data: { component: string; adoption: number }[];
+}
 
-export function AdoptionChart() {
+export function AdoptionChart({ data }: AdoptionChartProps) {
   return (
     <ChartContainer config={{}} className="h-[250px] w-full">
-      <BarChart data={chartData} accessibilityLayer>
+      <BarChart data={data} accessibilityLayer>
         <CartesianGrid vertical={false} />
         <XAxis
           dataKey="component"
@@ -32,7 +28,7 @@ export function AdoptionChart() {
           axisLine={false}
         />
         <Tooltip cursor={false} content={<ChartTooltipContent />} />
-        <Bar dataKey="adoption" fill="var(--color-primary)" radius={[12, 12, 0, 0]} />
+        <Bar dataKey="adoption" fill="var(--color-primary-dynamic)" radius={[12, 12, 0, 0]} />
       </BarChart>
     </ChartContainer>
   );

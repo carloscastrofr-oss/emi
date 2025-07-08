@@ -1,177 +1,101 @@
 
 'use client';
 
-import Link from "next/link";
-import { motion } from 'framer-motion';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { useState, useEffect } from 'react';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db, isFirebaseConfigValid } from '@/lib/firebase';
+import type { Brand } from '@/types/brand';
 import { PageHeader } from "@/components/page-header";
-import { DollarSign, Package, AlertTriangle, TrendingUp, LucideIcon, LayoutGrid, Users, BookUser } from "lucide-react";
-import { AdoptionChart } from "./adoption-chart";
-import { UsageChart } from "./usage-chart";
-import { RequireRole } from "@/components/auth/require-role";
-import { UserRole, useAuth } from "@/hooks/use-auth";
-import { ONBOARDING_STEPS } from "@/lib/onboarding-data";
-import { useMemo } from "react";
+import { BrandMetricsDashboard } from './brand-metrics-dashboard';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
-interface Kpi {
-    title: string;
-    value: string;
-    change: string;
-    icon: LucideIcon;
-    roles: UserRole[];
-}
-
-const kpis: Kpi[] = [
-  {
-    title: "Adopción de Componentes",
-    value: "82%",
-    change: "+5.2% desde el mes pasado",
-    icon: Package,
-    roles: ["viewer", "producer", "core", "admin"],
-  },
-  {
-    title: "Uso de Tokens",
-    value: "95%",
-    change: "+1.0% desde el mes pasado",
-    icon: TrendingUp,
-    roles: ["viewer", "producer", "core", "admin"],
-  },
-   {
-    title: "Cobertura de Componentes",
-    value: "65%",
-    change: "+10 componentes esta semana",
-    icon: LayoutGrid,
-    roles: ["producer", "core", "admin"],
-  },
-  {
-    title: "Contribuciones del Equipo",
-    value: "18",
-    change: "4 nuevos contribuidores",
-    icon: Users,
-    roles: ["core", "admin"],
-  },
-  {
-    title: "Problemas de Accesibilidad",
-    value: "12",
-    change: "-3 desde la semana pasada",
-    icon: AlertTriangle,
-    roles: ["producer", "core", "admin"],
-  },
-  {
-    title: "ROI Estimado",
-    value: "$120,500",
-    change: "+$15k este trimestre",
-    icon: DollarSign,
-    roles: ["core", "admin"],
-  },
+// Mock data based on the seed from the prompt
+const mockBrands: Brand[] = [
+    { id: 'core', name: 'OmniFlow Core', primary: '#2DB660', primaryContainer: '#B7F2CB', onPrimary: '#FFFFFF', metrics: { adoption: 82, tokenUsage: 95, coverage: 65, teamContrib: 18, a11yIssues: 12, roi: 120500, adoptionTrend: [98, 92, 78, 65, 55, 88], tokenFreqTrend: [186, 305, 237, 273, 209, 214] }, updatedAt: null as any },
+    { id: 'bank', name: 'OmniBank', primary: '#0047AB', primaryContainer: '#B1D0FF', onPrimary: '#FFFFFF', metrics: { adoption: 71, tokenUsage: 88, coverage: 50, teamContrib: 12, a11yIssues: 25, roi: 95000, adoptionTrend: [80, 85, 70, 60, 50, 75], tokenFreqTrend: [150, 250, 200, 240, 190, 200] }, updatedAt: null as any }
 ];
 
-const OnboardingTeaser = () => {
-    const { userProfile } = useAuth();
+export default function DashboardPage() {
+    const [brands, setBrands] = useState<Brand[]>([]);
+    const [activeBrandId, setActiveBrandId] = useState<string | null>(null);
+    const [isLoadingBrands, setIsLoadingBrands] = useState(true);
 
-    const relevantSteps = useMemo(() => {
-        return ONBOARDING_STEPS.filter(step => step.roles.includes(userProfile?.role || 'viewer'));
-    }, [userProfile?.role]);
+    useEffect(() => {
+        if (!isFirebaseConfigValid) {
+            setBrands(mockBrands);
+            if (mockBrands.length > 0) {
+                setActiveBrandId(mockBrands[0].id);
+            }
+            setIsLoadingBrands(false);
+            return;
+        }
 
-    const completedCount = useMemo(() => {
-        return userProfile?.onboarding?.completed?.length || 0;
-    }, [userProfile?.onboarding]);
-    
-    if (completedCount >= relevantSteps.length) {
-        return null; // All steps completed
+        const q = collection(db, "brands");
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const brandsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Brand));
+            setBrands(brandsData);
+            if (brandsData.length > 0 && !activeBrandId) {
+                setActiveBrandId(brandsData[0].id);
+            }
+            setIsLoadingBrands(false);
+        }, (error) => {
+            console.error("Error fetching brands: ", error);
+            setIsLoadingBrands(false);
+        });
+
+        return () => unsubscribe();
+    }, [activeBrandId]);
+
+    if (isLoadingBrands) {
+        return (
+            <div>
+                <PageHeader
+                    title="Métricas"
+                    description="Indicadores clave de rendimiento para tu sistema de diseño."
+                />
+                <div className="flex gap-4 mb-6">
+                    <Skeleton className="h-10 w-32 rounded-expressive" />
+                    <Skeleton className="h-10 w-32 rounded-expressive" />
+                </div>
+                <Skeleton className="h-[600px] w-full" />
+            </div>
+        );
     }
-
-    const progress = `${completedCount} / ${relevantSteps.length} Pasos Completados`;
-
+    
     return (
-        <Link href="/onboarding" className="block h-full">
-            <motion.div
-                className="h-full"
-                whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            >
-                <Card className="rounded-expressive shadow-e2 bg-primary-container text-on-primary-container h-full">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Comienza tu Inducción</CardTitle>
-                    <BookUser className="h-4 w-4 text-on-primary-container/80" />
-                    </CardHeader>
-                    <CardContent>
-                    <div className="text-2xl font-bold">Continúa aprendiendo</div>
-                    <p className="text-xs text-on-primary-container/80">{progress}</p>
+        <div>
+            <PageHeader
+                title="Métricas"
+                description="Indicadores clave de rendimiento para tu sistema de diseño."
+                className="dashboard-header"
+            />
+            <div className="flex gap-4 mb-6 overflow-x-auto pb-2">
+                {brands.map((b) => (
+                    <Button
+                        key={b.id}
+                        onClick={() => setActiveBrandId(b.id)}
+                        className={`px-4 py-2 rounded-expressive shadow-e2 whitespace-nowrap transition-all duration-300 ${activeBrandId === b.id ? '' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                        style={activeBrandId === b.id ? { 
+                            backgroundColor: b.primaryContainer,
+                            color: b.primary.startsWith('#F') ? '#000000' : '#000000', // simple logic for text color on light containers
+                            borderColor: b.primary
+                         } : {}}
+                    >
+                        {b.name}
+                    </Button>
+                ))}
+            </div>
+            
+            {activeBrandId ? (
+                <BrandMetricsDashboard brandId={activeBrandId} />
+            ) : (
+                 <Card>
+                    <CardContent className="pt-6">
+                        <p>No hay datos de marca disponibles. Para empezar, añade documentos a la colección 'brands' en Firestore.</p>
                     </CardContent>
                 </Card>
-            </motion.div>
-        </Link>
-    )
-}
-
-export default function DashboardPage({
-  params,
-  searchParams,
-}: {
-  params: {};
-  searchParams: {};
-}) {
-  return (
-    <div>
-      <PageHeader
-        title="Métricas"
-        description="Indicadores clave de rendimiento para tu sistema de diseño."
-        className="dashboard-header"
-      />
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <OnboardingTeaser/>
-        {kpis.map((kpi) => (
-            <RequireRole key={kpi.title} roles={kpi.roles} showIsBlocked>
-                <motion.div
-                    className="h-full"
-                    whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                >
-                    <Card className="rounded-expressive shadow-e2 h-full bg-primary-container text-on-primary-container">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">{kpi.title}</CardTitle>
-                        <kpi.icon className="h-4 w-4 text-on-primary-container/80" />
-                        </CardHeader>
-                        <CardContent>
-                        <div className="text-2xl font-bold">{kpi.value}</div>
-                        <p className="text-xs text-on-primary-container/80">{kpi.change}</p>
-                        </CardContent>
-                    </Card>
-                </motion.div>
-            </RequireRole>
-        ))}
-      </div>
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <Card className="rounded-expressive">
-          <CardHeader>
-            <CardTitle>Tasa de Adopción de Componentes</CardTitle>
-            <CardDescription>
-              Porcentaje de proyectos que usan componentes principales.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <AdoptionChart />
-          </CardContent>
-        </Card>
-        <Card className="rounded-expressive">
-          <CardHeader>
-            <CardTitle>Frecuencia de Uso de Tokens</CardTitle>
-            <CardDescription>
-              Uso de tokens de diseño en los últimos 6 meses.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <UsageChart />
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+            )}
+        </div>
+    );
 }
