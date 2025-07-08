@@ -36,15 +36,15 @@ export default function ObserverPage() {
         whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
       >
-        <Card className="rounded-expressive shadow-e2 bg-primary-container text-on-primary-container">
+        <Card className="rounded-expressive shadow-e2">
           <CardHeader>
             <div className="flex flex-wrap justify-between items-center gap-4">
                 <div>
                     <CardTitle>Filtros</CardTitle>
-                    <CardDescription className="text-on-primary-container/80">Selecciona una página y un rango de fechas para acotar los datos.</CardDescription>
+                    <CardDescription>Selecciona una página y un rango de fechas para acotar los datos.</CardDescription>
                 </div>
                 <RequireRole roles={['core', 'admin']}>
-                    <Button onClick={handleExport} variant="outline" className="bg-primary-container hover:bg-background/20 border-on-primary-container/50">
+                    <Button onClick={handleExport} variant="outline">
                         <Download className="mr-2 h-4 w-4" />
                         Exportar Datos
                     </Button>
@@ -54,7 +54,7 @@ export default function ObserverPage() {
           <CardContent className="flex flex-wrap items-center gap-4">
             <DateRangePicker />
             <Select defaultValue="/checkout">
-              <SelectTrigger className="w-full md:w-[280px] bg-primary-container hover:bg-background/20 border-on-primary-container/50 text-on-primary-container">
+              <SelectTrigger className="w-full md:w-[280px]">
                 <SelectValue placeholder="Seleccionar página" />
               </SelectTrigger>
               <SelectContent>
@@ -73,19 +73,19 @@ export default function ObserverPage() {
             whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
         >
-            <Card className="rounded-expressive shadow-e2 h-full bg-primary-container text-on-primary-container">
+            <Card className="rounded-expressive shadow-e2 h-full">
                 <CardHeader className="flex flex-row items-start gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-background/20">
-                    <View className="h-6 w-6 text-on-primary-container" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                    <View className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                     <CardTitle>Mapa de Calor de Interacción</CardTitle>
-                    <CardDescription className="text-on-primary-container/80">Visualización en vivo de la densidad de clics por componente.</CardDescription>
+                    <CardDescription>Visualización en vivo de la densidad de clics por componente.</CardDescription>
                 </div>
                 </CardHeader>
                 <CardContent>
-                <div className="flex items-center justify-center h-[400px] w-full bg-background/10 rounded-lg">
-                    <p className="text-on-primary-container/70">Próximamente: Mapa de calor del componente...</p>
+                <div className="flex items-center justify-center h-[400px] w-full bg-muted rounded-lg">
+                    <p className="text-muted-foreground">Próximamente: Mapa de calor del componente...</p>
                 </div>
                 </CardContent>
             </Card>
