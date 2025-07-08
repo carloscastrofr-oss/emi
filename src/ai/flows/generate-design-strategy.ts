@@ -103,6 +103,8 @@ const interpretationPrompt = ai.definePrompt({
     output: { schema: DesignInterpretationSchema },
     prompt: `Eres un estratega y coach de diseño experto. Tu tarea es analizar el siguiente documento de estrategia de diseño (en formato Markdown) y traducirlo en ideas accionables y creativas para un diseñador UI/UX.
 
+IMPORTANTE: Toda la salida y las respuestas DEBEN estar en español.
+
 Concéntrate en proporcionar consejos concretos, inspiradores y prácticos.
 
 Documento de Estrategia de Diseño:
