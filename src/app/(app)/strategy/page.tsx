@@ -46,7 +46,7 @@ const initialValues: FormData = {
   valueProp: 'Red 5G a 120 ms con contraste AA',
   okrs: [{ objective: 'Mejorar accesibilidad', krs: 'A11y-Score ≥ 95\nContrast ≥ 4.5' }],
   personas: [{ value: 'Usuarios con baja visión' }],
-  principles: [{ value: 'Radius 24 dp' }, { value: 'Spring 400/25' }],
+  principles: [{ value: 'la accesibilidad' }, { value: 'la flexibilidad' }],
   pages: [{ value: '/checkout' }],
   kpis: [{ value: 'CSAT ≥ 4.5' }],
   componentsRoadmap: [{ value: 'Badge' }, { value: 'Theme Switcher' }],
@@ -272,7 +272,7 @@ export default function StrategyPage() {
                 {/* Dynamic Chip Inputs */}
                 <div className="grid md:grid-cols-2 gap-8">
                    <ChipInput control={form.control} name="personas" label="Personas" placeholder="Ej: Usuarios con baja visión" limit={5} />
-                   <ChipInput control={form.control} name="principles" label="Principios de Diseño" placeholder="Ej: Radius 24 dp" limit={5} />
+                   <ChipInput control={form.control} name="principles" label="Principios de Diseño" placeholder="Ej: la escalabilidad" limit={5} />
                    <ChipInput control={form.control} name="pages" label="Páginas Clave" placeholder="Ej: /checkout" limit={3} />
                    <ChipInput control={form.control} name="kpis" label="KPIs de UX" placeholder="Ej: CSAT ≥ 4.5" limit={3} />
                    <ChipInput control={form.control} name="componentsRoadmap" label="Roadmap de Componentes" placeholder="Ej: Badge" limit={5} />
