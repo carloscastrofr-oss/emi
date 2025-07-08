@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { RequireRole } from '@/components/auth/require-role';
 import { CreateABTestDialog } from './create-ab-test-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from '@/components/ui/label';
 
 const mockTests = [
     { id: 'demoCheckout', name: 'Color del CTA en Checkout' },
