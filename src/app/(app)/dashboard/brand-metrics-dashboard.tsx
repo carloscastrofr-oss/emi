@@ -1,13 +1,12 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db, isFirebaseConfigValid } from '@/lib/firebase';
 import { motion } from 'framer-motion';
-import { DollarSign, Package, AlertTriangle, TrendingUp, LucideIcon, LayoutGrid, Users, BookUser } from "lucide-react";
+import { DollarSign, Package, AlertTriangle, TrendingUp, LucideIcon, LayoutGrid, Users } from "lucide-react";
 import type { Brand } from '@/types/brand';
-import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -18,8 +17,7 @@ import {
 import { AdoptionChart } from "./adoption-chart";
 import { UsageChart } from "./usage-chart";
 import { RequireRole } from "@/components/auth/require-role";
-import { UserRole, useAuth } from "@/hooks/use-auth";
-import { ONBOARDING_STEPS } from "@/lib/onboarding-data";
+import type { UserRole } from "@/hooks/use-auth";
 import { Skeleton } from '@/components/ui/skeleton';
 
 const mockBrands: Brand[] = [
@@ -52,45 +50,6 @@ const injectBrandStyles = (brand: Brand) => {
 
 interface BrandMetricsDashboardProps {
     brandId: string;
-}
-
-const OnboardingTeaser = () => {
-    const { userProfile } = useAuth();
-
-    const relevantSteps = useMemo(() => {
-        return ONBOARDING_STEPS.filter(step => step.roles.includes(userProfile?.role || 'viewer'));
-    }, [userProfile?.role]);
-
-    const completedCount = useMemo(() => {
-        return userProfile?.onboarding?.completed?.length || 0;
-    }, [userProfile?.onboarding]);
-    
-    if (!userProfile || completedCount >= relevantSteps.length) {
-        return null;
-    }
-
-    const progress = `${completedCount} / ${relevantSteps.length} Pasos Completados`;
-
-    return (
-        <Link href="/onboarding" className="block h-full">
-            <motion.div
-                className="h-full"
-                whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            >
-                <Card className="rounded-expressive shadow-e2 bg-[var(--color-primary-container-dynamic)] text-[var(--color-on-primary-container-dynamic)] h-full">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Comienza tu Inducción</CardTitle>
-                    <BookUser className="h-4 w-4 text-[var(--color-on-primary-container-dynamic)]/80" />
-                    </CardHeader>
-                    <CardContent>
-                    <div className="text-2xl font-bold">Continúa aprendiendo</div>
-                    <p className="text-xs text-[var(--color-on-primary-container-dynamic)]/80">{progress}</p>
-                    </CardContent>
-                </Card>
-            </motion.div>
-        </Link>
-    )
 }
 
 export function BrandMetricsDashboard({ brandId }: BrandMetricsDashboardProps) {
@@ -176,8 +135,7 @@ export function BrandMetricsDashboard({ brandId }: BrandMetricsDashboardProps) {
 
     return (
         <>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                <OnboardingTeaser />
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {kpis.map((kpi) => (
                     <RequireRole key={kpi.title} roles={kpi.roles} showIsBlocked>
                         <motion.div
