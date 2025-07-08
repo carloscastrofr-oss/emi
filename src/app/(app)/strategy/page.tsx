@@ -28,33 +28,35 @@ const formSchema = z.object({
   vision: z.string().min(1, 'La visión es requerida.').max(140, 'La visión no debe exceder los 140 caracteres.'),
   valueProp: z.string().min(1, 'La propuesta de valor es requerida.').max(200, 'La propuesta de valor no debe exceder los 200 caracteres.'),
   okrs: z.array(okrSchema).min(1, 'Debe haber al menos un OKR.').max(3, 'No más de 3 OKRs.'),
-  personas: z.array(z.string().min(1)).min(1, 'Añade al menos una persona.').max(5, 'No más de 5 personas.'),
-  principles: z.array(z.string().min(1)).min(1, 'Añade al menos un principio.').max(5, 'No más de 5 principios.'),
-  pages: z.array(z.string().min(1)).min(1, 'Añade al menos una página.').max(3, 'No más de 3 páginas.'),
-  kpis: z.array(z.string().min(1)).min(1, 'Añade al menos un KPI.').max(3, 'No más de 3 KPIs.'),
-  componentsRoadmap: z.array(z.string().min(1)).min(1, 'Añade al menos un componente.').max(5, 'No más de 5 componentes en el roadmap.'),
-  risks: z.array(z.string().min(1)).max(3, 'No más de 3 riesgos.'),
-  milestones: z.array(z.string().min(1)).max(5, 'No más de 5 hitos.'),
+  personas: z.array(z.object({ value: z.string().min(1) })).min(1, 'Añade al menos una persona.').max(5, 'No más de 5 personas.'),
+  principles: z.array(z.object({ value: z.string().min(1) })).min(1, 'Añade al menos un principio.').max(5, 'No más de 5 principios.'),
+  pages: z.array(z.object({ value: z.string().min(1) })).min(1, 'Añade al menos una página.').max(3, 'No más de 3 páginas.'),
+  kpis: z.array(z.object({ value: z.string().min(1) })).min(1, 'Añade al menos un KPI.').max(3, 'No más de 3 KPIs.'),
+  componentsRoadmap: z.array(z.object({ value: z.string().min(1) })).min(1, 'Añade al menos un componente.').max(5, 'No más de 5 componentes en el roadmap.'),
+  risks: z.array(z.object({ value: z.string().min(1) })).max(3, 'No más de 3 riesgos.'),
+  milestones: z.array(z.object({ value: z.string().min(1) })).max(5, 'No más de 5 hitos.'),
 });
 
 type FormData = z.infer<typeof formSchema>;
+
+type ArrayFieldNames = "personas" | "principles" | "pages" | "kpis" | "componentsRoadmap" | "risks" | "milestones";
 
 const initialValues: FormData = {
   vision: 'Flujos 5G sin fricción para todos',
   valueProp: 'Red 5G a 120 ms con contraste AA',
   okrs: [{ objective: 'Mejorar accesibilidad', krs: 'A11y-Score ≥ 95\nContrast ≥ 4.5' }],
-  personas: ['Usuarios con baja visión'],
-  principles: ['Radius 24 dp', 'Spring 400/25'],
-  pages: ['/checkout'],
-  kpis: ['CSAT ≥ 4.5'],
-  componentsRoadmap: ['Badge', 'Theme Switcher'],
-  risks: ['Variantes de botón duplicadas'],
-  milestones: ['Test de usabilidad 15/09'],
+  personas: [{ value: 'Usuarios con baja visión' }],
+  principles: [{ value: 'Radius 24 dp' }, { value: 'Spring 400/25' }],
+  pages: [{ value: '/checkout' }],
+  kpis: [{ value: 'CSAT ≥ 4.5' }],
+  componentsRoadmap: [{ value: 'Badge' }, { value: 'Theme Switcher' }],
+  risks: [{ value: 'Variantes de botón duplicadas' }],
+  milestones: [{ value: 'Test de usabilidad 15/09' }],
 };
 
 interface ChipInputProps {
   control: any;
-  name: keyof FormData;
+  name: ArrayFieldNames;
   label: string;
   placeholder: string;
   limit: number;
@@ -63,15 +65,17 @@ interface ChipInputProps {
 const ChipInput = ({ control, name, label, placeholder, limit }: ChipInputProps) => {
   const { fields, append, remove } = useFieldArray({ control, name });
   const [inputValue, setInputValue] = useState('');
-  const { watch } = useFormContext<FormData>();
+  const { watch, formState: { errors } } = useFormContext<FormData>();
   const currentValues = watch(name) || [];
 
   const handleAdd = () => {
     if (inputValue.trim() && fields.length < limit) {
-      append(inputValue.trim() as any);
+      append({ value: inputValue.trim() } as any);
       setInputValue('');
     }
   };
+
+  const arrayError = errors[name];
   
   return (
     <FormItem>
@@ -87,7 +91,7 @@ const ChipInput = ({ control, name, label, placeholder, limit }: ChipInputProps)
           <PlusCircle className="mr-2 h-4 w-4" /> Añadir
         </Button>
       </div>
-      <div className="flex flex-wrap gap-2 pt-2">
+      <div className="flex flex-wrap gap-2 pt-2 min-h-[34px]">
         {fields.map((field, index) => (
           <motion.div
             key={field.id}
@@ -97,7 +101,7 @@ const ChipInput = ({ control, name, label, placeholder, limit }: ChipInputProps)
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
           >
             <Badge variant="secondary" className="text-base py-1 pl-3 pr-2 bg-primary-container text-on-primary-container hover:bg-primary-container/80">
-              {currentValues[index]}
+              {currentValues[index]?.value}
               <button type="button" onClick={() => remove(index)} className="ml-2 rounded-full hover:bg-black/10">
                 <XCircle className="h-4 w-4" />
               </button>
@@ -105,7 +109,7 @@ const ChipInput = ({ control, name, label, placeholder, limit }: ChipInputProps)
           </motion.div>
         ))}
       </div>
-      <FormMessage />
+      {arrayError && <p className="text-sm font-medium text-destructive">{arrayError.message}</p>}
     </FormItem>
   );
 };
@@ -129,8 +133,24 @@ export default function StrategyPage() {
   async function onSubmit(values: FormData) {
     setIsLoading(true);
     setGeneratedResult(null);
+
+    const transformChipArrays = (arr: {value: string}[] | undefined) => arr ? arr.map(item => item.value) : [];
+
+    const payload: GenerateDesignStrategyInput = {
+        vision: values.vision,
+        valueProp: values.valueProp,
+        okrs: values.okrs,
+        personas: transformChipArrays(values.personas),
+        principles: transformChipArrays(values.principles),
+        pages: transformChipArrays(values.pages),
+        kpis: transformChipArrays(values.kpis),
+        componentsRoadmap: transformChipArrays(values.componentsRoadmap),
+        risks: transformChipArrays(values.risks),
+        milestones: transformChipArrays(values.milestones),
+    };
+
     try {
-        const result = await generateDesignStrategy(values as GenerateDesignStrategyInput);
+        const result = await generateDesignStrategy(payload);
         setGeneratedResult(result);
         toast({
             title: "Estrategia Generada Exitosamente",
@@ -304,3 +324,4 @@ export default function StrategyPage() {
     </div>
   );
 }
+
