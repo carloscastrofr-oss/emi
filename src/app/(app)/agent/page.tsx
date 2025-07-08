@@ -16,55 +16,38 @@ import {
 } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Palette, ShieldAlert, Briefcase } from "lucide-react";
+import { ShieldX, Accessibility } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { agentDesign } from "@/ai/flows/agent-design";
-import { agentQA } from "@/ai/flows/agent-qa";
-import { agentBusiness } from "@/ai/flows/agent-business";
+import { agentDesignDebt } from "@/ai/flows/agent-design-debt";
+import { agentAccessibility } from "@/ai/flows/agent-accessibility";
 
 const agents = [
   {
-    title: "Agente de Diseño",
-    description: "Analiza el uso de componentes para contraste y accesibilidad.",
-    icon: Palette,
-    flow: agentDesign,
-    formFields: [{ name: "componentUsage", label: "Datos de Uso de Componente (JSON)" }],
+    title: "Agente de Deuda de Diseño y Gobernanza",
+    description: "Calcula el índice de deuda de diseño y el coste de ROI perdido.",
+    icon: ShieldX,
+    flow: agentDesignDebt,
+    formFields: [{ name: "designDebtInput", label: "Datos de Deuda de Diseño (JSON)" }],
     placeholder: JSON.stringify({
-      componentId: "button-primary",
-      token_color: "#8B8B8B",
-      contrast_ratio: 2.1,
+      componentInventory: ["button-primary-clone", "card-custom-v2"],
+      taggedIssues: 3,
+      codeRefs: ["/src/components/custom/button.tsx"]
     }, null, 2),
   },
   {
-    title: "Agente de QA",
-    description: "Analiza las analíticas de UI en busca de altas tasas de error.",
-    icon: ShieldAlert,
-    flow: agentQA,
-    formFields: [{ name: "qaData", label: "Datos de QA (JSON)" }],
-    placeholder: JSON.stringify({
-      component: "checkout-form",
-      error_rate: 42,
-      users_affected: 89
-    }, null, 2),
-  },
-  {
-    title: "Agente de Negocio",
-    description: "Analiza datos de KPI para ver el impacto en el negocio.",
-    icon: Briefcase,
-    flow: agentBusiness,
-    formFields: [{ name: "kpiData", label: "Datos de KPI (JSON)" }],
-    placeholder: JSON.stringify({
-      componentId: "add-to-cart-button",
-      impact: "negative",
-      relatedKpi: "sales-conversion"
-    }, null, 2),
+    title: "Agente de Accesibilidad e Inclusión",
+    description: "Ejecuta una auditoría de accesibilidad en una URL para identificar problemas de WCAG.",
+    icon: Accessibility,
+    flow: agentAccessibility,
+    formFields: [{ name: "url", label: "URL de la página a auditar" }],
+    placeholder: "https://example.com/checkout",
   },
 ];
 
 interface Recommendation {
     id: string;
-    agent: "Design" | "QA" | "Business";
+    agent: "Design Debt" | "Accessibility";
     component: string;
     recommendation: string;
     figmaPrompt?: string;
@@ -72,9 +55,8 @@ interface Recommendation {
 }
 
 const agentNameTranslations: Record<Recommendation['agent'], string> = {
-  Design: "Diseño",
-  QA: "QA",
-  Business: "Negocio",
+  "Design Debt": "Deuda de Diseño",
+  "Accessibility": "Accesibilidad",
 };
 
 
@@ -99,7 +81,7 @@ export default function AgentPage({
             const newRecommendations: Recommendation[] = [];
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
-                if (data.agent !== 'Content') {
+                if (data.agent === 'Design Debt' || data.agent === 'Accessibility') {
                     newRecommendations.push({ id: doc.id, ...data } as Recommendation);
                 }
             });
@@ -115,10 +97,9 @@ export default function AgentPage({
 
     const getBadgeVariant = (agent: Recommendation['agent']) => {
         switch (agent) {
-            case 'Design': return 'default';
-            case 'QA': return 'destructive';
-            case 'Business': return 'outline';
-            default: return 'default';
+            case 'Design Debt': return 'destructive';
+            case 'Accessibility': return 'default';
+            default: return 'secondary';
         }
     };
 
@@ -138,7 +119,6 @@ export default function AgentPage({
                         flow={agent.flow}
                         formFields={agent.formFields}
                         placeholder={agent.placeholder}
-                        initialValues={agent.initialValues}
                     />
                 ))}
             </div>
@@ -154,8 +134,8 @@ export default function AgentPage({
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[120px]">Agente</TableHead>
-                                <TableHead className="w-[180px]">Componente</TableHead>
+                                <TableHead className="w-[150px]">Agente</TableHead>
+                                <TableHead className="w-[180px]">Componente/URL</TableHead>
                                 <TableHead>Recomendación</TableHead>
                                 <TableHead className="w-[180px]">Fecha y Hora</TableHead>
                             </TableRow>
@@ -164,7 +144,7 @@ export default function AgentPage({
                             {isLoading ? (
                                 Array.from({ length: 3 }).map((_, i) => (
                                     <TableRow key={i}>
-                                        <TableCell><Skeleton className="h-6 w-[100px]" /></TableCell>
+                                        <TableCell><Skeleton className="h-6 w-[130px]" /></TableCell>
                                         <TableCell><Skeleton className="h-6 w-[150px]" /></TableCell>
                                         <TableCell><Skeleton className="h-6 w-full" /></TableCell>
                                         <TableCell><Skeleton className="h-6 w-[150px]" /></TableCell>
