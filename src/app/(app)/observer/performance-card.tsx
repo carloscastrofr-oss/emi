@@ -56,8 +56,8 @@ export function PerformanceCard({ item }: PerformanceCardProps) {
                         <Gauge className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                        <CardTitle>Métricas de Rendimiento</CardTitle>
-                        <CardDescription>{data.name}</CardDescription>
+                        <CardTitle>{data.name}</CardTitle>
+                        <CardDescription>Análisis detallado de las métricas de rendimiento web.</CardDescription>
                     </div>
                 </CardHeader>
                 <CardContent>
