@@ -62,7 +62,7 @@ export function CreateABTestDialog({ open, onOpenChange }: { open: boolean, onOp
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>Crear Nuevo Experimento A/B</DialogTitle>
+          <DialogTitle>Crear nuevo A/B Test</DialogTitle>
           <DialogDescription>
             Define las variantes y el KPI principal para empezar a comparar.
           </DialogDescription>
