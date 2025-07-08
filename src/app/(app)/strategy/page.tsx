@@ -100,7 +100,7 @@ const ChipInput = ({ control, name, label, placeholder, limit }: ChipInputProps)
             exit={{ opacity: 0, x: -10 }}
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
           >
-            <Badge variant="secondary" className="text-base py-1 pl-3 pr-2 bg-primary-container text-on-primary-container hover:bg-primary-container/80">
+            <Badge variant="secondary" className="text-sm py-1 pl-3 pr-2 bg-primary-container text-on-primary-container hover:bg-primary-container/80">
               {currentValues[index]?.value}
               <button type="button" onClick={() => remove(index)} className="ml-2 rounded-full hover:bg-black/10">
                 <XCircle className="h-4 w-4" />
