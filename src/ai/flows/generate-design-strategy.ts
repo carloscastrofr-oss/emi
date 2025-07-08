@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview AI-powered Design Strategy Generator.
@@ -8,7 +9,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db, isFirebaseConfigValid } from '@/lib/firebase';
 
@@ -20,7 +21,6 @@ const OKRSchema = z.object({
 const GenerateDesignStrategyInputSchema = z.object({
   vision: z.string().min(1, "La visión es requerida.").max(140),
   valueProp: z.string().min(1, "La propuesta de valor es requerida.").max(200),
-  primaryColor: z.string().optional(),
   okrs: z.array(OKRSchema).min(1).max(3),
   personas: z.array(z.string()).min(1).max(5),
   principles: z.array(z.string()).min(1).max(5),

@@ -6,8 +6,6 @@ import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
-import tinycolor from 'tinycolor2';
-import { HexColorPicker } from 'react-colorful';
 
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles, Wand2, PlusCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Loader2, Sparkles, Wand2, PlusCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateDesignStrategy, GenerateDesignStrategyInput, GenerateDesignStrategyOutput } from '@/ai/flows/generate-design-strategy';
 
@@ -29,7 +27,6 @@ const okrSchema = z.object({
 const formSchema = z.object({
   vision: z.string().min(1, 'La visión es requerida.').max(140, 'La visión no debe exceder los 140 caracteres.'),
   valueProp: z.string().min(1, 'La propuesta de valor es requerida.').max(200, 'La propuesta de valor no debe exceder los 200 caracteres.'),
-  primaryColor: z.string().optional(),
   okrs: z.array(okrSchema).min(1, 'Debe haber al menos un OKR.').max(3, 'No más de 3 OKRs.'),
   personas: z.array(z.string().min(1)).min(1, 'Añade al menos una persona.').max(5, 'No más de 5 personas.'),
   principles: z.array(z.string().min(1)).min(1, 'Añade al menos un principio.').max(5, 'No más de 5 principios.'),
@@ -45,7 +42,6 @@ type FormData = z.infer<typeof formSchema>;
 const initialValues: FormData = {
   vision: 'Flujos 5G sin fricción para todos',
   valueProp: 'Red 5G a 120 ms con contraste AA',
-  primaryColor: '#2DB660',
   okrs: [{ objective: 'Mejorar accesibilidad', krs: 'A11y-Score ≥ 95\nContrast ≥ 4.5' }],
   personas: ['Usuarios con baja visión'],
   principles: ['Radius 24 dp', 'Spring 400/25'],
@@ -116,8 +112,6 @@ const ChipInput = ({ control, name, label, placeholder, limit }: ChipInputProps)
 export default function StrategyPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [generatedResult, setGeneratedResult] = useState<GenerateDesignStrategyOutput | null>(null);
-  const [primaryColor, setPrimaryColor] = useState(initialValues.primaryColor || '#2DB660');
-  const [contrastOk, setContrastOk] = useState(true);
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -130,13 +124,6 @@ export default function StrategyPage() {
     name: 'okrs',
   });
 
-  const handleColorChange = (color: string) => {
-    setPrimaryColor(color);
-    form.setValue('primaryColor', color);
-    const isValid = tinycolor.isReadable('#FFFFFF', color, { level: 'AA', size: 'small' });
-    setContrastOk(isValid);
-  };
-  
   async function onSubmit(values: FormData) {
     setIsLoading(true);
     setGeneratedResult(null);
@@ -205,16 +192,6 @@ export default function StrategyPage() {
                                 </FormItem>
                                 )}
                             />
-                             <FormItem>
-                                <FormLabel>Color Primario</FormLabel>
-                                <HexColorPicker color={primaryColor} onChange={handleColorChange} style={{ width: '100%' }} />
-                                {!contrastOk && (
-                                    <Badge variant="destructive" className="mt-2">
-                                        <AlertCircle className="mr-1 h-3 w-3" />
-                                        Contraste bajo (menor a 4.5:1)
-                                    </Badge>
-                                )}
-                            </FormItem>
                         </CardContent>
                     </Card>
                 </motion.div>
