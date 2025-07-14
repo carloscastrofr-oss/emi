@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -111,10 +112,8 @@ export default function PredictiveDesignPage() {
     const newJourneyUrls = [...result.journeyUrls];
     newJourneyUrls.splice(index, 1);
     
-    // In a real app, you might want to handle wireframes more granularly.
-    // For this prototype, we'll just remove the journey and assume the wireframes are linked.
     if (newJourneyUrls.length === 0) {
-      setResult(null); // Clear results if all proposals are dismissed
+      setResult(null); 
       toast({ title: 'Propuestas Descartadas', description: 'Todas las propuestas han sido descartadas.' });
     } else {
       setResult({ ...result, journeyUrls: newJourneyUrls });
@@ -122,13 +121,11 @@ export default function PredictiveDesignPage() {
   };
 
   const handleAcceptProposal = (index: number) => {
-    // In a real scenario, this would trigger the API call to Figma.
-    // Here, we'll just show a toast and remove the card.
     toast({
       title: 'Propuesta Sincronizada',
       description: 'El Journey Map y los Wireframes han sido enviados a Figma.',
     });
-    handleDismissProposal(index); // Remove it from the list after accepting
+    handleDismissProposal(index); 
   };
 
 
@@ -139,7 +136,6 @@ export default function PredictiveDesignPage() {
         description="Anticipa journeys y wireframes con IA a partir del planning trimestral."
       />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Form Column */}
         <div className="lg:col-span-1 space-y-8">
           <Card className="rounded-expressive shadow-e2 sticky top-20">
             <CardHeader>
@@ -154,38 +150,44 @@ export default function PredictiveDesignPage() {
                     name="planningFileId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="flex items-center gap-2"><FileUp className="h-4 w-4" /> Archivo de Planning (.xlsx)</FormLabel>
+                        <FormLabel>Archivo de Planning (.xlsx)</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="planning-q1.xlsx" />
+                            <div className="flex w-full items-center space-x-2">
+                                <Input {...field} placeholder="planning-q1.xlsx" className="flex-grow" />
+                                <Button type="button" variant="outline"><FileUp className="mr-2 h-4 w-4" /> Cargar</Button>
+                            </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                   <FormField
-                    control={form.control}
-                    name="figmaFileId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>ID del archivo Figma Destino</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="maxScreens"
-                    render={({ field }) => (
+
+                  <div className="grid grid-cols-2 gap-4">
+                     <FormField
+                        control={form.control}
+                        name="maxScreens"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Pantallas Máx.</FormLabel>
+                            <FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                    <FormField
+                        control={form.control}
+                        name="figmaFileId"
+                        render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Pantallas Máx.</FormLabel>
-                        <FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} /></FormControl>
+                            <FormLabel>ID Figma Destino</FormLabel>
+                            <FormControl>
+                            <Input {...field} />
+                            </FormControl>
                             <FormMessage />
                         </FormItem>
-                    )}
+                        )}
                     />
+                  </div>
                   
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
@@ -197,7 +199,6 @@ export default function PredictiveDesignPage() {
           </Card>
         </div>
 
-        {/* Results Column */}
         <div className="lg:col-span-2 space-y-8">
            {result && result.status === 'error' ? (
               <Alert variant="destructive">
@@ -214,7 +215,7 @@ export default function PredictiveDesignPage() {
                       <ProposalCard
                         key={url}
                         journeyUrl={url}
-                        wireframeFrames={result.wireframeFrames} // Simplified: all wireframes shown for each journey
+                        wireframeFrames={result.wireframeFrames}
                         onAccept={() => handleAcceptProposal(index)}
                         onDismiss={() => handleDismissProposal(index)}
                       />
