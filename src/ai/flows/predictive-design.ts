@@ -13,7 +13,6 @@ import { z } from 'zod';
 
 export const PredictiveDesignInputSchema = z.object({
   planningFileId: z.string().describe('ID or URL of the quarterly planning Excel file.'),
-  scope: z.string().describe('A label for the scope, e.g., "Q1 2026".'),
   maxScreens: z.number().int().positive().describe('Maximum number of screens to generate per flow.'),
   figmaFileId: z.string().describe('The destination Figma file ID to insert the frames into.'),
 });

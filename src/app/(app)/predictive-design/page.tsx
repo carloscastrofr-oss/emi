@@ -70,7 +70,6 @@ export default function PredictiveDesignPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       planningFileId: 'quarterly-planning.xlsx',
-      scope: 'Q1 2026',
       maxScreens: 8,
       figmaFileId: 'FIGMA_FILE_ID_HERE',
     },
@@ -176,30 +175,17 @@ export default function PredictiveDesignPage() {
                       </FormItem>
                     )}
                   />
-                  <div className="grid grid-cols-2 gap-4">
-                     <FormField
-                        control={form.control}
-                        name="scope"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Scope</FormLabel>
-                            <FormControl><Input {...field} /></FormControl>
-                             <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                       <FormField
-                        control={form.control}
-                        name="maxScreens"
-                        render={({ field }) => (
-                           <FormItem>
-                            <FormLabel>Pantallas Máx.</FormLabel>
-                            <FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} /></FormControl>
-                             <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="maxScreens"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Pantallas Máx.</FormLabel>
+                        <FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                    />
                   
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
