@@ -5,16 +5,18 @@ import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/page-header';
 import { collection, query, where, onSnapshot, Timestamp } from 'firebase/firestore';
 import { db, isFirebaseConfigValid } from '@/lib/firebase';
-import { Risk, RiskCategory, RiskStatus, riskCategoryCodes } from '@/types/risk';
+import { Risk, RiskCategory, RiskStatus, riskCategoryCodes, riskCategories } from '@/types/risk';
 import { RiskScore } from './risk-score';
 import { RiskFilters } from './risk-filters';
 import { RiskCard } from './risk-card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { RiskCategoryBars } from './risk-category-bars';
+import { suggestMitigation } from '@/ai/flows/suggest-mitigation';
 
 const mockRisks: Risk[] = [
-    { id: 'risk1', category: 'accessibility', title: 'Contraste insuficiente en btn-pay', componentId: 'button-primary', pageUrl: '/checkout', severity: 10, source: 'agent-a11y', detectedAt: Timestamp.now(), status: 'open', ownerUid: null, notes: '' },
+    { id: 'risk1', category: 'accessibility', title: 'Contraste insuficiente en btn-pay', componentId: 'button-primary', pageUrl: '/checkout', severity: 10, source: 'agent-a11y', detectedAt: Timestamp.now(), status: 'open', ownerUid: null, notes: '', recommendation: 'Aumentar el contraste del texto a blanco puro (#FFFFFF) para cumplir con el ratio 4.5:1.' },
     { id: 'risk2', category: 'accessibility', title: 'Falta de rol ARIA en modal', componentId: 'modal-dialog', pageUrl: '/subscribe', severity: 40, source: 'agent-a11y', detectedAt: Timestamp.now(), status: 'open', ownerUid: null, notes: '' },
-    { id: 'risk3', category: 'performance', title: 'LCP > 2.5s en página de inicio', pageUrl: '/', severity: 25, source: 'agent-perf', detectedAt: Timestamp.now(), status: 'in-progress', ownerUid: 'core456', notes: 'Investigando optimización de imágenes.' },
+    { id: 'risk3', category: 'performance', title: 'LCP > 2.5s en página de inicio', pageUrl: '/', severity: 25, source: 'agent-perf', detectedAt: Timestamp.now(), status: 'in-progress', ownerUid: 'core456', notes: 'Investigando optimización de imágenes.', recommendation: 'Optimizar las imágenes de cabecera usando formato WebP y compresión.' },
     { id: 'risk4', category: 'design-debt', title: 'Componente Card clonado 5 veces', componentId: 'card-clone', pageUrl: '/products', severity: 60, source: 'agent-debt', detectedAt: Timestamp.now(), status: 'open', ownerUid: null, notes: '' },
 ];
 
@@ -88,6 +90,19 @@ export default function RiskPage() {
         const q = query(collection(db, "risks"));
         const unsubscribeRisks = onSnapshot(q, (snapshot) => {
             const fetchedRisks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Risk));
+            
+            // Generate recommendations for risks that don't have one
+            fetchedRisks.forEach(risk => {
+                if (!risk.recommendation) {
+                    suggestMitigation(risk).then(recommendation => {
+                        // This would typically be a DB update, here we just update state
+                        setAllRisks(prevRisks => prevRisks.map(r => 
+                            r.id === risk.id ? { ...r, recommendation } : r
+                        ));
+                    });
+                }
+            });
+
             setAllRisks(fetchedRisks);
             setIsLoading(false);
         }, (error) => {
@@ -114,7 +129,7 @@ export default function RiskPage() {
 
     const filteredRisks = allRisks.filter(risk => {
         const categoryMatch = filters.category === 'all' || risk.category === filters.category;
-        const statusMatch = filters.status === 'all' || risk.status === filters.status;
+        const statusMatch = filters.status === 'all' || risk.status === 'in-progress' || risk.status === 'open';
         return categoryMatch && statusMatch;
     });
     
@@ -122,7 +137,11 @@ export default function RiskPage() {
         (acc[risk.category] = acc[risk.category] || []).push(risk);
         return acc;
     }, {} as Record<RiskCategory, Risk[]>);
-
+    
+    const categoryChartData = riskStats ? Object.entries(riskStats.byCategory).map(([name, score]) => ({
+        name: riskCategories[name as RiskCategory]?.label || name,
+        score: score as number
+    })) : [];
 
     return (
         <div className="space-y-8">
@@ -134,6 +153,7 @@ export default function RiskPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-1 space-y-8">
                     <RiskScore score={riskStats?.score ?? 100} isLoading={isLoading} />
+                    <RiskCategoryBars data={categoryChartData} isLoading={isLoading} />
                     <RiskFilters filters={filters} onFilterChange={setFilters} />
                 </div>
                 

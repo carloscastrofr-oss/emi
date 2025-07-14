@@ -28,4 +28,5 @@ export interface Risk {
   status: RiskStatus;
   ownerUid: string | null;
   notes: string | null;
+  recommendation?: string;
 }

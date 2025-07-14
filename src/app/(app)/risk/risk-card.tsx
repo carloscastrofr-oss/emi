@@ -8,6 +8,7 @@ import { riskCategories, type Risk, type RiskCategory, type RiskStatus } from '@
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Lightbulb } from 'lucide-react';
 
 interface RiskCardProps {
     category: RiskCategory;
@@ -53,7 +54,7 @@ export function RiskCard({ category, risks, onUpdateRisk }: RiskCardProps) {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-4">
                     {openRisks.map(risk => (
                          <motion.div 
                             key={risk.id} 
@@ -61,33 +62,44 @@ export function RiskCard({ category, risks, onUpdateRisk }: RiskCardProps) {
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
-                            className="flex items-center justify-between gap-4 p-3 rounded-lg bg-background/50"
+                            className="flex flex-col gap-2 p-3 rounded-lg bg-background/50"
                         >
-                            <div>
-                                <p className="font-medium text-sm">{risk.title}</p>
-                                <p className="text-xs text-muted-foreground">
-                                    {risk.componentId && <Badge variant="secondary">{risk.componentId}</Badge>}
-                                </p>
-                            </div>
-                            <div className="flex items-center gap-4">
-                               <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger>
-                                        <div className="flex items-center gap-2">
-                                            <div className={cn("h-3 w-3 rounded-full", getSeverityColor(risk.severity))}></div>
-                                            <span className="font-mono text-xs">{risk.severity}</span>
-                                        </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>Severidad: {risk.severity} (0-100, 0 es crítico)</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                               </TooltipProvider>
+                            <div className="flex items-center justify-between gap-4">
+                                <div>
+                                    <p className="font-medium text-sm">{risk.title}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {risk.componentId && <Badge variant="secondary">{risk.componentId}</Badge>}
+                                    </p>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <div className="flex items-center gap-2">
+                                                <div className={cn("h-3 w-3 rounded-full", getSeverityColor(risk.severity))}></div>
+                                                <span className="font-mono text-xs">{risk.severity}</span>
+                                            </div>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Severidad: {risk.severity} (0-100, 0 es crítico)</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
                                 <div className="flex gap-2">
                                     <Button size="sm" variant="outline">Asignar</Button>
                                     <Button size="sm" variant="ghost" onClick={() => onUpdateRisk(risk.id, 'resolved')}>Resolver</Button>
                                 </div>
+                                </div>
                             </div>
+                            {risk.recommendation && (
+                                <div className="flex items-start gap-2 p-3 rounded-md bg-accent/50 text-accent-foreground border border-primary/10">
+                                    <Lightbulb className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                                    <p className="text-xs">
+                                        <span className="font-semibold mr-1">Recomendación:</span>
+                                        {risk.recommendation}
+                                    </p>
+                                </div>
+                            )}
                          </motion.div>
                     ))}
                 </CardContent>
