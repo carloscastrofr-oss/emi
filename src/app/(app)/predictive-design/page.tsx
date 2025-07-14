@@ -152,9 +152,8 @@ export default function PredictiveDesignPage() {
                         <FormLabel>Archivo de Planning (.xlsx)</FormLabel>
                           <div className="flex w-full items-center space-x-2">
                           <FormControl>
-                            <Input {...field} placeholder="planning-q1.xlsx" className="flex-grow" />
+                            <Input {...field} placeholder="Escribe el nombre del archivo.xlsx" className="flex-grow" />
                           </FormControl>
-                          <Button type="button" variant="outline"><FileUp className="mr-2 h-4 w-4" /> Cargar</Button>
                         </div>
                         <FormMessage />
                       </FormItem>
@@ -245,3 +244,5 @@ export default function PredictiveDesignPage() {
     </div>
   );
 }
+
+    
