@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/page-header';
 import { collection, query, where, onSnapshot, Timestamp } from 'firebase/firestore';
 import { db, isFirebaseConfigValid } from '@/lib/firebase';
-import type { Risk, RiskCategory, RiskStatus } from '@/types/risk';
+import { Risk, RiskCategory, RiskStatus, riskCategoryCodes } from '@/types/risk';
 import { RiskScore } from './risk-score';
 import { RiskFilters } from './risk-filters';
 import { RiskCard } from './risk-card';
@@ -19,15 +19,47 @@ const mockRisks: Risk[] = [
 ];
 
 
-const mockRiskStats = {
-    score: 78,
-    byCategory: {
-        accessibility: 65,
-        performance: 82,
-        'design-debt': 75,
-        governance: 90,
-        brand: 95
+const calculateRiskStats = (risks: Risk[]) => {
+    const weights: Record<RiskCategory, number> = {
+        accessibility: 0.35,
+        performance: 0.25,
+        'design-debt': 0.20,
+        governance: 0.10,
+        brand: 0.10,
+    };
+
+    const byCategory: { [key in RiskCategory]?: { totalSeverity: number, count: number, average: number } } = {};
+
+    for (const category of riskCategoryCodes) {
+        byCategory[category] = { totalSeverity: 0, count: 0, average: 100 };
     }
+
+    const openRisks = risks.filter(r => r.status !== 'resolved');
+
+    for (const risk of openRisks) {
+        if (byCategory[risk.category]) {
+            byCategory[risk.category]!.totalSeverity += risk.severity;
+            byCategory[risk.category]!.count++;
+        }
+    }
+    
+    let globalScore = 0;
+    
+    (Object.keys(byCategory) as RiskCategory[]).forEach(cat => {
+        const categoryData = byCategory[cat]!;
+        if (categoryData.count > 0) {
+            categoryData.average = categoryData.totalSeverity / categoryData.count;
+        }
+        globalScore += categoryData.average * weights[cat];
+    });
+
+    return {
+        score: Math.round(globalScore),
+        byCategory: (Object.keys(byCategory) as RiskCategory[]).reduce((acc, cat) => {
+            acc[cat] = Math.round(byCategory[cat]!.average);
+            return acc;
+        }, {} as Record<RiskCategory, number>),
+    };
 };
 
 export default function RiskPage() {
@@ -42,34 +74,28 @@ export default function RiskPage() {
     useEffect(() => {
         if (!isFirebaseConfigValid) {
             setRisks(mockRisks);
-            setRiskStats(mockRiskStats);
+            setRiskStats(calculateRiskStats(mockRisks));
             setIsLoading(false);
             return;
         }
-
+        
+        setIsLoading(true);
         const q = query(collection(db, "risks"));
         const unsubscribeRisks = onSnapshot(q, (snapshot) => {
             const fetchedRisks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Risk));
             setRisks(fetchedRisks);
+            
+            // Calculate stats dynamically when risks are fetched
+            setRiskStats(calculateRiskStats(fetchedRisks));
+
             setIsLoading(false);
         }, (error) => {
             console.error("Error fetching risks:", error);
             setIsLoading(false);
         });
-
-        const statsRef = collection(db, "riskStats");
-        const unsubscribeStats = onSnapshot(statsRef, (snapshot) => {
-            if (!snapshot.empty) {
-                const globalStats = snapshot.docs.find(doc => doc.id === 'global');
-                if (globalStats) {
-                    setRiskStats(globalStats.data());
-                }
-            }
-        });
         
         return () => {
             unsubscribeRisks();
-            unsubscribeStats();
         };
     }, []);
 
