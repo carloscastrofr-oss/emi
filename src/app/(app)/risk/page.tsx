@@ -27,11 +27,10 @@ const calculateRiskStats = (risks: Risk[]) => {
     }
 
     const weights: Record<RiskCategory, number> = {
-        accessibility: 0.35,
-        performance: 0.25,
+        accessibility: 0.40,
+        performance: 0.30,
         'design-debt': 0.20,
         governance: 0.10,
-        brand: 0.10,
     };
 
     const byCategory: { [key in RiskCategory]?: { totalSeverity: number, count: number, average: number } } = {};
