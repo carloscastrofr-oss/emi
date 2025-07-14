@@ -34,8 +34,8 @@ export function RiskCategoryBars({ data, isLoading }: RiskCategoryBarsProps) {
             </CardHeader>
             <CardContent>
                 <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={data} margin={{ top: 20, right: 20, left: -10, bottom: 5 }}>
-                        <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                    <BarChart data={data} margin={{ top: 20, right: 20, left: 0, bottom: 20 }}>
+                        <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-45} textAnchor="end" dy={10} />
                         <YAxis domain={[0, 110]} hide />
                         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--accent))', radius: 12 }} />
                         <defs>
