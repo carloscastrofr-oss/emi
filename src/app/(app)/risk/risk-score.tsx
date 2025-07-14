@@ -16,13 +16,13 @@ export function RiskScore({ score, isLoading }: RiskScoreProps) {
     
     const getScoreColor = () => {
         if (score <= 50) return 'hsl(var(--destructive))';
-        if (score <= 75) return 'hsl(var(--primary))'; // Assuming primary can be orange/yellow
+        if (score <= 80) return 'hsl(var(--primary))'; // Assuming primary can be orange/yellow
         return 'hsl(var(--chart-1))'; // Green
     };
 
     const getScoreLabel = () => {
         if (score <= 50) return 'Crítico';
-        if (score <= 75) return 'Precaución';
+        if (score <= 80) return 'Precaución';
         return 'Aceptable';
     }
     

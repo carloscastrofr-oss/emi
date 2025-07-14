@@ -4,7 +4,7 @@
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { riskCategories, type Risk, type RiskCategory } from '@/types/risk';
+import { riskCategories, type Risk, type RiskCategory, type RiskStatus } from '@/types/risk';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -12,9 +12,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 interface RiskCardProps {
     category: RiskCategory;
     risks: Risk[];
+    onUpdateRisk: (riskId: string, status: RiskStatus) => void;
 }
 
-export function RiskCard({ category, risks }: RiskCardProps) {
+export function RiskCard({ category, risks, onUpdateRisk }: RiskCardProps) {
     const categoryInfo = riskCategories[category];
 
     const getSeverityColor = (severity: number) => {
@@ -24,7 +25,12 @@ export function RiskCard({ category, risks }: RiskCardProps) {
         return 'bg-green-500';
     };
     
-    const hasCriticalRisk = risks.some(r => r.severity <= 25);
+    const openRisks = risks.filter(r => r.status !== 'resolved');
+    const hasCriticalRisk = openRisks.some(r => r.severity <= 25);
+
+    if (openRisks.length === 0) {
+        return null;
+    }
 
     return (
         <motion.div
@@ -42,14 +48,21 @@ export function RiskCard({ category, risks }: RiskCardProps) {
                         <div>
                             <CardTitle className="text-xl">{categoryInfo.label}</CardTitle>
                             <CardDescription className={cn(hasCriticalRisk ? 'text-destructive-foreground/80' : '')}>
-                                {risks.length} riesgo{risks.length !== 1 ? 's' : ''} abierto{risks.length !== 1 ? 's' : ''}
+                                {openRisks.length} riesgo{openRisks.length !== 1 ? 's' : ''} abierto{openRisks.length !== 1 ? 's' : ''}
                             </CardDescription>
                         </div>
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                    {risks.map(risk => (
-                         <div key={risk.id} className="flex items-center justify-between gap-4 p-3 rounded-lg bg-background/50">
+                    {openRisks.map(risk => (
+                         <motion.div 
+                            key={risk.id} 
+                            layout
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
+                            className="flex items-center justify-between gap-4 p-3 rounded-lg bg-background/50"
+                        >
                             <div>
                                 <p className="font-medium text-sm">{risk.title}</p>
                                 <p className="text-xs text-muted-foreground">
@@ -72,10 +85,10 @@ export function RiskCard({ category, risks }: RiskCardProps) {
                                </TooltipProvider>
                                 <div className="flex gap-2">
                                     <Button size="sm" variant="outline">Asignar</Button>
-                                    <Button size="sm" variant="ghost">Resolver</Button>
+                                    <Button size="sm" variant="ghost" onClick={() => onUpdateRisk(risk.id, 'resolved')}>Resolver</Button>
                                 </div>
                             </div>
-                         </div>
+                         </motion.div>
                     ))}
                 </CardContent>
             </Card>

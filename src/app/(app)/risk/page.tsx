@@ -20,6 +20,10 @@ const mockRisks: Risk[] = [
 
 
 const calculateRiskStats = (risks: Risk[]) => {
+    if (!risks || risks.length === 0) {
+        return { score: 100, byCategory: {} };
+    }
+
     const weights: Record<RiskCategory, number> = {
         accessibility: 0.35,
         performance: 0.25,
@@ -48,7 +52,9 @@ const calculateRiskStats = (risks: Risk[]) => {
     (Object.keys(byCategory) as RiskCategory[]).forEach(cat => {
         const categoryData = byCategory[cat]!;
         if (categoryData.count > 0) {
-            categoryData.average = categoryData.totalSeverity / categoryData.count;
+            categoryData.average = 100 - (categoryData.totalSeverity / categoryData.count);
+        } else {
+            categoryData.average = 100;
         }
         globalScore += categoryData.average * weights[cat];
     });
@@ -63,7 +69,7 @@ const calculateRiskStats = (risks: Risk[]) => {
 };
 
 export default function RiskPage() {
-    const [risks, setRisks] = useState<Risk[]>([]);
+    const [allRisks, setAllRisks] = useState<Risk[]>([]);
     const [riskStats, setRiskStats] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [filters, setFilters] = useState<{ category: RiskCategory | 'all', status: RiskStatus | 'all' }>({
@@ -73,8 +79,7 @@ export default function RiskPage() {
 
     useEffect(() => {
         if (!isFirebaseConfigValid) {
-            setRisks(mockRisks);
-            setRiskStats(calculateRiskStats(mockRisks));
+            setAllRisks(mockRisks);
             setIsLoading(false);
             return;
         }
@@ -83,11 +88,7 @@ export default function RiskPage() {
         const q = query(collection(db, "risks"));
         const unsubscribeRisks = onSnapshot(q, (snapshot) => {
             const fetchedRisks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Risk));
-            setRisks(fetchedRisks);
-            
-            // Calculate stats dynamically when risks are fetched
-            setRiskStats(calculateRiskStats(fetchedRisks));
-
+            setAllRisks(fetchedRisks);
             setIsLoading(false);
         }, (error) => {
             console.error("Error fetching risks:", error);
@@ -99,7 +100,19 @@ export default function RiskPage() {
         };
     }, []);
 
-    const filteredRisks = risks.filter(risk => {
+    useEffect(() => {
+        setRiskStats(calculateRiskStats(allRisks));
+    }, [allRisks]);
+
+    const handleUpdateRiskStatus = (riskId: string, status: RiskStatus) => {
+        setAllRisks(currentRisks => 
+            currentRisks.map(risk => 
+                risk.id === riskId ? { ...risk, status } : risk
+            )
+        );
+    };
+
+    const filteredRisks = allRisks.filter(risk => {
         const categoryMatch = filters.category === 'all' || risk.category === filters.category;
         const statusMatch = filters.status === 'all' || risk.status === filters.status;
         return categoryMatch && statusMatch;
@@ -120,7 +133,7 @@ export default function RiskPage() {
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-1 space-y-8">
-                    <RiskScore score={riskStats?.score} isLoading={isLoading} />
+                    <RiskScore score={riskStats?.score ?? 100} isLoading={isLoading} />
                     <RiskFilters filters={filters} onFilterChange={setFilters} />
                 </div>
                 
@@ -133,6 +146,7 @@ export default function RiskPage() {
                                 key={category}
                                 category={category}
                                 risks={groupedRisks[category]}
+                                onUpdateRisk={handleUpdateRiskStatus}
                             />
                         ))
                     ) : (
