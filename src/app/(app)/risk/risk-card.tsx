@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,15 +10,18 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Lightbulb } from 'lucide-react';
+import { AssignRiskModal } from './assign-risk-modal';
 
 interface RiskCardProps {
     category: RiskCategory;
     risks: Risk[];
     onUpdateRisk: (riskId: string, status: RiskStatus) => void;
+    onAssignRisk: (riskId: string, ownerUid: string, ownerName: string) => void;
 }
 
-export function RiskCard({ category, risks, onUpdateRisk }: RiskCardProps) {
+export function RiskCard({ category, risks, onUpdateRisk, onAssignRisk }: RiskCardProps) {
     const categoryInfo = riskCategories[category];
+    const [modalRisk, setModalRisk] = useState<Risk | null>(null);
 
     const getSeverityColor = (severity: number) => {
         if (severity <= 25) return 'bg-destructive/80';
@@ -33,7 +37,23 @@ export function RiskCard({ category, risks, onUpdateRisk }: RiskCardProps) {
         return null;
     }
 
+    const handleAssign = (assignee: { uid: string, name: string }) => {
+        if (modalRisk) {
+            onAssignRisk(modalRisk.id, assignee.uid, assignee.name);
+        }
+        setModalRisk(null);
+    }
+
     return (
+        <>
+        {modalRisk && (
+            <AssignRiskModal
+                risk={modalRisk}
+                open={!!modalRisk}
+                onClose={() => setModalRisk(null)}
+                onAssign={handleAssign}
+            />
+        )}
         <motion.div
             className="h-full"
             whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)' }}
@@ -86,7 +106,7 @@ export function RiskCard({ category, risks, onUpdateRisk }: RiskCardProps) {
                                     </Tooltip>
                                 </TooltipProvider>
                                 <div className="flex gap-2">
-                                    <Button size="sm" variant="outline">Asignar</Button>
+                                    <Button size="sm" variant="outline" onClick={() => setModalRisk(risk)}>Asignar</Button>
                                     <Button size="sm" variant="ghost" onClick={() => onUpdateRisk(risk.id, 'resolved')}>Resolver</Button>
                                 </div>
                                 </div>
@@ -105,5 +125,6 @@ export function RiskCard({ category, risks, onUpdateRisk }: RiskCardProps) {
                 </CardContent>
             </Card>
         </motion.div>
+        </>
     );
 }

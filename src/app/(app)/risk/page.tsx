@@ -36,7 +36,9 @@ const calculateRiskStats = (risks: Risk[]) => {
     const byCategory: { [key in RiskCategory]?: { totalSeverity: number, count: number, average: number } } = {};
 
     for (const category of riskCategoryCodes) {
-        byCategory[category] = { totalSeverity: 0, count: 0, average: 100 };
+        if(category in weights) {
+            byCategory[category] = { totalSeverity: 0, count: 0, average: 100 };
+        }
     }
 
     const openRisks = risks.filter(r => r.status !== 'resolved');
@@ -79,8 +81,9 @@ export default function RiskPage() {
     });
 
     useEffect(() => {
+        setIsLoading(true);
         if (!isFirebaseConfigValid) {
-            // Generate recommendations for mock risks that don't have one
+            console.warn("Firebase not configured. Using mock data for risks.");
             const risksWithRecommendations = Promise.all(mockRisks.map(async (risk) => {
                 if (!risk.recommendation) {
                     try {
@@ -88,7 +91,7 @@ export default function RiskPage() {
                         return { ...risk, recommendation };
                     } catch (error) {
                         console.error("Error generating mock recommendation:", error);
-                        return risk; // Return risk without recommendation on error
+                        return risk;
                     }
                 }
                 return risk;
@@ -101,7 +104,6 @@ export default function RiskPage() {
             return;
         }
         
-        setIsLoading(true);
         const q = query(collection(db, "risks"));
         const unsubscribeRisks = onSnapshot(q, (snapshot) => {
             const fetchedRisks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Risk));
@@ -128,6 +130,15 @@ export default function RiskPage() {
             )
         );
     };
+
+    const handleAssignRisk = (riskId: string, ownerUid: string, ownerName: string) => {
+        setAllRisks(currentRisks =>
+            currentRisks.map(risk =>
+                risk.id === riskId ? { ...risk, ownerUid, ownerName, status: 'in-progress' } : risk
+            )
+        );
+    };
+
 
     const filteredRisks = allRisks.filter(risk => {
         const categoryMatch = filters.category === 'all' || risk.category === filters.category;
@@ -177,6 +188,7 @@ export default function RiskPage() {
                                 category={category}
                                 risks={groupedRisks[category]}
                                 onUpdateRisk={handleUpdateRiskStatus}
+                                onAssignRisk={handleAssignRisk}
                             />
                         ))
                     ) : (

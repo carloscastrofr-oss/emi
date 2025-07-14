@@ -26,6 +26,7 @@ export interface Risk {
   detectedAt: Timestamp;
   status: RiskStatus;
   ownerUid: string | null;
+  ownerName?: string | null;
   notes: string | null;
   recommendation?: string;
 }
