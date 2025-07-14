@@ -128,7 +128,14 @@ export default function RiskPage() {
 
     const filteredRisks = allRisks.filter(risk => {
         const categoryMatch = filters.category === 'all' || risk.category === filters.category;
-        const statusMatch = filters.status === 'all' || risk.status === 'in-progress' || risk.status === 'open';
+        
+        let statusMatch = true;
+        if (filters.status === 'resolved') {
+            statusMatch = risk.status === 'resolved';
+        } else if (filters.status === 'all') { // 'all' in the new UI means 'open' or 'in-progress'
+            statusMatch = risk.status === 'open' || risk.status === 'in-progress';
+        }
+
         return categoryMatch && statusMatch;
     });
     
@@ -148,12 +155,13 @@ export default function RiskPage() {
                 title="Risk Dashboard"
                 description="Monitoriza y prioriza los riesgos que afectan tu sistema de diseño."
             />
+
+            <RiskFilters filters={filters} onFilterChange={setFilters} />
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                <div className="lg:col-span-1 space-y-8">
+                <div className="lg:col-span-1 space-y-8 sticky top-24">
                     <RiskScore score={riskStats?.score ?? 100} isLoading={isLoading} />
                     <RiskCategoryBars data={categoryChartData} isLoading={isLoading} />
-                    <RiskFilters filters={filters} onFilterChange={setFilters} />
                 </div>
                 
                 <div className="lg:col-span-2 space-y-8">

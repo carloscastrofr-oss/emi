@@ -1,10 +1,21 @@
 
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { riskCategories, riskStatuses, type RiskCategory, type RiskStatus } from '@/types/risk';
+import { motion } from 'framer-motion';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { riskCategories, riskCategoryCodes, type RiskCategory, type RiskStatus } from '@/types/risk';
+import { cn } from '@/lib/utils';
+
+const categoryOptions: { value: RiskCategory | 'all', label: string }[] = [
+    { value: 'all', label: 'Todas' },
+    ...riskCategoryCodes.map(cat => ({ value: cat, label: riskCategories[cat].label }))
+];
+
+const statusOptions: { value: RiskStatus | 'all', label: string }[] = [
+    { value: 'all', label: 'Abiertos' },
+    { value: 'resolved', label: 'Resueltos' }
+];
+
 
 interface RiskFiltersProps {
     filters: {
@@ -25,40 +36,50 @@ export function RiskFilters({ filters, onFilterChange }: RiskFiltersProps) {
     };
 
     return (
-        <Card className="rounded-expressive">
-            <CardHeader>
-                <CardTitle>Filtros</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div>
-                    <Label htmlFor="category-filter">Categoría</Label>
-                    <Select value={filters.category} onValueChange={handleCategoryChange}>
-                        <SelectTrigger id="category-filter">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todas</SelectItem>
-                            {(Object.keys(riskCategories) as RiskCategory[]).map(cat => (
-                                <SelectItem key={cat} value={cat}>{riskCategories[cat].label}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div>
-                    <Label htmlFor="status-filter">Estado</Label>
-                    <Select value={filters.status} onValueChange={handleStatusChange}>
-                        <SelectTrigger id="status-filter">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todos</SelectItem>
-                            {riskStatuses.map(status => (
-                                <SelectItem key={status} value={status}>{status}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-            </CardContent>
-        </Card>
+        <div className="space-y-4">
+             <div>
+                <span className="text-sm font-medium text-muted-foreground">Categoría</span>
+                <Tabs value={filters.category} onValueChange={handleCategoryChange} className="mt-2">
+                    <TabsList className="h-auto bg-transparent p-0 gap-4">
+                        {categoryOptions.map(cat => (
+                             <motion.div
+                                key={cat.value}
+                                whileHover={{ y: -2, boxShadow:'var(--tw-shadow-e8)' }}
+                                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                             >
+                                <TabsTrigger
+                                    value={cat.value}
+                                    className={cn(
+                                        "rounded-expressive shadow-e2 data-[state=active]:text-on-primary-container data-[state=active]:bg-primary-container data-[state=inactive]:bg-card text-card-foreground",
+                                        "px-4 py-2"
+                                    )}
+                                >
+                                    {cat.label}
+                                </TabsTrigger>
+                            </motion.div>
+                        ))}
+                    </TabsList>
+                </Tabs>
+            </div>
+             <div>
+                <span className="text-sm font-medium text-muted-foreground">Estado</span>
+                <Tabs value={filters.status} onValueChange={handleStatusChange} className="mt-2">
+                    <TabsList className="bg-transparent p-0 gap-4">
+                        {statusOptions.map(st => (
+                            <TabsTrigger
+                                key={st.value}
+                                value={st.value}
+                                className={cn(
+                                    "rounded-full text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:bg-muted data-[state=inactive]:text-muted-foreground",
+                                    "px-3 py-1"
+                                )}
+                            >
+                                {st.label}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+                </Tabs>
+            </div>
+        </div>
     );
 }
