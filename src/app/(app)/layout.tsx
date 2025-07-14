@@ -18,6 +18,7 @@ import {
   FileText,
   Target,
   Users,
+  ShieldAlert,
 } from "lucide-react";
 
 import {
@@ -56,6 +57,7 @@ const navItems = [
   { href: "/workbench", icon: KanbanSquare, label: "Workbench", roles: ["producer", "core", "admin"], className: "workbench-page-link" },
   { href: "/agent", icon: Bot, label: "Agent", roles: ["core", "admin"], className: "agent-page-link" },
   { href: "/observer", icon: View, label: "Observer", roles: ["core", "admin"], className: "observer-page-link" },
+  { href: "/risk", icon: ShieldAlert, label: "Riesgos", roles: ["core", "admin"], className: "risk-page-link" },
   { href: "/synthetic-users", icon: Users, label: "SynthUsers", roles: ["core", "admin"], className: "synthetic-users-page-link" },
   { href: "/playground", icon: Beaker, label: "Playground", roles: ["producer", "core", "admin"], className: "playground-page-link" },
   { href: "/strategy", icon: Target, label: "Strategy", roles: ["producer", "core", "admin"], className: "strategy-page-link" },

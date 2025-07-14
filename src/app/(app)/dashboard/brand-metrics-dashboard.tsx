@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db, isFirebaseConfigValid } from '@/lib/firebase';
 import { motion } from 'framer-motion';
-import { DollarSign, Package, AlertTriangle, TrendingUp, LucideIcon, LayoutGrid, Users } from "lucide-react";
+import { DollarSign, Package, AlertTriangle, TrendingUp, LucideIcon, LayoutGrid, Users, ShieldAlert } from "lucide-react";
 import type { Brand } from '@/types/brand';
 import {
   Card,
@@ -21,9 +21,9 @@ import type { UserRole } from "@/hooks/use-auth";
 import { Skeleton } from '@/components/ui/skeleton';
 
 const mockBrands: Brand[] = [
-    { id: 'core', name: 'Design System Core', primary: '#2DB660', primaryContainer: '#B7F2CB', onPrimary: '#FFFFFF', metrics: { adoption: 82, tokenUsage: 95, coverage: 65, teamContrib: 18, a11yIssues: 12, roi: 120500, adoptionTrend: [98, 92, 78, 65, 55, 88], tokenFreqTrend: [186, 305, 237, 273, 209, 214] }, updatedAt: null as any },
-    { id: 'bank', name: 'Sub-producto A', primary: '#0047AB', primaryContainer: '#B1D0FF', onPrimary: '#FFFFFF', metrics: { adoption: 71, tokenUsage: 88, coverage: 50, teamContrib: 12, a11yIssues: 25, roi: 95000, adoptionTrend: [80, 85, 70, 60, 50, 75], tokenFreqTrend: [150, 250, 200, 240, 190, 200] }, updatedAt: null as any },
-    { id: 'aero', name: 'Sub-producto B', primary: '#8A2BE2', primaryContainer: '#E0C8FF', onPrimary: '#FFFFFF', metrics: { adoption: 65, tokenUsage: 75, coverage: 40, teamContrib: 8, a11yIssues: 30, roi: 72000, adoptionTrend: [70, 65, 50, 45, 40, 60], tokenFreqTrend: [120, 180, 150, 190, 140, 160] }, updatedAt: null as any }
+    { id: 'core', name: 'Design System Core', primary: '#2DB660', primaryContainer: '#B7F2CB', onPrimary: '#FFFFFF', metrics: { adoption: 82, tokenUsage: 95, coverage: 65, teamContrib: 18, a11yIssues: 12, roi: 120500, riskScore: 78, adoptionTrend: [98, 92, 78, 65, 55, 88], tokenFreqTrend: [186, 305, 237, 273, 209, 214] }, updatedAt: null as any },
+    { id: 'bank', name: 'Sub-producto A', primary: '#0047AB', primaryContainer: '#B1D0FF', onPrimary: '#FFFFFF', metrics: { adoption: 71, tokenUsage: 88, coverage: 50, teamContrib: 12, a11yIssues: 25, roi: 95000, riskScore: 65, adoptionTrend: [80, 85, 70, 60, 50, 75], tokenFreqTrend: [150, 250, 200, 240, 190, 200] }, updatedAt: null as any },
+    { id: 'aero', name: 'Sub-producto B', primary: '#8A2BE2', primaryContainer: '#E0C8FF', onPrimary: '#FFFFFF', metrics: { adoption: 65, tokenUsage: 75, coverage: 40, teamContrib: 8, a11yIssues: 30, roi: 72000, riskScore: 85, adoptionTrend: [70, 65, 50, 45, 40, 60], tokenFreqTrend: [120, 180, 150, 190, 140, 160] }, updatedAt: null as any }
 ];
 
 // Helper to inject CSS variables for the selected brand's theme
@@ -109,10 +109,10 @@ export function BrandMetricsDashboard({ brandId }: BrandMetricsDashboardProps) {
     const kpis: Kpi[] = [
       { title: "Adopción de Componentes", value: `${brand.metrics.adoption}%`, icon: Package, roles: ["viewer", "producer", "core", "admin"] },
       { title: "Uso de Tokens", value: `${brand.metrics.tokenUsage}%`, icon: TrendingUp, roles: ["viewer", "producer", "core", "admin"] },
-      { title: "Cobertura de Componentes", value: `${brand.metrics.coverage}%`, icon: LayoutGrid, roles: ["producer", "core", "admin"] },
-      { title: "Contribuciones del Equipo", value: `${brand.metrics.teamContrib}`, icon: Users, roles: ["core", "admin"] },
-      { title: "Problemas de Accesibilidad", value: `${brand.metrics.a11yIssues}`, icon: AlertTriangle, roles: ["producer", "core", "admin"] },
+      { title: "Puntuación de Riesgo", value: `${brand.metrics.riskScore || 'N/A'}`, icon: ShieldAlert, roles: ["core", "admin"] },
       { title: "ROI Estimado", value: `$${brand.metrics.roi.toLocaleString()}`, icon: DollarSign, roles: ["core", "admin"] },
+      { title: "Cobertura de Componentes", value: `${brand.metrics.coverage}%`, icon: LayoutGrid, roles: ["producer", "core", "admin"] },
+      { title: "Problemas de Accesibilidad", value: `${brand.metrics.a11yIssues}`, icon: AlertTriangle, roles: ["producer", "core", "admin"] },
     ];
     
     const adoptionChartData = [

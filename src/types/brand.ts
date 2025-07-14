@@ -8,6 +8,7 @@ export interface BrandMetrics {
   teamContrib: number;
   a11yIssues: number;
   roi: number;
+  riskScore?: number;
   adoptionTrend: number[];
   tokenFreqTrend: number[];
 }
