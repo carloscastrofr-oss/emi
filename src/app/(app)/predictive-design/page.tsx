@@ -136,8 +136,8 @@ export default function PredictiveDesignPage() {
         description="Anticipa journeys y wireframes con IA a partir del planning trimestral."
       />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        <div className="lg:col-span-1 space-y-8">
-          <Card className="rounded-expressive shadow-e2 sticky top-20">
+        <div className="lg:col-span-1 space-y-8 sticky top-20">
+          <Card className="rounded-expressive shadow-e2">
             <CardHeader>
               <CardTitle>Iniciar Agente</CardTitle>
               <CardDescription>Configura los parámetros para la generación.</CardDescription>
