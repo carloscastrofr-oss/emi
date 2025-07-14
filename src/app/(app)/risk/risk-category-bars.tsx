@@ -1,6 +1,6 @@
 
 'use client';
-import { BarChart, Bar, XAxis, Tooltip, YAxis, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, Tooltip, YAxis, ResponsiveContainer, LabelList } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -34,9 +34,9 @@ export function RiskCategoryBars({ data, isLoading }: RiskCategoryBarsProps) {
             </CardHeader>
             <CardContent>
                 <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                    <BarChart data={data} margin={{ top: 20, right: 20, left: -10, bottom: 5 }}>
                         <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                        <YAxis domain={[0, 100]} hide />
+                        <YAxis domain={[0, 110]} hide />
                         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--accent))', radius: 12 }} />
                         <defs>
                             <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
@@ -44,7 +44,9 @@ export function RiskCategoryBars({ data, isLoading }: RiskCategoryBarsProps) {
                                 <stop offset="100%" stopColor="hsl(var(--primary))" />
                             </linearGradient>
                         </defs>
-                        <Bar dataKey="score" radius={[12, 12, 0, 0]} fill="url(#barGrad)" />
+                        <Bar dataKey="score" radius={[12, 12, 0, 0]} fill="url(#barGrad)">
+                             <LabelList dataKey="score" position="top" className="fill-foreground" fontSize={12} />
+                        </Bar>
                     </BarChart>
                 </ResponsiveContainer>
             </CardContent>
