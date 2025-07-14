@@ -12,9 +12,8 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { predictiveDesign, PredictiveDesignInputSchema, PredictiveDesignOutput, PredictiveDesignInput } from '@/ai/flows/predictive-design';
+import { predictiveDesign, PredictiveDesignInputSchema, PredictiveDesignOutput } from '@/ai/flows/predictive-design';
 import { Loader2, Wand2, FileUp, AlertTriangle, Check, X, DraftingCompass, Newspaper } from 'lucide-react';
 
 const formSchema = PredictiveDesignInputSchema;
@@ -151,12 +150,12 @@ export default function PredictiveDesignPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Archivo de Planning (.xlsx)</FormLabel>
-                        <FormControl>
-                            <div className="flex w-full items-center space-x-2">
-                                <Input {...field} placeholder="planning-q1.xlsx" className="flex-grow" />
-                                <Button type="button" variant="outline"><FileUp className="mr-2 h-4 w-4" /> Cargar</Button>
-                            </div>
-                        </FormControl>
+                          <div className="flex w-full items-center space-x-2">
+                          <FormControl>
+                            <Input {...field} placeholder="planning-q1.xlsx" className="flex-grow" />
+                          </FormControl>
+                          <Button type="button" variant="outline"><FileUp className="mr-2 h-4 w-4" /> Cargar</Button>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -168,9 +167,18 @@ export default function PredictiveDesignPage() {
                         name="maxScreens"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Pantallas Máx.</FormLabel>
-                            <FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} /></FormControl>
-                                <FormMessage />
+                              <FormLabel>Pantallas Máx.</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  {...field} 
+                                  onChange={e => {
+                                    const value = e.target.value;
+                                    field.onChange(value === '' ? '' : parseInt(value, 10));
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
                             </FormItem>
                         )}
                         />
