@@ -14,7 +14,7 @@ import { RiskCategoryBars } from './risk-category-bars';
 import { suggestMitigation } from '@/ai/flows/suggest-mitigation';
 
 const mockRisks: Risk[] = [
-    { id: 'risk1', category: 'accessibility', title: 'Contraste insuficiente en btn-pay', componentId: 'button-primary', pageUrl: '/checkout', severity: 10, source: 'agent-a11y', detectedAt: Timestamp.now(), status: 'open', ownerUid: null, notes: '', recommendation: 'Aumentar el contraste del texto a blanco puro (#FFFFFF) para cumplir con el ratio 4.5:1.' },
+    { id: 'risk1', category: 'accessibility', title: 'Contraste insuficiente en btn-pay', componentId: 'button-primary', pageUrl: '/checkout', severity: 10, source: 'agent-a11y', detectedAt: Timestamp.now(), status: 'open', ownerUid: null, notes: '' },
     { id: 'risk2', category: 'accessibility', title: 'Falta de rol ARIA en modal', componentId: 'modal-dialog', pageUrl: '/subscribe', severity: 40, source: 'agent-a11y', detectedAt: Timestamp.now(), status: 'open', ownerUid: null, notes: '' },
     { id: 'risk3', category: 'performance', title: 'LCP > 2.5s en página de inicio', pageUrl: '/', severity: 25, source: 'agent-perf', detectedAt: Timestamp.now(), status: 'in-progress', ownerUid: 'core456', notes: 'Investigando optimización de imágenes.', recommendation: 'Optimizar las imágenes de cabecera usando formato WebP y compresión.' },
     { id: 'risk4', category: 'design-debt', title: 'Componente Card clonado 5 veces', componentId: 'card-clone', pageUrl: '/products', severity: 60, source: 'agent-debt', detectedAt: Timestamp.now(), status: 'open', ownerUid: null, notes: '' },
@@ -80,8 +80,24 @@ export default function RiskPage() {
 
     useEffect(() => {
         if (!isFirebaseConfigValid) {
-            setAllRisks(mockRisks);
-            setIsLoading(false);
+            // Generate recommendations for mock risks that don't have one
+            const risksWithRecommendations = Promise.all(mockRisks.map(async (risk) => {
+                if (!risk.recommendation) {
+                    try {
+                        const recommendation = await suggestMitigation(risk);
+                        return { ...risk, recommendation };
+                    } catch (error) {
+                        console.error("Error generating mock recommendation:", error);
+                        return risk; // Return risk without recommendation on error
+                    }
+                }
+                return risk;
+            }));
+
+            risksWithRecommendations.then(risks => {
+                setAllRisks(risks);
+                setIsLoading(false);
+            });
             return;
         }
         
@@ -89,19 +105,6 @@ export default function RiskPage() {
         const q = query(collection(db, "risks"));
         const unsubscribeRisks = onSnapshot(q, (snapshot) => {
             const fetchedRisks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Risk));
-            
-            // Generate recommendations for risks that don't have one
-            fetchedRisks.forEach(risk => {
-                if (!risk.recommendation) {
-                    suggestMitigation(risk).then(recommendation => {
-                        // This would typically be a DB update, here we just update state
-                        setAllRisks(prevRisks => prevRisks.map(r => 
-                            r.id === risk.id ? { ...r, recommendation } : r
-                        ));
-                    });
-                }
-            });
-
             setAllRisks(fetchedRisks);
             setIsLoading(false);
         }, (error) => {
