@@ -26,9 +26,7 @@ export default function DashboardPage() {
         if (!isFirebaseConfigValid) {
             setBrands(mockBrands);
             if (mockBrands.length > 0) {
-                if(!activeBrandId) {
-                    setActiveBrandId(mockBrands[0].id);
-                }
+                setActiveBrandId(mockBrands[0].id);
             }
             setIsLoadingBrands(false);
             return;
@@ -38,7 +36,8 @@ export default function DashboardPage() {
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const brandsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Brand));
             setBrands(brandsData);
-            if (brandsData.length > 0 && !activeBrandId) {
+            // Set active brand only if it's not already set
+            if (brandsData.length > 0 && activeBrandId === null) {
                 setActiveBrandId(brandsData[0].id);
             }
             setIsLoadingBrands(false);
@@ -48,7 +47,7 @@ export default function DashboardPage() {
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [activeBrandId]); // Keep activeBrandId to set it initially if null
 
     if (isLoadingBrands) {
         return (
