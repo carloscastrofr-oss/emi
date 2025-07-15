@@ -5,7 +5,6 @@ import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { motion } from 'framer-motion';
 
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Wand2, AlertTriangle, Check, X, DraftingCompass, Newspaper, Upload } from 'lucide-react';
+import { Loader2, Wand2, AlertTriangle } from 'lucide-react';
 import { runPredictiveDesign } from '@/app/actions/runPredictiveDesign';
 
 export const runtime = "nodejs";
@@ -181,9 +180,17 @@ export default function PredictiveDesignPage() {
         )}
         
         {result && !result.error ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <p>Resultados recibidos. Implementar visualización.</p>
-            </div>
+          <Card className="rounded-expressive shadow-e2">
+             <CardHeader>
+                <CardTitle>Resultados del Análisis</CardTitle>
+                <CardDescription>Resumen de los journeys y componentes identificados.</CardDescription>
+            </CardHeader>
+             <CardContent>
+                <pre className="mt-4 w-full whitespace-pre-wrap bg-muted p-4 rounded-md text-xs font-mono">
+                  <code>{JSON.stringify(result, null, 2)}</code>
+                </pre>
+            </CardContent>
+          </Card>
         ) : !result && (
              <Card className="rounded-expressive border-dashed min-h-[300px] flex items-center justify-center">
                 <div className="text-center text-muted-foreground p-8">
@@ -197,3 +204,4 @@ export default function PredictiveDesignPage() {
     </div>
   );
 }
+
