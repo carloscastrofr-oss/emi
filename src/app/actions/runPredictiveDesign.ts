@@ -58,15 +58,17 @@ export async function runPredictiveDesign(formData: FormData) {
   }
 
   if (!modelName) {
-     console.log("No model found via SDK, trying REST fallback.");
+     console.log("No model found via SDK, trying REST fallback to v1 API.");
      try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`);
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1/models?key=${API_KEY}`);
         if(res.ok) {
             const body = await res.json();
             const usableModel = body.models?.find((m: any) => m.supportedGenerationMethods?.includes("generateContent"));
             if (usableModel?.name) {
                 modelName = usableModel.name.split("/").pop();
             }
+        } else {
+          console.error(`REST fallback failed with status: ${res.status}`);
         }
      } catch (e) {
          console.error("REST fallback for listModels also failed.", e);
