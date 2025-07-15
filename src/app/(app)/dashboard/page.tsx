@@ -1,110 +1,201 @@
 
 'use client';
 
-import { Bar, CartesianGrid, XAxis, ResponsiveContainer, Tooltip } from "recharts";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { FigmaIcon } from "./figma-icon";
-import { SketchIcon } from "./sketch-icon";
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ArrowUpRight, BarChart, Users, CheckCircle, Package, Search, TrendingUp } from 'lucide-react';
+import { Bar, CartesianGrid, XAxis, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
 import dynamic from 'next/dynamic';
-import { Skeleton } from "@/components/ui/skeleton";
 
-const chartData = [
-  { name: 'Sat', value: 2400, color: 'blue' },
-  { name: 'Sun', value: 1398, color: 'pink' },
-  { name: 'Mon', value: 3800, color: 'blue' },
-  { name: 'Tue', value: 3080, color: 'pink' },
-  { name: 'Wed', value: 900, color: 'blue' },
-  { name: 'Thu', value: 2100, color: 'pink' },
-  { name: 'Fri', value: 3200, color: 'blue' },
+// --- Mock Data ---
+const mockBrands = [
+  { id: 'ds-core', name: 'DS Core' },
+  { id: 'marca-a', name: 'Marca A' },
+  { id: 'marca-b', name: 'Marca B' },
 ];
 
-const transactions = [
-    { name: 'Figma', date: '15 June, 2024', amount: '- $144', paymentMethod: 'Visa Card', icon: FigmaIcon },
-    { name: 'Sketch', date: '13 June, 2024', amount: '- $138', paymentMethod: 'Paypal', icon: SketchIcon },
+const mockMetrics = {
+  'ds-core': { adoption: 82, tokenUsage: 95, a11yIssues: 12, roi: 120500, coverage: 65, contributors: 18 },
+  'marca-a': { adoption: 75, tokenUsage: 88, a11yIssues: 25, roi: 95000, coverage: 50, contributors: 10 },
+  'marca-b': { adoption: 91, tokenUsage: 98, a11yIssues: 5, roi: 150000, coverage: 80, contributors: 25 },
+};
+
+const mockChartData = {
+    'ds-core': [
+        { name: 'Ene', value: 2400 }, { name: 'Feb', value: 2800 }, { name: 'Mar', value: 3200 },
+        { name: 'Abr', value: 3000 }, { name: 'May', value: 3500 }, { name: 'Jun', value: 3800 },
+    ],
+    'marca-a': [
+        { name: 'Ene', value: 1800 }, { name: 'Feb', value: 2000 }, { name: 'Mar', value: 2200 },
+        { name: 'Abr', value: 2100 }, { name: 'May', value: 2400 }, { name: 'Jun', value: 2600 },
+    ],
+    'marca-b': [
+        { name: 'Ene', value: 3000 }, { name: 'Feb', value: 3200 }, { name: 'Mar', value: 3500 },
+        { name: 'Abr', value: 3400 }, { name: 'May', value: 3800 }, { name: 'Jun', value: 4100 },
+    ],
+};
+
+const kpiConfig = [
+    { id: 'adoption', label: 'Adopción', icon: ArrowUpRight, format: (val: number) => `${val}%` },
+    { id: 'tokenUsage', label: 'Uso de Tokens', icon: Package, format: (val: number) => `${val}%` },
+    { id: 'a11yIssues', label: 'Incidencias A11y', icon: CheckCircle, format: (val: number) => val.toString() },
+    { id: 'roi', label: 'ROI Estimado', icon: TrendingUp, format: (val: number) => `$${(val / 1000).toFixed(1)}k` },
+    { id: 'coverage', label: 'Cobertura', icon: Search, format: (val: number) => `${val}%` },
+    { id: 'contributors', label: 'Contribuidores', icon: Users, format: (val: number) => val.toString() },
 ];
 
+
+// --- Dynamic Components ---
 const DynamicBarChart = dynamic(() => import('recharts').then(mod => mod.BarChart), {
   ssr: false,
   loading: () => <Skeleton className="h-[250px] w-full" />,
 });
 
-
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className="rounded-lg bg-primary px-3 py-1.5 text-sm text-primary-foreground shadow-lg">
-        <p>{`$${payload[0].value}`}</p>
+        <p>{payload[0].value}</p>
       </div>
     );
   }
   return null;
 };
 
-export default function DashboardPage() {
+// --- Child Components ---
+function MetricCard({ label, value, icon: Icon, format }: { label: string, value?: number, icon: React.ElementType, format: (val: number) => string }) {
+    const hasValue = value !== undefined && value !== null;
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <Button variant="outline">Expenses</Button>
-                <div className="flex items-center gap-1 rounded-full bg-muted p-1">
-                    <Button variant="ghost" size="sm" className="rounded-full px-3 py-1 text-muted-foreground">Day</Button>
-                    <Button variant="secondary" size="sm" className="rounded-full bg-white px-3 py-1 shadow-sm">Week</Button>
-                    <Button variant="ghost" size="sm" className="rounded-full px-3 py-1 text-muted-foreground">Month</Button>
-                </div>
-            </div>
+        <motion.div
+            whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)' }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        >
+            <Card className="rounded-expressive shadow-e2 h-full">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">{label}</CardTitle>
+                    <Icon className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    {hasValue ? (
+                        <div className="text-2xl font-bold">{format(value)}</div>
+                    ) : (
+                        <div className="text-2xl font-bold text-muted-foreground">—</div>
+                    )}
+                </CardContent>
+            </Card>
+        </motion.div>
+    );
+}
 
-            <Card className="rounded-2xl">
-                <CardContent className="p-4">
-                    <div style={{ width: '100%', height: 250 }}>
+function BrandBarChart({ data }: { data: {name: string, value: number}[] }) {
+    return (
+         <motion.div
+            className="h-full"
+            whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)' }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        >
+            <Card className="rounded-expressive shadow-e2 h-full">
+                <CardHeader>
+                    <CardTitle>Tendencia de Adopción</CardTitle>
+                </CardHeader>
+                <CardContent>
+                     <div style={{ width: '100%', height: 250 }}>
                         <ResponsiveContainer>
-                            <DynamicBarChart data={chartData} margin={{ top: 30, right: 10, left: 10, bottom: 5 }}>
+                            <DynamicBarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
                                 <defs>
-                                    <linearGradient id="colorBlue" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.5}/>
-                                        <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.1}/>
-                                    </linearGradient>
-                                    <linearGradient id="colorPink" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.8}/>
-                                        <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0.2}/>
+                                    <linearGradient id="colorGreen" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.6}/>
+                                        <stop offset="95%" stopColor="hsl(var(--primary-container))" stopOpacity={0.4}/>
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} dy={10} />
-                                <Tooltip content={<CustomTooltip />} cursor={{fill: 'transparent'}} />
-                                <Bar dataKey="value" radius={[10, 10, 10, 10]}>
-                                    {
-                                        chartData.map((entry, index) => (
-                                            <rect key={`bar-${index}`} {...entry} fill={entry.color === 'blue' ? 'url(#colorBlue)' : 'url(#colorPink)'} />
-                                        ))
-                                    }
-                                </Bar>
+                                <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--accent))', radius: 12 }} />
+                                <Bar dataKey="value" radius={[12, 12, 0, 0]} fill="url(#colorGreen)" />
                             </DynamicBarChart>
                         </ResponsiveContainer>
                     </div>
                 </CardContent>
             </Card>
+        </motion.div>
+    );
+}
 
-            <div className="space-y-4">
-                <h2 className="text-xl font-semibold">June</h2>
-                <div className="space-y-3">
-                    {transactions.map((transaction, index) => (
-                        <Card key={index} className="rounded-2xl bg-muted/50 shadow-none">
-                            <CardContent className="flex items-center p-4">
-                                <div className="mr-4 flex h-10 w-10 items-center justify-center rounded-full bg-background">
-                                    <transaction.icon className="h-6 w-6" />
-                                </div>
-                                <div className="flex-1">
-                                    <p className="font-semibold">{transaction.name}</p>
-                                    <p className="text-sm text-muted-foreground">{transaction.date}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="font-semibold">{transaction.amount}</p>
-                                    <p className="text-sm text-muted-foreground">{transaction.paymentMethod}</p>
-                                </div>
-                            </CardContent>
-                        </Card>
+// --- Main Page Component ---
+export default function DashboardPage() {
+    const [brands] = useState(mockBrands);
+    const [activeBrand, setActiveBrand] = useState('ds-core');
+    const [loading, setLoading] = useState(true);
+    const [metrics, setMetrics] = useState<any>(null);
+    const [chartData, setChartData] = useState<any>(null);
+
+    useEffect(() => {
+        setLoading(true);
+        // Simulate fetching data for the active brand
+        const timer = setTimeout(() => {
+            setMetrics((mockMetrics as any)[activeBrand]);
+            setChartData((mockChartData as any)[activeBrand]);
+            setLoading(false);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [activeBrand]);
+
+    return (
+        <div className="space-y-6 dashboard-header">
+            <Tabs value={activeBrand} onValueChange={setActiveBrand}>
+                <TabsList className="bg-transparent p-0 gap-4">
+                    {brands.map(b => (
+                        <motion.div
+                            key={b.id}
+                            whileHover={{ y: -2, boxShadow:'var(--tw-shadow-e8)' }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                        >
+                            <TabsTrigger
+                                value={b.id}
+                                className="rounded-full px-4 py-2 text-sm font-medium shadow-e2
+                                data-[state=active]:bg-primary-container data-[state=active]:text-on-primary-container
+                                data-[state=inactive]:bg-card data-[state=inactive]:text-card-foreground">
+                                {b.name}
+                            </TabsTrigger>
+                        </motion.div>
                     ))}
-                </div>
+                </TabsList>
+            </Tabs>
+            
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                 {loading ? (
+                    Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-[108px] w-full rounded-expressive" />)
+                ) : (
+                    kpiConfig.map(kpi => (
+                        <MetricCard key={kpi.id} label={kpi.label} value={metrics?.[kpi.id]} icon={kpi.icon} format={kpi.format} />
+                    ))
+                )}
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+                 {loading ? (
+                    <>
+                        <Skeleton className="h-[350px] w-full rounded-expressive" />
+                        <Skeleton className="h-[350px] w-full rounded-expressive" />
+                    </>
+                ) : (
+                    <>
+                        <BrandBarChart data={chartData} />
+                        {/* Placeholder for AreaChart */}
+                        <motion.div whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
+                            <Card className="rounded-expressive shadow-e2 h-full">
+                                <CardHeader><CardTitle>Uso de Tokens</CardTitle></CardHeader>
+                                <CardContent className="flex items-center justify-center h-[250px]">
+                                    <p className="text-muted-foreground">Gráfica de área próximamente</p>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    </>
+                )}
             </div>
         </div>
     );
