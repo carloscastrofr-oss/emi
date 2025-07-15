@@ -14,12 +14,16 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { predictiveDesign, PredictiveDesignInputSchema, PredictiveDesignOutput } from '@/ai/flows/predictive-design';
+import { predictiveDesign, type PredictiveDesignOutput } from '@/ai/flows/predictive-design';
 import { Loader2, Wand2, FileUp, AlertTriangle, Check, X, DraftingCompass, Newspaper } from 'lucide-react';
 
-const formSchema = PredictiveDesignInputSchema.extend({
-    planningFile: z.any().optional(), // Allow file input
+const formSchema = z.object({
+    planningFileId: z.string().optional(), // Will be derived from the file input
+    maxScreens: z.number().int().positive(),
+    figmaFileId: z.string().min(1, 'El ID del archivo de Figma es requerido.'),
+    planningFile: z.any().optional(), // For the file input
 });
+
 
 function ProposalCard({ journeyUrl, wireframeFrames, onAccept, onDismiss }: { journeyUrl: string, wireframeFrames: string[], onAccept: () => void, onDismiss: () => void }) {
   return (
@@ -72,7 +76,6 @@ export default function PredictiveDesignPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      planningFileId: '',
       maxScreens: 8,
       figmaFileId: 'FIGMA_FILE_ID_HERE',
       planningFile: undefined,
