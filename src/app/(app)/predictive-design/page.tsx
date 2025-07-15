@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -14,14 +13,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { predictiveDesign, type PredictiveDesignOutput } from '@/ai/flows/predictive-design';
-import { Loader2, Wand2, FileUp, AlertTriangle, Check, X, DraftingCompass, Newspaper } from 'lucide-react';
+import { predictiveDesign } from '@/ai/flows/predictive-design';
+import { type PredictiveDesignOutput, PredictiveDesignInputSchema } from '@/types/predictive-design';
+import { Loader2, Wand2, AlertTriangle, Check, X, DraftingCompass, Newspaper } from 'lucide-react';
 
-const formSchema = z.object({
-    planningFileId: z.string().optional(), // Will be derived from the file input
-    maxScreens: z.number().int().positive(),
-    figmaFileId: z.string().min(1, 'El ID del archivo de Figma es requerido.'),
-    planningFile: z.any().optional(), // For the file input
+const formSchema = PredictiveDesignInputSchema.extend({
+    planningFile: z.any().optional(),
 });
 
 
