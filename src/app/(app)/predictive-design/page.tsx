@@ -18,8 +18,10 @@ import { predictiveDesign } from '@/ai/flows/predictive-design';
 import { type PredictiveDesignOutput, PredictiveDesignInputSchema } from '@/types/predictive-design';
 import { Loader2, Wand2, AlertTriangle, Check, X, DraftingCompass, Newspaper, Upload } from 'lucide-react';
 
-const formSchema = PredictiveDesignInputSchema.extend({
-    planningFile: z.any().optional(),
+const formSchema = z.object({
+  planningFile: z.any().optional(),
+  maxScreens: z.coerce.number().min(1, 'Debe ser al menos 1.'),
+  figmaFileId: z.string().min(1, 'El ID del archivo Figma es requerido.'),
 });
 
 
@@ -88,7 +90,7 @@ export default function PredictiveDesignPage() {
 
     const payload = {
         planningFileId: fileName || 'quarterly-planning.xlsx',
-        maxScreens: Number(values.maxScreens),
+        maxScreens: values.maxScreens,
         figmaFileId: values.figmaFileId
     }
 
@@ -147,133 +149,128 @@ export default function PredictiveDesignPage() {
         title="Predictive Design (α)"
         description="Anticipa journeys y wireframes con IA a partir del planning trimestral."
       />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          <Card className="rounded-expressive shadow-e2">
-            <CardHeader>
-              <CardTitle>Iniciar Agente</CardTitle>
-              <CardDescription>Configura los parámetros para la generación.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <FormField
+      
+      <Card className="rounded-expressive shadow-e2">
+        <CardHeader>
+          <CardTitle>Iniciar Agente</CardTitle>
+          <CardDescription>Configura los parámetros para la generación.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="planningFile"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Archivo de Planning (.xlsx)</FormLabel>
+                    <FormControl>
+                      <div className="flex gap-2">
+                         <Input 
+                            placeholder="Ningún archivo seleccionado"
+                            readOnly
+                            value={fileName}
+                            className="flex-grow"
+                        />
+                        <Button type="button" variant="default" onClick={() => fileInputRef.current?.click()}>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Seleccionar archivo
+                        </Button>
+                        <Input 
+                            type="file" 
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept=".xlsx" 
+                            onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                field.onChange(file);
+                                setFileName(file ? file.name : '');
+                            }} 
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <FormField
                     control={form.control}
-                    name="planningFile"
+                    name="maxScreens"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Archivo de Planning (.xlsx)</FormLabel>
-                        <FormControl>
-                          <div className="flex gap-2">
-                             <Input 
-                                placeholder="Ningún archivo seleccionado"
-                                readOnly
-                                value={fileName}
-                                className="flex-grow"
-                            />
-                            <Button type="button" variant="default" onClick={() => fileInputRef.current?.click()}>
-                                <Upload className="mr-2 h-4 w-4" />
-                                Seleccionar archivo
-                            </Button>
+                        <FormItem>
+                          <FormLabel>Pantallas Máx.</FormLabel>
+                          <FormControl>
                             <Input 
-                                type="file" 
-                                ref={fileInputRef}
-                                className="hidden"
-                                accept=".xlsx" 
-                                onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    field.onChange(file);
-                                    setFileName(file ? file.name : '');
-                                }} 
+                              type="number" 
+                              min="1"
+                              step="1"
+                              placeholder="8"
+                              {...field} 
                             />
-                          </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                <FormField
+                    control={form.control}
+                    name="figmaFileId"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>ID Figma Destino</FormLabel>
+                        <FormControl>
+                        <Input placeholder="FIGMA_FILE_KEY" {...field} />
                         </FormControl>
                         <FormMessage />
-                      </FormItem>
+                    </FormItem>
                     )}
-                  />
+                />
+              </div>
+              
+              <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+                Analizar y Generar
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                     <FormField
-                        control={form.control}
-                        name="maxScreens"
-                        render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Pantallas Máx.</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="number" 
-                                  min="1"
-                                  step="1"
-                                  placeholder="8"
-                                  {...field} 
-                                  onChange={e => {
-                                    const value = e.target.value;
-                                    field.onChange(value === '' ? '' : parseInt(value, 10));
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                    <FormField
-                        control={form.control}
-                        name="figmaFileId"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>ID Figma Destino</FormLabel>
-                            <FormControl>
-                            <Input placeholder="FIGMA_FILE_KEY" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
+      <div className="space-y-8">
+         {result && result.status === 'error' ? (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Error en el Agente</AlertTitle>
+              <AlertDescription>{result.log}</AlertDescription>
+            </Alert>
+         ) : result && result.status === 'ready' && result.journeyUrls.length > 0 ? (
+          <>
+              <h3 className="text-xl font-semibold text-center">Panel de Validación</h3>
+               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <AnimatePresence>
+                  {result.journeyUrls.map((url, index) => (
+                    <ProposalCard
+                      key={url}
+                      journeyUrl={url}
+                      wireframeFrames={result.wireframeFrames}
+                      onAccept={() => handleAcceptProposal(index)}
+                      onDismiss={() => handleDismissProposal(index)}
                     />
-                  </div>
-                  
-                  <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
-                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-                    Analizar y Generar
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-
-        <div className="space-y-8">
-           {result && result.status === 'error' ? (
-              <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Error en el Agente</AlertTitle>
-                <AlertDescription>{result.log}</AlertDescription>
-              </Alert>
-           ) : result && result.status === 'ready' && result.journeyUrls.length > 0 ? (
-            <>
-                <h3 className="text-xl font-semibold text-center">Panel de Validación</h3>
-                 <div className="grid md:grid-cols-1 gap-6">
-                    <AnimatePresence>
-                    {result.journeyUrls.map((url, index) => (
-                      <ProposalCard
-                        key={url}
-                        journeyUrl={url}
-                        wireframeFrames={result.wireframeFrames}
-                        onAccept={() => handleAcceptProposal(index)}
-                        onDismiss={() => handleDismissProposal(index)}
-                      />
-                    ))}
-                    </AnimatePresence>
-                </div>
-            </>
-           ) : (
-             <Card className="rounded-expressive border-dashed min-h-[300px] flex items-center justify-center">
-                <div className="text-center text-muted-foreground p-8">
-                    <Wand2 className="mx-auto h-12 w-12 opacity-50 mb-4" />
-                    <h3 className="font-semibold text-lg text-foreground">Esperando resultados...</h3>
-                    <p>Ejecuta el agente para ver aquí las propuestas generadas.</p>
-                </div>
-             </Card>
-           )}
-        </div>
+                  ))}
+                  </AnimatePresence>
+              </div>
+          </>
+         ) : (
+           <Card className="rounded-expressive border-dashed min-h-[300px] flex items-center justify-center">
+              <div className="text-center text-muted-foreground p-8">
+                  <Wand2 className="mx-auto h-12 w-12 opacity-50 mb-4" />
+                  <h3 className="font-semibold text-lg text-foreground">Esperando resultados...</h3>
+                  <p>Ejecuta el agente para ver aquí las propuestas generadas.</p>
+              </div>
+           </Card>
+         )}
       </div>
     </div>
   );
