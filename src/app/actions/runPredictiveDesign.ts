@@ -40,7 +40,21 @@ export async function runPredictiveDesign(formData: FormData) {
       throw new Error("GEMINI_API_KEY no está configurada en el entorno.");
     }
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model:"gemini-pro" });
+    
+    // Find a model that supports generateContent
+    const { models } = await genAI.listModels();
+    const usableModelInfo = models.find(m => m.supportedGenerationMethods?.includes("generateContent"));
+
+    if (!usableModelInfo?.name) {
+       return { status:"error", code:"NO_MODEL_FOUND", message: "No se encontró un modelo compatible con generateContent." } as const;
+    }
+
+    const modelName = usableModelInfo.name.split("/").pop();
+    if (!modelName) {
+        return { status:"error", code:"INVALID_MODEL_NAME", message: "No se pudo extraer el nombre del modelo." } as const;
+    }
+    
+    const model = genAI.getGenerativeModel({ model: modelName });
 
     const prompt = `
       Eres Product/UX Strategist. Para CADA fila del siguiente JSON
