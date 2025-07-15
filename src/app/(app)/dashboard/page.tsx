@@ -12,9 +12,9 @@ import dynamic from 'next/dynamic';
 
 // --- Mock Data ---
 const mockBrands = [
-  { id: 'ds-core', name: 'DS Core' },
-  { id: 'marca-a', name: 'Marca A' },
-  { id: 'marca-b', name: 'Marca B' },
+  { id: 'ds-core', name: 'DS Core', color: 'hsl(var(--primary))' },
+  { id: 'marca-a', name: 'Marca A', color: 'hsl(217, 89%, 61%)' },
+  { id: 'marca-b', name: 'Marca B', color: 'hsl(262, 84%, 59%)' },
 ];
 
 const mockMetrics = {
@@ -90,7 +90,7 @@ function MetricCard({ label, value, icon: Icon, format }: { label: string, value
     );
 }
 
-function BrandBarChart({ data }: { data: {name: string, value: number}[] }) {
+function BrandBarChart({ data, barColor }: { data: {name: string, value: number}[], barColor: string }) {
     return (
          <motion.div
             className="h-full"
@@ -106,15 +106,15 @@ function BrandBarChart({ data }: { data: {name: string, value: number}[] }) {
                         <ResponsiveContainer>
                             <DynamicBarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
                                 <defs>
-                                    <linearGradient id="colorGreen" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.6}/>
-                                        <stop offset="95%" stopColor="hsl(var(--primary-container))" stopOpacity={0.4}/>
+                                    <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor={barColor} stopOpacity={0.6}/>
+                                        <stop offset="95%" stopColor={barColor} stopOpacity={0.2}/>
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} dy={10} />
                                 <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--accent))', radius: 12 }} />
-                                <Bar dataKey="value" radius={[12, 12, 0, 0]} fill="url(#colorGreen)" />
+                                <Bar dataKey="value" radius={[12, 12, 0, 0]} fill="url(#colorBar)" />
                             </DynamicBarChart>
                         </ResponsiveContainer>
                     </div>
@@ -143,6 +143,8 @@ export default function DashboardPage() {
 
         return () => clearTimeout(timer);
     }, [activeBrand]);
+
+    const activeBrandData = brands.find(b => b.id === activeBrand) || brands[0];
 
     return (
         <div className="space-y-6 dashboard-header">
@@ -184,7 +186,7 @@ export default function DashboardPage() {
                     </>
                 ) : (
                     <>
-                        <BrandBarChart data={chartData} />
+                        <BrandBarChart data={chartData} barColor={activeBrandData.color} />
                         {/* Placeholder for AreaChart */}
                         <motion.div whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
                             <Card className="rounded-expressive shadow-e2 h-full">
