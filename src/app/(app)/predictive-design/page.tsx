@@ -5,6 +5,7 @@ import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { motion } from 'framer-motion';
 
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,8 +14,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Wand2, AlertTriangle } from 'lucide-react';
+import { Loader2, Wand2, AlertTriangle, Figma, Bot } from 'lucide-react';
 import { runPredictiveDesign } from '@/app/actions/runPredictiveDesign';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export const runtime = "nodejs";
 
@@ -27,9 +29,33 @@ const formSchema = z.object({
   figmaDest: z.string().min(1, 'El ID del archivo Figma es requerido.'),
 });
 
+interface Strategy {
+  problemStatement: string;
+  targetUsers: string;
+  valueProposition: string;
+  successMetrics: string;
+  designPrinciples: string;
+  risks: string;
+}
+
+interface DesignFrame {
+  frameName: string;
+  description: string;
+  components: string[];
+  width: number;
+  height: number;
+}
+interface AnalysisResult {
+  feature: string;
+  strategy: Strategy;
+  designPack: {
+    frames: DesignFrame[];
+  };
+}
+
 export default function PredictiveDesignPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<{ status: 'ok' | 'error'; figmaDest?: string; maxScreens?: number; analysis?: AnalysisResult[]; code?: string; message?: string; missing?: string[] } | null>(null);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -53,26 +79,17 @@ export default function PredictiveDesignPage() {
 
     try {
       const response = await runPredictiveDesign(formData);
+      setResult(response);
       
       if (response.status === 'ok') {
-        setResult(response.analysis);
         toast({
           title: "Análisis Completado",
-          description: "Se han generado nuevas propuestas.",
+          description: "Se han generado nuevas propuestas de estrategia y diseño.",
         });
-      } else {
-        let errorMessage = `Código de error: ${response.code}`;
-        if ('missing' in response && response.missing) {
-            errorMessage += ` - Faltan las columnas: ${response.missing.join(', ')}`;
-        }
-        if ('message' in response && response.message) {
-            errorMessage += ` - ${response.message}`;
-        }
-         setResult({ error: errorMessage });
       }
     } catch (error: any) {
       console.error(error);
-      setResult({ error: "Ocurrió un error inesperado al ejecutar el agente." });
+      setResult({ status: 'error', code: "CLIENT_FAILURE", message: "Ocurrió un error inesperado al ejecutar el agente." });
     } finally {
       setIsLoading(false);
     }
@@ -80,6 +97,13 @@ export default function PredictiveDesignPage() {
 
   const selectedFile = form.watch('planningFile');
   
+  const handleCreateInFigma = (feature: AnalysisResult) => {
+    toast({
+        title: `Creando "${feature.feature}" en Figma...`,
+        description: "Esta función estará disponible próximamente.",
+    });
+  }
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -171,24 +195,62 @@ export default function PredictiveDesignPage() {
           </CardContent>
         </Card>
 
-        {result?.error && (
+        {result?.status === 'error' && (
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertTitle>Error en el Agente</AlertTitle>
-              <AlertDescription>{result.error}</AlertDescription>
+              <AlertDescription>
+                Código de error: {result.code}
+                {result.missing && ` - Faltan las columnas: ${result.missing.join(', ')}`}
+                {result.message && ` - ${result.message}`}
+              </AlertDescription>
             </Alert>
         )}
         
-        {result && !result.error ? (
+        {result?.status === 'ok' ? (
           <Card className="rounded-expressive shadow-e2">
              <CardHeader>
                 <CardTitle>Resultados del Análisis</CardTitle>
-                <CardDescription>Resumen de los journeys y componentes identificados.</CardDescription>
+                <CardDescription>Resumen de la estrategia y los wireframes identificados por la IA.</CardDescription>
             </CardHeader>
              <CardContent>
-                <pre className="mt-4 w-full whitespace-pre-wrap bg-muted p-4 rounded-md text-xs font-mono">
-                  <code>{JSON.stringify(result, null, 2)}</code>
-                </pre>
+                <Accordion type="single" collapsible className="w-full">
+                    {result.analysis?.map((feat, index) => (
+                        <AccordionItem value={`item-${index}`} key={feat.feature}>
+                            <AccordionTrigger className="text-lg font-semibold hover:no-underline">
+                                <div className="flex items-center gap-3">
+                                    <Bot className="h-5 w-5 text-primary" />
+                                    <span>{feat.feature}</span>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="pt-4 space-y-6">
+                                <div className="prose prose-sm dark:prose-invert max-w-none">
+                                    <h4 className="font-semibold">Estrategia de Producto y Diseño</h4>
+                                    <ul>
+                                        <li><strong>Enunciado del Problema:</strong> {feat.strategy.problemStatement}</li>
+                                        <li><strong>Propuesta de Valor:</strong> {feat.strategy.valueProposition}</li>
+                                        <li><strong>Principios de Diseño:</strong> {feat.strategy.designPrinciples}</li>
+                                        <li><strong>Métricas de Éxito:</strong> {feat.strategy.successMetrics}</li>
+                                        <li><strong>Usuarios Objetivo:</strong> {feat.strategy.targetUsers}</li>
+                                        <li><strong>Riesgos:</strong> {feat.strategy.risks}</li>
+                                    </ul>
+                                </div>
+                                <div className="space-y-2">
+                                    <h4 className="font-semibold">Wireframes Propuestos</h4>
+                                    <ul className="list-disc list-inside text-muted-foreground text-sm space-y-1">
+                                        {feat.designPack.frames.map(frame => (
+                                            <li key={frame.frameName}>{frame.frameName}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                <Button onClick={() => handleCreateInFigma(feat)}>
+                                    <Figma className="mr-2 h-4 w-4" />
+                                    Crear en Figma
+                                </Button>
+                            </AccordionContent>
+                        </AccordionItem>
+                    ))}
+                </Accordion>
             </CardContent>
           </Card>
         ) : !result && (

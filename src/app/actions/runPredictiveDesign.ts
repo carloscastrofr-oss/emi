@@ -6,6 +6,63 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const REQUIRED_COLUMNS = ["Feature", "User story (short)", "Priority", "Target Sprint", "Max Screens"];
 
+// Mock list of Design System components
+const DS_COMPONENTS_LIST = [
+    "button-primary", "button-secondary", "button-destructive",
+    "input-text", "input-password", "textarea", "checkbox", "radio-group",
+    "select", "label", "form-item",
+    "card", "card-header", "card-content", "card-footer",
+    "dialog", "alert-dialog", "sheet", "popover",
+    "avatar", "badge", "progress", "skeleton",
+    "table", "table-header", "table-row", "table-cell",
+    "tabs", "accordion", "collapsible",
+    "icon-success", "icon-error", "icon-warning", "icon-info"
+];
+
+
+function buildPrompt(rows: any[], components: string[]): string {
+    return `
+You are a cross-functional squad (PM, UX Lead, UI Designer, Frontend, Research).
+Your task:
+
+STEP 1 — PRODUCT & DESIGN STRATEGY
+For EACH feature in the JSON below, produce a concise strategy doc with these exact keys:
+• "problemStatement" (1 frase)
+• "targetUsers" (bullets, incl. personas if given)
+• "valueProposition" (1-2 frases)
+• "successMetrics" (2-3 KPIs)
+• "designPrinciples" (3 bullets)
+• "risks" (1-2 bullets)
+
+STEP 2 — DESIGN PACK (for Figma)
+Return an array “frames” where every item has these exact keys:
+  {
+    "frameName": "<Feature> / <Screen>",
+    "description": "…",             // shown in Figma note
+    "components": ["button-primary", …], // DS tokens
+    "width": 1440,
+    "height": 1024
+  }
+
+Rules:
+• Max journey steps: 8 • Max frames = field “Max Screens” OR 8
+• Use ONLY components that exist in our DS (list provided at end).
+• Answer STRICTLY in valid JSON for each feature, as an array of objects like:
+  [{
+    "feature": "...",
+    "strategy": { … },
+    "designPack": { "frames":[ … ] }
+  }]
+
+JSON input:
+${JSON.stringify(rows, null, 2)}
+
+Design System components:
+${JSON.stringify(components)}
+    `.trim();
+}
+
+
 export async function runPredictiveDesign(formData: FormData) {
   const FAIL = (code: string, extra: Record<string, any> = {}) => ({ status: "error", code, ...extra } as const);
 
@@ -42,40 +99,19 @@ export async function runPredictiveDesign(formData: FormData) {
     const genAI = new GoogleGenerativeAI(API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
 
-    const prompt = `
-        Eres Product/UX Strategist. Para CADA fila del siguiente JSON
-        devuelve un array de objetos JSON, sin texto adicional. Cada objeto debe tener esta estructura:
-          {
-            "feature": "...",
-            "journeySteps":[{"id": 1, "title": "..."}],
-            "wireframes":[{"screen": "...", "title": "...", "desc": "..."}],
-            "dsComponents":["button-primary", "..."]
-          }
-        JSON:
-        ${JSON.stringify(rows, null, 2)}
-      `.trim();
+    const prompt = buildPrompt(rows, DS_COMPONENTS_LIST);
     
     const result = await model.generateContent(prompt);
     let responseText = result.response.text();
     
-    // Robust JSON extraction
     const firstBracket = responseText.indexOf('[');
     const lastBracket = responseText.lastIndexOf(']');
-    const firstBrace = responseText.indexOf('{');
-    const lastBrace = responseText.lastIndexOf('}');
-
-    let jsonStr = '';
     
-    if (firstBracket !== -1 && lastBracket !== -1) {
-        // Handle array response
-        jsonStr = responseText.substring(firstBracket, lastBracket + 1);
-    } else if (firstBrace !== -1 && lastBrace !== -1) {
-        // Handle single object response
-        jsonStr = responseText.substring(firstBrace, lastBrace + 1);
-    } else {
-        return FAIL("EMPTY_ANALYSIS", { message: "No valid JSON structure found in AI response." });
+    if (firstBracket === -1 || lastBracket === -1) {
+        return FAIL("EMPTY_ANALYSIS", { message: "No valid JSON array found in AI response." });
     }
-    
+
+    const jsonStr = responseText.substring(firstBracket, lastBracket + 1);
     const analysis = JSON.parse(jsonStr);
 
     if (!Array.isArray(analysis) || analysis.length === 0) {
