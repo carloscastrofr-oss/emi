@@ -1,11 +1,13 @@
 
 'use client';
 
-import { Bar, BarChart, CartesianGrid, XAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { Bar, CartesianGrid, XAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FigmaIcon } from "./figma-icon";
 import { SketchIcon } from "./sketch-icon";
+import dynamic from 'next/dynamic';
+import { Skeleton } from "@/components/ui/skeleton";
 
 const chartData = [
   { name: 'Sat', value: 2400, color: 'blue' },
@@ -21,6 +23,11 @@ const transactions = [
     { name: 'Figma', date: '15 June, 2024', amount: '- $144', paymentMethod: 'Visa Card', icon: FigmaIcon },
     { name: 'Sketch', date: '13 June, 2024', amount: '- $138', paymentMethod: 'Paypal', icon: SketchIcon },
 ];
+
+const DynamicBarChart = dynamic(() => import('recharts').then(mod => mod.BarChart), {
+  ssr: false,
+  loading: () => <Skeleton className="h-[250px] w-full" />,
+});
 
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -50,7 +57,7 @@ export default function DashboardPage() {
                 <CardContent className="p-4">
                     <div style={{ width: '100%', height: 250 }}>
                         <ResponsiveContainer>
-                            <BarChart data={chartData} margin={{ top: 30, right: 10, left: 10, bottom: 5 }}>
+                            <DynamicBarChart data={chartData} margin={{ top: 30, right: 10, left: 10, bottom: 5 }}>
                                 <defs>
                                     <linearGradient id="colorBlue" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.5}/>
@@ -71,7 +78,7 @@ export default function DashboardPage() {
                                         ))
                                     }
                                 </Bar>
-                            </BarChart>
+                            </DynamicBarChart>
                         </ResponsiveContainer>
                     </div>
                 </CardContent>
