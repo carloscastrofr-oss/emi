@@ -18,7 +18,7 @@ import { Loader2, Wand2, AlertTriangle, Figma, Bot } from 'lucide-react';
 import { runPredictiveDesign } from '@/app/actions/runPredictiveDesign';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
-export const runtime = "nodejs";
+export const runtime = 'nodejs';
 
 const formSchema = z.object({
   planningFile: z
@@ -30,24 +30,26 @@ const formSchema = z.object({
 });
 
 interface Strategy {
-  problemStatement: string;
-  targetUsers: string;
-  valueProposition: string;
-  successMetrics: string;
-  designPrinciples: string;
-  risks: string;
+  enunciadoProblema: string;
+  usuariosObjetivo: string;
+  propuestaValor: string;
+  casosDeUso: string[];
+  exitosClaves: string;
+  principiosDiseno: string;
+  riesgos: string;
 }
 
 interface DesignFrame {
   frameName: string;
-  description: string;
+  descripcion: string;
   components: string[];
   width: number;
   height: number;
+  mobile?: boolean;
 }
 interface AnalysisResult {
   feature: string;
-  strategy: Strategy;
+  estrategia: Strategy;
   designPack: {
     frames: DesignFrame[];
   };
@@ -83,13 +85,13 @@ export default function PredictiveDesignPage() {
       
       if (response.status === 'ok') {
         toast({
-          title: "Análisis Completado",
-          description: "Se han generado nuevas propuestas de estrategia y diseño.",
+          title: 'Análisis Completado',
+          description: 'Se han generado nuevas propuestas de estrategia y diseño.',
         });
       }
     } catch (error: any) {
       console.error(error);
-      setResult({ status: 'error', code: "CLIENT_FAILURE", message: "Ocurrió un error inesperado al ejecutar el agente." });
+      setResult({ status: 'error', code: 'CLIENT_FAILURE', message: 'Ocurrió un error inesperado al ejecutar el agente.' });
     } finally {
       setIsLoading(false);
     }
@@ -100,7 +102,7 @@ export default function PredictiveDesignPage() {
   const handleCreateInFigma = (feature: AnalysisResult) => {
     toast({
         title: `Creando "${feature.feature}" en Figma...`,
-        description: "Esta función estará disponible próximamente.",
+        description: 'Esta función estará disponible próximamente.',
     });
   }
 
@@ -130,7 +132,7 @@ export default function PredictiveDesignPage() {
                         <div className="flex items-center gap-2">
                            <Input
                             readOnly
-                            placeholder={selectedFile?.[0]?.name || "Ningún archivo seleccionado"}
+                            placeholder={selectedFile?.[0]?.name || 'Ningún archivo seleccionado'}
                             className="flex-grow cursor-default"
                             onClick={() => fileInputRef.current?.click()}
                           />
@@ -223,37 +225,45 @@ export default function PredictiveDesignPage() {
                                     <span>{feat.feature}</span>
                                 </div>
                             </AccordionTrigger>
-                            <AccordionContent className="pt-4 space-y-6">
-                                <div className="prose prose-sm dark:prose-invert max-w-none">
-                                    <h4 className="font-semibold">Estrategia de Producto y Diseño</h4>
-                                    <ul>
-                                        <li><strong>Enunciado del Problema:</strong> {feat.strategy.problemStatement}</li>
-                                        <li><strong>Propuesta de Valor:</strong> {feat.strategy.valueProposition}</li>
-                                        <li><strong>Principios de Diseño:</strong> {feat.strategy.designPrinciples}</li>
-                                        <li><strong>Métricas de Éxito:</strong> {feat.strategy.successMetrics}</li>
-                                        <li><strong>Usuarios Objetivo:</strong> {feat.strategy.targetUsers}</li>
-                                        <li><strong>Riesgos:</strong> {feat.strategy.risks}</li>
-                                    </ul>
+                            <AccordionContent className="pt-4 grid md:grid-cols-2 gap-x-8 gap-y-6">
+                                <div className="prose prose-sm dark:prose-invert max-w-none space-y-4">
+                                    <h4 className="font-semibold text-base">Estrategia de Producto y Diseño</h4>
+                                    <div><strong>Enunciado del Problema:</strong> {feat.estrategia.enunciadoProblema}</div>
+                                    <div><strong>Propuesta de Valor:</strong> {feat.estrategia.propuestaValor}</div>
+                                    <div><strong>Principios de Diseño:</strong> <div dangerouslySetInnerHTML={{ __html: feat.estrategia.principiosDiseno.replace(/•/g, '<br/>•') }} /></div>
+                                    <div><strong>Métricas de Éxito:</strong> <div dangerouslySetInnerHTML={{ __html: feat.estrategia.exitosClaves.replace(/•/g, '<br/>•') }} /></div>
+                                    <div><strong>Usuarios Objetivo:</strong> <div dangerouslySetInnerHTML={{ __html: feat.estrategia.usuariosObjetivo.replace(/•/g, '<br/>•') }} /></div>
+                                    <div><strong>Riesgos:</strong> <div dangerouslySetInnerHTML={{ __html: feat.estrategia.riesgos.replace(/•/g, '<br/>•') }} /></div>
                                 </div>
-                                <div className="space-y-2">
-                                    <h4 className="font-semibold">Wireframes Propuestos</h4>
-                                    <ul className="list-disc list-inside text-muted-foreground text-sm space-y-1">
-                                        {feat.designPack.frames.map(frame => (
-                                            <li key={frame.frameName}>{frame.frameName}</li>
-                                        ))}
-                                    </ul>
+                                <div className="space-y-4">
+                                    <div>
+                                        <h4 className="font-semibold text-base mb-2">Casos de Uso</h4>
+                                        <ul className="list-disc list-inside text-muted-foreground text-sm space-y-1">
+                                            {feat.estrategia.casosDeUso.map(caso => (
+                                                <li key={caso}>{caso}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-base mb-2">Wireframes Propuestos</h4>
+                                        <ul className="list-disc list-inside text-muted-foreground text-sm space-y-1">
+                                            {feat.designPack.frames.map(frame => (
+                                                <li key={frame.frameName}>{frame.frameName} {frame.mobile && '(Móvil)'}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <Button onClick={() => handleCreateInFigma(feat)} className="mt-4">
+                                        <Figma className="mr-2 h-4 w-4" />
+                                        Crear en Figma
+                                    </Button>
                                 </div>
-                                <Button onClick={() => handleCreateInFigma(feat)}>
-                                    <Figma className="mr-2 h-4 w-4" />
-                                    Crear en Figma
-                                </Button>
                             </AccordionContent>
                         </AccordionItem>
                     ))}
                 </Accordion>
             </CardContent>
           </Card>
-        ) : !result && (
+        ) : !isLoading && (
              <Card className="rounded-expressive border-dashed min-h-[300px] flex items-center justify-center">
                 <div className="text-center text-muted-foreground p-8">
                     <Wand2 className="mx-auto h-12 w-12 opacity-50 mb-4" />
