@@ -6,9 +6,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowUpRight, BarChart, Users, CheckCircle, Package, Search, TrendingUp } from 'lucide-react';
+import { ArrowUpRight, BarChart, Users, CheckCircle, Package, Search, TrendingUp, ShieldAlert } from 'lucide-react';
 import { Bar, CartesianGrid, XAxis, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
 import dynamic from 'next/dynamic';
+import type { Risk, RiskCategory, RiskStatus } from '@/types/risk';
+import { Timestamp } from 'firebase/firestore';
+
 
 // --- Mock Data ---
 const mockBrands = [
@@ -17,10 +20,42 @@ const mockBrands = [
   { id: 'marca-b', name: 'Marca B', color: 'hsl(262, 84%, 59%)' },
 ];
 
+const mockRisks: Risk[] = [
+    { id: 'risk1', category: 'accessibility', title: 'Contraste insuficiente en btn-pay', componentId: 'button-primary', pageUrl: '/checkout', severity: 10, source: 'agent-a11y', detectedAt: Timestamp.now(), status: 'open', ownerUid: null, notes: '' },
+    { id: 'risk3', category: 'performance', title: 'LCP > 2.5s en página de inicio', pageUrl: '/', severity: 25, source: 'agent-perf', detectedAt: Timestamp.now(), status: 'in-progress', ownerUid: 'core456', notes: 'Investigando optimización de imágenes.', recommendation: 'Optimizar las imágenes de cabecera usando formato WebP y compresión.' },
+    { id: 'risk4', category: 'design-debt', title: 'Componente Card clonado 5 veces', componentId: 'card-clone', pageUrl: '/products', severity: 60, source: 'agent-debt', detectedAt: Timestamp.now(), status: 'open', ownerUid: null, notes: '' },
+];
+
+const calculateRiskScore = (risks: Risk[]): number => {
+    if (!risks || risks.length === 0) return 100;
+    
+    const weights: Record<RiskCategory, number> = {
+        accessibility: 0.40,
+        performance: 0.30,
+        'design-debt': 0.20,
+        governance: 0.10,
+    };
+    
+    const openRisks = risks.filter(r => r.status !== 'resolved');
+    if (openRisks.length === 0) return 100;
+
+    const totalSeverity = openRisks.reduce((acc, risk) => {
+        const severityScore = 100 - risk.severity;
+        return acc + (severityScore * (weights[risk.category] ?? 0.1));
+    }, 0);
+    
+    const totalWeight = openRisks.reduce((acc, risk) => acc + (weights[risk.category] ?? 0.1), 0);
+
+    if (totalWeight === 0) return 100;
+
+    return Math.round(totalSeverity / totalWeight);
+};
+
+
 const mockMetrics = {
-  'ds-core': { adoption: 82, tokenUsage: 95, a11yIssues: 12, roi: 120500, coverage: 65, contributors: 18 },
-  'marca-a': { adoption: 75, tokenUsage: 88, a11yIssues: 25, roi: 95000, coverage: 50, contributors: 10 },
-  'marca-b': { adoption: 91, tokenUsage: 98, a11yIssues: 5, roi: 150000, coverage: 80, contributors: 25 },
+  'ds-core': { adoption: 82, tokenUsage: 95, a11yIssues: 12, roi: 120500, coverage: 65, contributors: 18, riskScore: calculateRiskScore(mockRisks) },
+  'marca-a': { adoption: 75, tokenUsage: 88, a11yIssues: 25, roi: 95000, coverage: 50, contributors: 10, riskScore: 88 },
+  'marca-b': { adoption: 91, tokenUsage: 98, a11yIssues: 5, roi: 150000, coverage: 80, contributors: 25, riskScore: 95 },
 };
 
 const mockChartData = {
@@ -43,7 +78,7 @@ const kpiConfig = [
     { id: 'tokenUsage', label: 'Uso de Tokens', icon: Package, format: (val: number) => `${val}%` },
     { id: 'a11yIssues', label: 'Incidencias A11y', icon: CheckCircle, format: (val: number) => val.toString() },
     { id: 'roi', label: 'ROI Estimado', icon: TrendingUp, format: (val: number) => `$${(val / 1000).toFixed(1)}k` },
-    { id: 'coverage', label: 'Cobertura', icon: Search, format: (val: number) => `${val}%` },
+    { id: 'riskScore', label: 'Puntuación Riesgo', icon: ShieldAlert, format: (val: number) => `${val}/100` },
     { id: 'contributors', label: 'Contribuidores', icon: Users, format: (val: number) => val.toString() },
 ];
 
