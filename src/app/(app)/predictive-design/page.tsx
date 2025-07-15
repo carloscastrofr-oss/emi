@@ -31,12 +31,12 @@ const formSchema = z.object({
 
 interface Strategy {
   enunciadoProblema: string;
-  usuariosObjetivo: string;
+  usuariosObjetivo: string[];
   propuestaValor: string;
   casosDeUso: string[];
-  exitosClaves: string;
-  principiosDiseno: string;
-  riesgos: string;
+  exitosClaves: string[];
+  principiosDiseno: string[];
+  riesgos: string[];
 }
 
 interface DesignFrame {
@@ -54,6 +54,13 @@ interface AnalysisResult {
     frames: DesignFrame[];
   };
 }
+
+const renderStrategyList = (items: string | string[]) => {
+  if (Array.isArray(items)) {
+    return items.map((item, index) => <p key={index} className="text-muted-foreground text-sm">{item}</p>);
+  }
+  return <p className="text-muted-foreground text-sm">{items}</p>;
+};
 
 export default function PredictiveDesignPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -228,12 +235,12 @@ export default function PredictiveDesignPage() {
                             <AccordionContent className="pt-4 grid md:grid-cols-2 gap-x-8 gap-y-6">
                                 <div className="prose prose-sm dark:prose-invert max-w-none space-y-4">
                                     <h4 className="font-semibold text-base">Estrategia de Producto y Diseño</h4>
-                                    <div><strong>Enunciado del Problema:</strong> {feat.estrategia.enunciadoProblema}</div>
-                                    <div><strong>Propuesta de Valor:</strong> {feat.estrategia.propuestaValor}</div>
-                                    <div><strong>Principios de Diseño:</strong> <div dangerouslySetInnerHTML={{ __html: feat.estrategia.principiosDiseno.replace(/•/g, '<br/>•') }} /></div>
-                                    <div><strong>Métricas de Éxito:</strong> <div dangerouslySetInnerHTML={{ __html: feat.estrategia.exitosClaves.replace(/•/g, '<br/>•') }} /></div>
-                                    <div><strong>Usuarios Objetivo:</strong> <div dangerouslySetInnerHTML={{ __html: feat.estrategia.usuariosObjetivo.replace(/•/g, '<br/>•') }} /></div>
-                                    <div><strong>Riesgos:</strong> <div dangerouslySetInnerHTML={{ __html: feat.estrategia.riesgos.replace(/•/g, '<br/>•') }} /></div>
+                                    <div><strong>Enunciado del Problema:</strong> {renderStrategyList(feat.estrategia.enunciadoProblema)}</div>
+                                    <div><strong>Propuesta de Valor:</strong> {renderStrategyList(feat.estrategia.propuestaValor)}</div>
+                                    <div><strong>Principios de Diseño:</strong> {renderStrategyList(feat.estrategia.principiosDiseno)}</div>
+                                    <div><strong>Métricas de Éxito:</strong> {renderStrategyList(feat.estrategia.exitosClaves)}</div>
+                                    <div><strong>Usuarios Objetivo:</strong> {renderStrategyList(feat.estrategia.usuariosObjetivo)}</div>
+                                    <div><strong>Riesgos:</strong> {renderStrategyList(feat.estrategia.riesgos)}</div>
                                 </div>
                                 <div className="space-y-4">
                                     <div>
