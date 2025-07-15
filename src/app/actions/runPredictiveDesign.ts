@@ -1,6 +1,5 @@
 
 "use server";
-export const runtime = "nodejs";
 
 import * as XLSX from "xlsx";
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -75,4 +74,3 @@ export async function runPredictiveDesign(formData: FormData) {
     return { status:"error", code:"AI_FAILURE", message: e.message } as const;
   }
 }
-

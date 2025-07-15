@@ -5,7 +5,7 @@ import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +17,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Wand2, AlertTriangle, Check, X, DraftingCompass, Newspaper, Upload } from 'lucide-react';
 import { runPredictiveDesign } from '@/app/actions/runPredictiveDesign';
 
+export const runtime = "nodejs";
+
 const formSchema = z.object({
   planningFile: z
     .any()
@@ -26,53 +28,11 @@ const formSchema = z.object({
   figmaDest: z.string().min(1, 'El ID del archivo Figma es requerido.'),
 });
 
-function ProposalCard({ journeyUrl, wireframeFrames, onAccept, onDismiss }: { journeyUrl: string, wireframeFrames: string[], onAccept: () => void, onDismiss: () => void }) {
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      className="h-full"
-    >
-      <Card className="rounded-expressive shadow-e2 flex flex-col h-full">
-        <CardHeader>
-          <CardTitle>Propuesta Generada</CardTitle>
-          <CardDescription>Valida los artefactos antes de sincronizar.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex-grow space-y-4">
-          <div>
-            <h4 className="flex items-center gap-2 text-sm font-semibold mb-2"><DraftingCompass className="h-4 w-4 text-primary" /> Journey Map</h4>
-            <div className="bg-muted p-4 rounded-lg text-center">
-              <a href={journeyUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline text-sm hover:opacity-80">Ver en FigJam</a>
-              <img src="https://placehold.co/300x150.png" data-ai-hint="flow chart diagram" alt="Miniatura de Journey Map" className="w-full h-auto rounded-md mt-2" />
-            </div>
-          </div>
-          <div>
-            <h4 className="flex items-center gap-2 text-sm font-semibold mb-2"><Newspaper className="h-4 w-4 text-primary" /> Wireframes</h4>
-            <div className="bg-muted p-4 rounded-lg text-center">
-              <p className="text-sm text-muted-foreground">{wireframeFrames.length} pantallas generadas</p>
-              <img src="https://placehold.co/300x150.png" data-ai-hint="user interface wireframe" alt="Miniatura de Wireframes" className="w-full h-auto rounded-md mt-2" />
-            </div>
-          </div>
-        </CardContent>
-        <CardContent>
-          <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={onDismiss}><X className="mr-2 h-4 w-4" /> Descartar</Button>
-            <Button onClick={onAccept}><Check className="mr-2 h-4 w-4" /> Aceptar y Sincronizar</Button>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-}
-
-
 export default function PredictiveDesignPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -118,6 +78,8 @@ export default function PredictiveDesignPage() {
       setIsLoading(false);
     }
   }
+
+  const selectedFile = form.watch('planningFile');
   
   return (
     <div className="space-y-8">
@@ -142,11 +104,24 @@ export default function PredictiveDesignPage() {
                     <FormItem>
                       <FormLabel>Archivo de Planning (.xlsx)</FormLabel>
                       <FormControl>
-                        <Input 
-                            type="file" 
-                            accept=".xlsx"
-                            onChange={(e) => field.onChange(e.target.files)}
-                        />
+                        <div className="flex items-center gap-2">
+                           <Input
+                            readOnly
+                            placeholder={selectedFile?.[0]?.name || "Ningún archivo seleccionado"}
+                            className="flex-grow cursor-default"
+                            onClick={() => fileInputRef.current?.click()}
+                          />
+                          <Button type="button" variant="default" onClick={() => fileInputRef.current?.click()}>
+                            Seleccionar archivo
+                          </Button>
+                          <Input 
+                              type="file" 
+                              accept=".xlsx"
+                              className="hidden"
+                              ref={fileInputRef}
+                              onChange={(e) => field.onChange(e.target.files)}
+                          />
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -205,10 +180,9 @@ export default function PredictiveDesignPage() {
             </Alert>
         )}
         
-        {Array.isArray(result) ? (
+        {result && !result.error ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* This part needs to be adapted based on the actual 'analysis' structure */}
-                <p>Resultados recibidos. Implementar visualización.</p>
+              <p>Resultados recibidos. Implementar visualización.</p>
             </div>
         ) : !result && (
              <Card className="rounded-expressive border-dashed min-h-[300px] flex items-center justify-center">
