@@ -6,9 +6,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const REQUIRED_COLUMNS = ["Feature","User story (short)","Priority","Target Sprint","Max Screens"];
 
-// This function is defined at the page level now.
-// export const runtime = "nodejs";
-
 export async function runPredictiveDesign(formData: FormData) {
   const FAIL = (code: string, extra: Record<string, any> = {}) => ({ status: "error", code, ...extra } as const);
 
@@ -48,6 +45,7 @@ export async function runPredictiveDesign(formData: FormData) {
   let modelName: string | undefined;
 
   try {
+    console.log("Attempting to find model via SDK...");
     const { models } = await genAI.listModels();
     
     // Prioritize modern, preferred models
@@ -69,9 +67,25 @@ export async function runPredictiveDesign(formData: FormData) {
         }
     }
   } catch (e) {
-     console.error("SDK listModels failed. The API key might be invalid or missing permissions.", e);
-     // No REST fallback here, as the SDK is the canonical way. Failure here is critical.
+     console.error("SDK listModels failed, proceeding to REST fallback.", e);
   }
+
+  if (!modelName) {
+    console.log("SDK failed, attempting REST fallback...");
+    try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1/models?key=${API_KEY}`);
+        if (res.ok) {
+            const body = await res.json();
+            const usable = body.models?.find((m: any) => m.supportedGenerationMethods?.includes("generateContent"));
+            if (usable) {
+                modelName = usable.name.split('/').pop();
+            }
+        }
+    } catch (e) {
+        console.error("REST fallback for listModels also failed.", e);
+    }
+  }
+
 
   if (!modelName) {
     return FAIL("NO_MODEL_FOUND", { message: "No model supporting 'generateContent' was found for your API key." });
