@@ -14,16 +14,17 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { predictiveDesign } from '@/ai/flows/predictive-design';
-import { type PredictiveDesignOutput, PredictiveDesignInputSchema } from '@/types/predictive-design';
 import { Loader2, Wand2, AlertTriangle, Check, X, DraftingCompass, Newspaper, Upload } from 'lucide-react';
+import { runPredictiveDesign } from '@/app/actions/runPredictiveDesign';
 
 const formSchema = z.object({
-  planningFile: z.any().optional(),
+  planningFile: z
+    .any()
+    .refine((files) => files?.length === 1, 'Se requiere el archivo de planning.')
+    .refine((files) => files?.[0]?.size > 0, 'El archivo no puede estar vacío.'),
   maxScreens: z.coerce.number().min(1, 'Debe ser al menos 1.'),
-  figmaFileId: z.string().min(1, 'El ID del archivo Figma es requerido.'),
+  figmaDest: z.string().min(1, 'El ID del archivo Figma es requerido.'),
 });
-
 
 function ProposalCard({ journeyUrl, wireframeFrames, onAccept, onDismiss }: { journeyUrl: string, wireframeFrames: string[], onAccept: () => void, onDismiss: () => void }) {
   return (
@@ -70,16 +71,14 @@ function ProposalCard({ journeyUrl, wireframeFrames, onAccept, onDismiss }: { jo
 
 export default function PredictiveDesignPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<PredictiveDesignOutput | null>(null);
+  const [result, setResult] = useState<any>(null);
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [fileName, setFileName] = useState('');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       maxScreens: 8,
-      figmaFileId: 'FIGMA_FILE_ID_HERE',
+      figmaDest: 'FIGMA_FILE_KEY_HERE',
       planningFile: undefined,
     },
   });
@@ -88,61 +87,38 @@ export default function PredictiveDesignPage() {
     setIsLoading(true);
     setResult(null);
 
-    const payload = {
-        planningFileId: fileName || 'quarterly-planning.xlsx',
-        maxScreens: values.maxScreens,
-        figmaFileId: values.figmaFileId
-    }
+    const formData = new FormData();
+    formData.append('planningFile', values.planningFile[0]);
+    formData.append('maxScreens', values.maxScreens.toString());
+    formData.append('figmaDest', values.figmaDest);
 
     try {
-      const response = await predictiveDesign(payload);
-      setResult(response);
-       if (response.status === 'error') {
+      const response = await runPredictiveDesign(formData);
+      
+      if (response.status === 'ok') {
+        setResult(response.analysis);
         toast({
-          title: "Error de Validación",
-          description: response.log,
-          variant: "destructive",
+          title: "Análisis Completado",
+          description: "Se han generado nuevas propuestas.",
         });
       } else {
-         toast({
-          title: "Análisis Completado",
-          description: response.log,
-        });
+        let errorMessage = `Código de error: ${response.code}`;
+        if ('missing' in response && response.missing) {
+            errorMessage += ` - Faltan las columnas: ${response.missing.join(', ')}`;
+        }
+        if ('message' in response && response.message) {
+            errorMessage += ` - ${response.message}`;
+        }
+         setResult({ error: errorMessage });
       }
     } catch (error: any) {
       console.error(error);
-      toast({
-        title: "Error Inesperado",
-        description: error.message || "Ocurrió un error al ejecutar el agente.",
-        variant: "destructive",
-      });
+      setResult({ error: "Ocurrió un error inesperado al ejecutar el agente." });
     } finally {
       setIsLoading(false);
     }
   }
-
-  const handleDismissProposal = (index: number) => {
-    if (!result) return;
-    const newJourneyUrls = [...result.journeyUrls];
-    newJourneyUrls.splice(index, 1);
-    
-    if (newJourneyUrls.length === 0) {
-      setResult(null); 
-      toast({ title: 'Propuestas Descartadas', description: 'Todas las propuestas han sido descartadas.' });
-    } else {
-      setResult({ ...result, journeyUrls: newJourneyUrls });
-    }
-  };
-
-  const handleAcceptProposal = (index: number) => {
-    toast({
-      title: 'Propuesta Sincronizada',
-      description: 'El Journey Map y los Wireframes han sido enviados a Figma.',
-    });
-    handleDismissProposal(index); 
-  };
-
-
+  
   return (
     <div className="space-y-8">
       <PageHeader
@@ -150,127 +126,99 @@ export default function PredictiveDesignPage() {
         description="Anticipa journeys y wireframes con IA a partir del planning trimestral."
       />
       
-      <Card className="rounded-expressive shadow-e2">
-        <CardHeader>
-          <CardTitle>Iniciar Agente</CardTitle>
-          <CardDescription>Configura los parámetros para la generación.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="planningFile"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Archivo de Planning (.xlsx)</FormLabel>
-                    <FormControl>
-                      <div className="flex gap-2">
-                         <Input 
-                            placeholder="Ningún archivo seleccionado"
-                            readOnly
-                            value={fileName}
-                            className="flex-grow"
-                        />
-                        <Button type="button" variant="default" onClick={() => fileInputRef.current?.click()}>
-                            <Upload className="mr-2 h-4 w-4" />
-                            Seleccionar archivo
-                        </Button>
+      <div className="space-y-8">
+        <Card className="rounded-expressive shadow-e2">
+          <CardHeader>
+            <CardTitle>Iniciar Agente</CardTitle>
+            <CardDescription>Configura los parámetros para la generación.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="planningFile"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Archivo de Planning (.xlsx)</FormLabel>
+                      <FormControl>
                         <Input 
                             type="file" 
-                            ref={fileInputRef}
-                            className="hidden"
-                            accept=".xlsx" 
-                            onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                field.onChange(file);
-                                setFileName(file ? file.name : '');
-                            }} 
+                            accept=".xlsx"
+                            onChange={(e) => field.onChange(e.target.files)}
                         />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                 <FormField
-                    control={form.control}
-                    name="maxScreens"
-                    render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Pantallas Máx.</FormLabel>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <FormField
+                      control={form.control}
+                      name="maxScreens"
+                      render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Pantallas Máx.</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="number" 
+                                min="1"
+                                step="1"
+                                placeholder="8"
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                      )}
+                      />
+                  <FormField
+                      control={form.control}
+                      name="figmaDest"
+                      render={({ field }) => (
+                      <FormItem>
+                          <FormLabel>ID Figma Destino</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="number" 
-                              min="1"
-                              step="1"
-                              placeholder="8"
-                              {...field} 
-                            />
+                          <Input placeholder="FIGMA_FILE_KEY" {...field} />
                           </FormControl>
                           <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                <FormField
-                    control={form.control}
-                    name="figmaFileId"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>ID Figma Destino</FormLabel>
-                        <FormControl>
-                        <Input placeholder="FIGMA_FILE_KEY" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-              </div>
-              
-              <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-                Analizar y Generar
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+                      </FormItem>
+                      )}
+                  />
+                </div>
+                
+                <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+                  Analizar y Generar
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
 
-      <div className="space-y-8">
-         {result && result.status === 'error' ? (
+        {result?.error && (
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertTitle>Error en el Agente</AlertTitle>
-              <AlertDescription>{result.log}</AlertDescription>
+              <AlertDescription>{result.error}</AlertDescription>
             </Alert>
-         ) : result && result.status === 'ready' && result.journeyUrls.length > 0 ? (
-          <>
-              <h3 className="text-xl font-semibold text-center">Panel de Validación</h3>
-               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <AnimatePresence>
-                  {result.journeyUrls.map((url, index) => (
-                    <ProposalCard
-                      key={url}
-                      journeyUrl={url}
-                      wireframeFrames={result.wireframeFrames}
-                      onAccept={() => handleAcceptProposal(index)}
-                      onDismiss={() => handleDismissProposal(index)}
-                    />
-                  ))}
-                  </AnimatePresence>
-              </div>
-          </>
-         ) : (
-           <Card className="rounded-expressive border-dashed min-h-[300px] flex items-center justify-center">
-              <div className="text-center text-muted-foreground p-8">
-                  <Wand2 className="mx-auto h-12 w-12 opacity-50 mb-4" />
-                  <h3 className="font-semibold text-lg text-foreground">Esperando resultados...</h3>
-                  <p>Ejecuta el agente para ver aquí las propuestas generadas.</p>
-              </div>
-           </Card>
-         )}
+        )}
+        
+        {Array.isArray(result) ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* This part needs to be adapted based on the actual 'analysis' structure */}
+                <p>Resultados recibidos. Implementar visualización.</p>
+            </div>
+        ) : !result && (
+             <Card className="rounded-expressive border-dashed min-h-[300px] flex items-center justify-center">
+                <div className="text-center text-muted-foreground p-8">
+                    <Wand2 className="mx-auto h-12 w-12 opacity-50 mb-4" />
+                    <h3 className="font-semibold text-lg text-foreground">Esperando resultados...</h3>
+                    <p>Ejecuta el agente para ver aquí las propuestas generadas.</p>
+                </div>
+             </Card>
+        )}
       </div>
     </div>
   );
