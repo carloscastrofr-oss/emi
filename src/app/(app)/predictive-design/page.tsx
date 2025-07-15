@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,7 +16,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { predictiveDesign } from '@/ai/flows/predictive-design';
 import { type PredictiveDesignOutput, PredictiveDesignInputSchema } from '@/types/predictive-design';
-import { Loader2, Wand2, AlertTriangle, Check, X, DraftingCompass, Newspaper } from 'lucide-react';
+import { Loader2, Wand2, AlertTriangle, Check, X, DraftingCompass, Newspaper, Upload } from 'lucide-react';
 
 const formSchema = PredictiveDesignInputSchema.extend({
     planningFile: z.any().optional(),
@@ -69,6 +70,8 @@ export default function PredictiveDesignPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<PredictiveDesignOutput | null>(null);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState('');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -83,10 +86,8 @@ export default function PredictiveDesignPage() {
     setIsLoading(true);
     setResult(null);
 
-    const fileName = values.planningFile?.[0]?.name || 'quarterly-planning.xlsx';
-
     const payload = {
-        planningFileId: fileName,
+        planningFileId: fileName || 'quarterly-planning.xlsx',
         maxScreens: Number(values.maxScreens),
         figmaFileId: values.figmaFileId
     }
@@ -146,8 +147,8 @@ export default function PredictiveDesignPage() {
         title="Predictive Design (α)"
         description="Anticipa journeys y wireframes con IA a partir del planning trimestral."
       />
-      <div className="space-y-8">
-          <Card className="rounded-expressive shadow-e2 max-w-3xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          <Card className="rounded-expressive shadow-e2">
             <CardHeader>
               <CardTitle>Iniciar Agente</CardTitle>
               <CardDescription>Configura los parámetros para la generación.</CardDescription>
@@ -162,7 +163,29 @@ export default function PredictiveDesignPage() {
                       <FormItem>
                         <FormLabel>Archivo de Planning (.xlsx)</FormLabel>
                         <FormControl>
-                           <Input type="file" accept=".xlsx" onChange={(e) => field.onChange(e.target.files)} />
+                          <div className="flex gap-2">
+                             <Input 
+                                placeholder="Ningún archivo seleccionado"
+                                readOnly
+                                value={fileName}
+                                className="flex-grow"
+                            />
+                            <Button type="button" variant="default" onClick={() => fileInputRef.current?.click()}>
+                                <Upload className="mr-2 h-4 w-4" />
+                                Seleccionar archivo
+                            </Button>
+                            <Input 
+                                type="file" 
+                                ref={fileInputRef}
+                                className="hidden"
+                                accept=".xlsx" 
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    field.onChange(file);
+                                    setFileName(file ? file.name : '');
+                                }} 
+                            />
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -227,7 +250,7 @@ export default function PredictiveDesignPage() {
            ) : result && result.status === 'ready' && result.journeyUrls.length > 0 ? (
             <>
                 <h3 className="text-xl font-semibold text-center">Panel de Validación</h3>
-                 <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+                 <div className="grid md:grid-cols-1 gap-6">
                     <AnimatePresence>
                     {result.journeyUrls.map((url, index) => (
                       <ProposalCard
@@ -242,7 +265,7 @@ export default function PredictiveDesignPage() {
                 </div>
             </>
            ) : (
-             <Card className="rounded-expressive border-dashed min-h-[300px] flex items-center justify-center max-w-3xl mx-auto">
+             <Card className="rounded-expressive border-dashed min-h-[300px] flex items-center justify-center">
                 <div className="text-center text-muted-foreground p-8">
                     <Wand2 className="mx-auto h-12 w-12 opacity-50 mb-4" />
                     <h3 className="font-semibold text-lg text-foreground">Esperando resultados...</h3>
