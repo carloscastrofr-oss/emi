@@ -18,7 +18,7 @@ import { Loader2, Wand2, AlertTriangle, Figma, Bot } from 'lucide-react';
 import { runPredictiveDesign } from '@/app/actions/runPredictiveDesign';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
 const formSchema = z.object({
   planningFile: z
@@ -29,12 +29,17 @@ const formSchema = z.object({
   figmaDest: z.string().min(1, 'El ID del archivo Figma es requerido.'),
 });
 
+interface Kpi {
+  métrica: string;
+  definición: string;
+}
+
 interface Strategy {
   enunciadoProblema: string;
   usuariosObjetivo: string[];
   propuestaValor: string;
   casosDeUso: string[];
-  exitosClaves: string[];
+  exitosClaves: Kpi[];
   principiosDiseno: string[];
   riesgos: string[];
 }
@@ -60,6 +65,17 @@ const renderStrategyList = (items: string | string[]) => {
     return items.map((item, index) => <p key={index} className="text-muted-foreground text-sm">{item}</p>);
   }
   return <p className="text-muted-foreground text-sm">{items}</p>;
+};
+
+const renderKpiList = (items: Kpi[]) => {
+  if (Array.isArray(items)) {
+    return items.map((item, index) => (
+      <p key={index} className="text-muted-foreground text-sm">
+        <strong className="text-foreground/90">{item.métrica}:</strong> {item.definición}
+      </p>
+    ));
+  }
+  return null;
 };
 
 export default function PredictiveDesignPage() {
@@ -238,7 +254,7 @@ export default function PredictiveDesignPage() {
                                     <div><strong>Enunciado del Problema:</strong> {renderStrategyList(feat.estrategia.enunciadoProblema)}</div>
                                     <div><strong>Propuesta de Valor:</strong> {renderStrategyList(feat.estrategia.propuestaValor)}</div>
                                     <div><strong>Principios de Diseño:</strong> {renderStrategyList(feat.estrategia.principiosDiseno)}</div>
-                                    <div><strong>Métricas de Éxito:</strong> {renderStrategyList(feat.estrategia.exitosClaves)}</div>
+                                    <div><strong>Métricas de Éxito:</strong> {renderKpiList(feat.estrategia.exitosClaves)}</div>
                                     <div><strong>Usuarios Objetivo:</strong> {renderStrategyList(feat.estrategia.usuariosObjetivo)}</div>
                                     <div><strong>Riesgos:</strong> {renderStrategyList(feat.estrategia.riesgos)}</div>
                                 </div>
