@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { PageHeader } from '@/components/page-header';
@@ -68,7 +69,7 @@ export default function PredictiveDesignPage() {
   const [result, setResult] = useState<PredictiveDesignOutput | null>(null);
   const { toast } = useToast();
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       planningFileId: '',
@@ -161,7 +162,7 @@ export default function PredictiveDesignPage() {
                       <FormItem>
                         <FormLabel>Archivo de Planning (.xlsx)</FormLabel>
                         <FormControl>
-                          <Input type="file" accept=".xlsx" onChange={(e) => field.onChange(e.target.files)} />
+                           <Input type="file" accept=".xlsx" onChange={(e) => field.onChange(e.target.files)} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -180,6 +181,7 @@ export default function PredictiveDesignPage() {
                                   type="number" 
                                   min="1"
                                   step="1"
+                                  placeholder="8"
                                   {...field} 
                                   onChange={e => {
                                     const value = e.target.value;
@@ -198,7 +200,7 @@ export default function PredictiveDesignPage() {
                         <FormItem>
                             <FormLabel>ID Figma Destino</FormLabel>
                             <FormControl>
-                            <Input {...field} />
+                            <Input placeholder="FIGMA_FILE_KEY" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -206,7 +208,7 @@ export default function PredictiveDesignPage() {
                     />
                   </div>
                   
-                  <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                  <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
                     Analizar y Generar
                   </Button>
@@ -253,5 +255,3 @@ export default function PredictiveDesignPage() {
     </div>
   );
 }
-
-    
