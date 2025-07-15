@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -13,7 +13,7 @@ import dynamic from 'next/dynamic';
 // --- Mock Data ---
 const mockBrands = [
   { id: 'ds-core', name: 'DS Core', color: 'hsl(var(--primary))' },
-  { id: 'marca-a', name: 'Marca A', color: 'hsl(217, 89%, 61%)' },
+  { id: 'marca-a', name: 'hsl(217, 89%, 61%)', color: 'hsl(217, 89%, 61%)' },
   { id: 'marca-b', name: 'Marca B', color: 'hsl(262, 84%, 59%)' },
 ];
 
@@ -54,10 +54,10 @@ const DynamicBarChart = dynamic(() => import('recharts').then(mod => mod.BarChar
   loading: () => <Skeleton className="h-[250px] w-full" />,
 });
 
-const CustomTooltip = ({ active, payload }: any) => {
+const CustomTooltip = ({ active, payload, barColor }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="rounded-lg bg-primary px-3 py-1.5 text-sm text-primary-foreground shadow-lg">
+      <div className="rounded-lg px-3 py-1.5 text-sm text-primary-foreground shadow-lg" style={{ backgroundColor: barColor }}>
         <p>{payload[0].value}</p>
       </div>
     );
@@ -66,21 +66,22 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 // --- Child Components ---
-function MetricCard({ label, value, icon: Icon, format }: { label: string, value?: number, icon: React.ElementType, format: (val: number) => string }) {
+function MetricCard({ label, value, icon: Icon, format, color }: { label: string, value?: number, icon: React.ElementType, format: (val: number) => string, color: string }) {
     const hasValue = value !== undefined && value !== null;
     return (
         <motion.div
             whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)' }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            style={{ '--brand-color': color } as React.CSSProperties}
         >
-            <Card className="rounded-expressive shadow-e2 h-full">
+            <Card className="rounded-expressive shadow-e2 h-full border-transparent border-l-4 border-l-[--brand-color]">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">{label}</CardTitle>
                     <Icon className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                     {hasValue ? (
-                        <div className="text-2xl font-bold">{format(value)}</div>
+                        <div className="text-2xl font-bold" style={{ color }}>{format(value)}</div>
                     ) : (
                         <div className="text-2xl font-bold text-muted-foreground">—</div>
                     )}
@@ -113,7 +114,7 @@ function BrandBarChart({ data, barColor }: { data: {name: string, value: number}
                                 </defs>
                                 <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} dy={10} />
-                                <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--accent))', radius: 12 }} />
+                                <RechartsTooltip content={<CustomTooltip barColor={barColor} />} cursor={{ fill: 'hsl(var(--accent))', radius: 12 }} />
                                 <Bar dataKey="value" radius={[12, 12, 0, 0]} fill="url(#colorBar)" />
                             </DynamicBarChart>
                         </ResponsiveContainer>
@@ -145,6 +146,18 @@ export default function DashboardPage() {
     }, [activeBrand]);
 
     const activeBrandData = brands.find(b => b.id === activeBrand) || brands[0];
+    
+    const pageVariants = {
+        initial: { opacity: 0, y: 20 },
+        in: { opacity: 1, y: 0 },
+        out: { opacity: 0, y: -20 },
+    };
+
+    const pageTransition = {
+        type: "tween",
+        ease: "anticipate",
+        duration: 0.4
+    };
 
     return (
         <div className="space-y-6 dashboard-header">
@@ -159,8 +172,13 @@ export default function DashboardPage() {
                             <TabsTrigger
                                 value={b.id}
                                 className="rounded-full px-4 py-2 text-sm font-medium shadow-e2
-                                data-[state=active]:bg-primary-container data-[state=active]:text-on-primary-container
-                                data-[state=inactive]:bg-card data-[state=inactive]:text-card-foreground">
+                                data-[state=active]:text-on-primary-container
+                                data-[state=inactive]:bg-card data-[state=inactive]:text-card-foreground"
+                                style={{
+                                    backgroundColor: activeBrand === b.id ? b.color : undefined,
+                                    color: activeBrand === b.id ? 'hsl(var(--on-primary))' : undefined,
+                                }}
+                            >
                                 {b.name}
                             </TabsTrigger>
                         </motion.div>
@@ -168,37 +186,47 @@ export default function DashboardPage() {
                 </TabsList>
             </Tabs>
             
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-                 {loading ? (
-                    Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-[108px] w-full rounded-expressive" />)
-                ) : (
-                    kpiConfig.map(kpi => (
-                        <MetricCard key={kpi.id} label={kpi.label} value={metrics?.[kpi.id]} icon={kpi.icon} format={kpi.format} />
-                    ))
-                )}
-            </div>
+            <AnimatePresence mode="wait">
+                 <motion.div
+                    key={activeBrand}
+                    initial="initial"
+                    animate="in"
+                    exit="out"
+                    variants={pageVariants}
+                    transition={pageTransition}
+                >
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                        {loading ? (
+                            Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-[108px] w-full rounded-expressive" />)
+                        ) : (
+                            kpiConfig.map(kpi => (
+                                <MetricCard key={kpi.id} label={kpi.label} value={metrics?.[kpi.id]} icon={kpi.icon} format={kpi.format} color={activeBrandData.color} />
+                            ))
+                        )}
+                    </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-                 {loading ? (
-                    <>
-                        <Skeleton className="h-[350px] w-full rounded-expressive" />
-                        <Skeleton className="h-[350px] w-full rounded-expressive" />
-                    </>
-                ) : (
-                    <>
-                        <BrandBarChart data={chartData} barColor={activeBrandData.color} />
-                        {/* Placeholder for AreaChart */}
-                        <motion.div whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
-                            <Card className="rounded-expressive shadow-e2 h-full">
-                                <CardHeader><CardTitle>Uso de Tokens</CardTitle></CardHeader>
-                                <CardContent className="flex items-center justify-center h-[250px]">
-                                    <p className="text-muted-foreground">Gráfica de área próximamente</p>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    </>
-                )}
-            </div>
+                    <div className="grid gap-4 md:grid-cols-2 mt-4">
+                        {loading ? (
+                            <>
+                                <Skeleton className="h-[350px] w-full rounded-expressive" />
+                                <Skeleton className="h-[350px] w-full rounded-expressive" />
+                            </>
+                        ) : (
+                            <>
+                                <BrandBarChart data={chartData} barColor={activeBrandData.color} />
+                                <motion.div whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
+                                    <Card className="rounded-expressive shadow-e2 h-full">
+                                        <CardHeader><CardTitle>Uso de Tokens</CardTitle></CardHeader>
+                                        <CardContent className="flex items-center justify-center h-[250px]">
+                                            <p className="text-muted-foreground">Gráfica de área próximamente</p>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            </>
+                        )}
+                    </div>
+                 </motion.div>
+            </AnimatePresence>
         </div>
     );
 }
