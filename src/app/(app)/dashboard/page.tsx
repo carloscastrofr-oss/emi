@@ -13,7 +13,7 @@ import dynamic from 'next/dynamic';
 // --- Mock Data ---
 const mockBrands = [
   { id: 'ds-core', name: 'DS Core', color: 'hsl(var(--primary))' },
-  { id: 'marca-a', name: 'hsl(217, 89%, 61%)', color: 'hsl(217, 89%, 61%)' },
+  { id: 'marca-a', name: 'Marca A', color: 'hsl(217, 89%, 61%)' },
   { id: 'marca-b', name: 'Marca B', color: 'hsl(262, 84%, 59%)' },
 ];
 
