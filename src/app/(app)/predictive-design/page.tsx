@@ -16,7 +16,9 @@ import { useToast } from '@/hooks/use-toast';
 import { predictiveDesign, PredictiveDesignInputSchema, PredictiveDesignOutput } from '@/ai/flows/predictive-design';
 import { Loader2, Wand2, FileUp, AlertTriangle, Check, X, DraftingCompass, Newspaper } from 'lucide-react';
 
-const formSchema = PredictiveDesignInputSchema;
+const formSchema = PredictiveDesignInputSchema.extend({
+    planningFile: z.any().optional(), // Allow file input
+});
 
 function ProposalCard({ journeyUrl, wireframeFrames, onAccept, onDismiss }: { journeyUrl: string, wireframeFrames: string[], onAccept: () => void, onDismiss: () => void }) {
   return (
@@ -66,12 +68,13 @@ export default function PredictiveDesignPage() {
   const [result, setResult] = useState<PredictiveDesignOutput | null>(null);
   const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      planningFileId: 'quarterly-planning.xlsx',
+      planningFileId: '',
       maxScreens: 8,
       figmaFileId: 'FIGMA_FILE_ID_HERE',
+      planningFile: undefined,
     },
   });
 
@@ -79,8 +82,16 @@ export default function PredictiveDesignPage() {
     setIsLoading(true);
     setResult(null);
 
+    const fileName = values.planningFile?.[0]?.name || 'quarterly-planning.xlsx';
+
+    const payload = {
+        planningFileId: fileName,
+        maxScreens: Number(values.maxScreens),
+        figmaFileId: values.figmaFileId
+    }
+
     try {
-      const response = await predictiveDesign(values);
+      const response = await predictiveDesign(payload);
       setResult(response);
        if (response.status === 'error') {
         toast({
@@ -134,31 +145,30 @@ export default function PredictiveDesignPage() {
         title="Predictive Design (α)"
         description="Anticipa journeys y wireframes con IA a partir del planning trimestral."
       />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        <div className="lg:col-span-1 space-y-8 sticky top-20">
-          <Card className="rounded-expressive shadow-e2">
+      <div className="space-y-8">
+          <Card className="rounded-expressive shadow-e2 max-w-3xl mx-auto">
             <CardHeader>
               <CardTitle>Iniciar Agente</CardTitle>
               <CardDescription>Configura los parámetros para la generación.</CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <FormField
                     control={form.control}
-                    name="planningFileId"
+                    name="planningFile"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Archivo de Planning (.xlsx)</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Escribe el nombre del archivo.xlsx" />
+                          <Input type="file" accept=".xlsx" onChange={(e) => field.onChange(e.target.files)} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                      <FormField
                         control={form.control}
                         name="maxScreens"
@@ -168,6 +178,8 @@ export default function PredictiveDesignPage() {
                               <FormControl>
                                 <Input 
                                   type="number" 
+                                  min="1"
+                                  step="1"
                                   {...field} 
                                   onChange={e => {
                                     const value = e.target.value;
@@ -194,7 +206,7 @@ export default function PredictiveDesignPage() {
                     />
                   </div>
                   
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
                     Analizar y Generar
                   </Button>
@@ -202,9 +214,8 @@ export default function PredictiveDesignPage() {
               </Form>
             </CardContent>
           </Card>
-        </div>
 
-        <div className="lg:col-span-2 space-y-8">
+        <div className="space-y-8">
            {result && result.status === 'error' ? (
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
@@ -213,8 +224,8 @@ export default function PredictiveDesignPage() {
               </Alert>
            ) : result && result.status === 'ready' && result.journeyUrls.length > 0 ? (
             <>
-                <h3 className="text-xl font-semibold">Panel de Validación</h3>
-                 <div className="grid md:grid-cols-2 gap-6">
+                <h3 className="text-xl font-semibold text-center">Panel de Validación</h3>
+                 <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
                     <AnimatePresence>
                     {result.journeyUrls.map((url, index) => (
                       <ProposalCard
@@ -229,7 +240,7 @@ export default function PredictiveDesignPage() {
                 </div>
             </>
            ) : (
-             <Card className="rounded-expressive border-dashed min-h-[400px] flex items-center justify-center">
+             <Card className="rounded-expressive border-dashed min-h-[300px] flex items-center justify-center max-w-3xl mx-auto">
                 <div className="text-center text-muted-foreground p-8">
                     <Wand2 className="mx-auto h-12 w-12 opacity-50 mb-4" />
                     <h3 className="font-semibold text-lg text-foreground">Esperando resultados...</h3>
@@ -242,3 +253,5 @@ export default function PredictiveDesignPage() {
     </div>
   );
 }
+
+    
