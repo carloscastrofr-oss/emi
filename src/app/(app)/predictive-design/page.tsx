@@ -25,8 +25,6 @@ const formSchema = z.object({
     .any()
     .refine((files) => files?.length === 1, 'Se requiere el archivo de planning.')
     .refine((files) => files?.[0]?.size > 0, 'El archivo no puede estar vacío.'),
-  maxScreens: z.coerce.number().min(1, 'Debe ser al menos 1.'),
-  figmaDest: z.string().min(1, 'El ID del archivo Figma es requerido.'),
 });
 
 interface Kpi {
@@ -87,8 +85,6 @@ export default function PredictiveDesignPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      maxScreens: 8,
-      figmaDest: 'FIGMA_FILE_KEY_HERE',
       planningFile: undefined,
     },
   });
@@ -99,8 +95,6 @@ export default function PredictiveDesignPage() {
 
     const formData = new FormData();
     formData.append('planningFile', values.planningFile[0]);
-    formData.append('maxScreens', values.maxScreens.toString());
-    formData.append('figmaDest', values.figmaDest);
 
     try {
       const response = await runPredictiveDesign(formData);
@@ -175,41 +169,6 @@ export default function PredictiveDesignPage() {
                     </FormItem>
                   )}
                 />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                   <FormField
-                      control={form.control}
-                      name="maxScreens"
-                      render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Pantallas Máx.</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="number" 
-                                min="1"
-                                step="1"
-                                placeholder="8"
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                      )}
-                      />
-                  <FormField
-                      control={form.control}
-                      name="figmaDest"
-                      render={({ field }) => (
-                      <FormItem>
-                          <FormLabel>ID Figma Destino</FormLabel>
-                          <FormControl>
-                          <Input placeholder="FIGMA_FILE_KEY" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                      </FormItem>
-                      )}
-                  />
-                </div>
                 
                 <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}

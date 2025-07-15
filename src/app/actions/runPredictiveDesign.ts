@@ -66,9 +66,7 @@ export async function runPredictiveDesign(formData: FormData) {
   const FAIL = (code: string, extra: Record<string, any> = {}) => ({ status: 'error', code, ...extra } as const);
 
   const planningFile = formData.get('planningFile') as File | null;
-  const maxScreens = Number(formData.get('maxScreens'));
-  const figmaDest = formData.get('figmaDest') as string;
-
+  
   if (!planningFile || planningFile.size === 0) {
     return FAIL('EMPTY_FILE');
   }
@@ -124,7 +122,7 @@ export async function runPredictiveDesign(formData: FormData) {
       return FAIL('EMPTY_ANALYSIS', { message: 'Analysis result is not a non-empty array.' });
     }
 
-    return { status: 'ok', figmaDest, maxScreens, analysis } as const;
+    return { status: 'ok', analysis } as const;
 
   } catch (e: any) {
     console.error('Gemini AI failure or JSON parsing error:', e);
