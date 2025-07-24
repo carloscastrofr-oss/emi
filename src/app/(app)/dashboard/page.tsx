@@ -20,9 +20,9 @@ const mockBrands = [
 ];
 
 const mockRisks: Risk[] = [
-    { id: 'risk1', category: 'accessibility', title: 'Contraste insuficiente en btn-pay', componentId: 'button-primary', pageUrl: '/checkout', severity: 10, source: 'agent-a11y', detectedAt: new Date() as any, status: 'open', ownerUid: null, notes: '' },
-    { id: 'risk3', category: 'performance', title: 'LCP > 2.5s en página de inicio', pageUrl: '/', severity: 25, source: 'agent-perf', detectedAt: new Date() as any, status: 'in-progress', ownerUid: 'core456', notes: 'Investigando optimización de imágenes.', recommendation: 'Optimizar las imágenes de cabecera usando formato WebP y compresión.' },
-    { id: 'risk4', category: 'design-debt', title: 'Componente Card clonado 5 veces', componentId: 'card-clone', pageUrl: '/products', severity: 60, source: 'agent-debt', detectedAt: new Date() as any, status: 'open', ownerUid: null, notes: '' },
+    { id: 'risk1', category: 'accessibility', title: 'Contraste insuficiente en btn-pay', componentId: 'button-primary', pageUrl: '/checkout', severity: 10, source: 'agent-a11y', detectedAt: "2024-07-23T10:00:00Z" as any, status: 'open', ownerUid: null, notes: '' },
+    { id: 'risk3', category: 'performance', title: 'LCP > 2.5s en página de inicio', pageUrl: '/', severity: 25, source: 'agent-perf', detectedAt: "2024-07-22T11:30:00Z" as any, status: 'in-progress', ownerUid: 'core456', notes: 'Investigando optimización de imágenes.', recommendation: 'Optimizar las imágenes de cabecera usando formato WebP y compresión.' },
+    { id: 'risk4', category: 'design-debt', title: 'Componente Card clonado 5 veces', componentId: 'card-clone', pageUrl: '/products', severity: 60, source: 'agent-debt', detectedAt: "2024-07-21T15:00:00Z" as any, status: 'open', ownerUid: null, notes: '' },
 ];
 
 const calculateRiskScore = (risks: Risk[]): number => {
@@ -264,3 +264,5 @@ export default function DashboardPage() {
         </div>
     );
 }
+
+    

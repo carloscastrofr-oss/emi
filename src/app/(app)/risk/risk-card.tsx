@@ -15,11 +15,11 @@ import { AssignRiskModal } from './assign-risk-modal';
 interface RiskCardProps {
     category: RiskCategory;
     risks: Risk[];
-    onUpdateRisk: (riskId: string, status: RiskStatus) => void;
-    onAssignRisk: (riskId: string, ownerUid: string, ownerName: string) => void;
+    onUpdateRiskStatus: (riskId: string, status: RiskStatus) => void;
+    onAssignRisk: (riskId: string, assignee: { uid: string, name: string }) => void;
 }
 
-export function RiskCard({ category, risks, onUpdateRisk, onAssignRisk }: RiskCardProps) {
+export function RiskCard({ category, risks, onUpdateRiskStatus, onAssignRisk }: RiskCardProps) {
     const categoryInfo = riskCategories[category];
     const [modalRisk, setModalRisk] = useState<Risk | null>(null);
 
@@ -39,7 +39,7 @@ export function RiskCard({ category, risks, onUpdateRisk, onAssignRisk }: RiskCa
 
     const handleAssign = (assignee: { uid: string, name: string }) => {
         if (modalRisk) {
-            onAssignRisk(modalRisk.id, assignee.uid, assignee.name);
+            onAssignRisk(modalRisk.id, assignee);
         }
         setModalRisk(null);
     }
@@ -107,7 +107,7 @@ export function RiskCard({ category, risks, onUpdateRisk, onAssignRisk }: RiskCa
                                 </TooltipProvider>
                                 <div className="flex gap-2">
                                     <Button size="sm" variant="outline" onClick={() => setModalRisk(risk)}>Asignar</Button>
-                                    <Button size="sm" variant="ghost" onClick={() => onUpdateRisk(risk.id, 'resolved')}>Resolver</Button>
+                                    <Button size="sm" variant="ghost" onClick={() => onUpdateRiskStatus(risk.id, 'resolved')}>Resolver</Button>
                                 </div>
                                 </div>
                             </div>

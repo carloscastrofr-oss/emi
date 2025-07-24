@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/use-auth';
 import type { Risk } from '@/types/risk';
 import { ASSIGNEE_OPTIONS } from '@/config/risk-options';
 import { Loader2 } from 'lucide-react';
+import { isFirebaseConfigValid } from '@/lib/firebase';
 
 interface AssignRiskModalProps {
     risk: Risk;
@@ -42,8 +43,6 @@ export function AssignRiskModal({ risk, open, onClose, onAssign }: AssignRiskMod
 
         const assigneeUser = getMockUserFromLabel(selectedAssignee);
         
-        // In a real app, this would be a server action call.
-        // For the prototype, we call the onAssign callback directly for immediate UI feedback.
         if (!isFirebaseConfigValid) {
              onAssign(assigneeUser);
         } else {
@@ -92,10 +91,3 @@ export function AssignRiskModal({ risk, open, onClose, onAssign }: AssignRiskMod
         </Dialog>
     );
 }
-
-// This helper function determines if Firebase is configured.
-// It's a simplified version of the logic in `lib/firebase.ts`.
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-};
-const isFirebaseConfigValid = firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("YOUR_API_KEY");

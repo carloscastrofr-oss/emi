@@ -14,10 +14,10 @@ import { RiskCategoryBars } from './risk-category-bars';
 import { suggestMitigation } from '@/ai/flows/suggest-mitigation';
 
 const mockRisks: Risk[] = [
-    { id: 'risk1', category: 'accessibility', title: 'Contraste insuficiente en btn-pay', componentId: 'button-primary', pageUrl: '/checkout', severity: 10, source: 'agent-a11y', detectedAt: new Date() as any, status: 'open', ownerUid: null, notes: '' },
-    { id: 'risk2', category: 'accessibility', title: 'Falta de rol ARIA en modal', componentId: 'modal-dialog', pageUrl: '/subscribe', severity: 40, source: 'agent-a11y', detectedAt: new Date() as any, status: 'open', ownerUid: null, notes: '' },
-    { id: 'risk3', category: 'performance', title: 'LCP > 2.5s en página de inicio', pageUrl: '/', severity: 25, source: 'agent-perf', detectedAt: new Date() as any, status: 'in-progress', ownerUid: 'core456', notes: 'Investigando optimización de imágenes.', recommendation: 'Optimizar las imágenes de cabecera usando formato WebP y compresión.' },
-    { id: 'risk4', category: 'design-debt', title: 'Componente Card clonado 5 veces', componentId: 'card-clone', pageUrl: '/products', severity: 60, source: 'agent-debt', detectedAt: new Date() as any, status: 'open', ownerUid: null, notes: '' },
+    { id: 'risk1', category: 'accessibility', title: 'Contraste insuficiente en btn-pay', componentId: 'button-primary', pageUrl: '/checkout', severity: 10, source: 'agent-a11y', detectedAt: "2024-07-23T10:00:00Z" as any, status: 'open', ownerUid: null, notes: '' },
+    { id: 'risk2', category: 'accessibility', title: 'Falta de rol ARIA en modal', componentId: 'modal-dialog', pageUrl: '/subscribe', severity: 40, source: 'agent-a11y', detectedAt: "2024-07-23T09:00:00Z" as any, status: 'open', ownerUid: null, notes: '' },
+    { id: 'risk3', category: 'performance', title: 'LCP > 2.5s en página de inicio', pageUrl: '/', severity: 25, source: 'agent-perf', detectedAt: "2024-07-22T11:30:00Z" as any, status: 'in-progress', ownerUid: 'core456', notes: 'Investigando optimización de imágenes.', recommendation: 'Optimizar las imágenes de cabecera usando formato WebP y compresión.' },
+    { id: 'risk4', category: 'design-debt', title: 'Componente Card clonado 5 veces', componentId: 'card-clone', pageUrl: '/products', severity: 60, source: 'agent-debt', detectedAt: "2024-07-21T15:00:00Z" as any, status: 'open', ownerUid: null, notes: '' },
 ];
 
 
@@ -116,10 +116,10 @@ export default function RiskPage() {
         );
     };
 
-    const handleAssignRisk = (riskId: string, ownerUid: string, ownerName: string) => {
+    const handleAssignRisk = (riskId: string, assignee: { uid: string, name: string }) => {
         setAllRisks(currentRisks =>
             currentRisks.map(risk =>
-                risk.id === riskId ? { ...risk, ownerUid, ownerName, status: 'in-progress' } : risk
+                risk.id === riskId ? { ...risk, ownerUid: assignee.uid, ownerName: assignee.name, status: 'in-progress' } : risk
             )
         );
     };
@@ -172,7 +172,7 @@ export default function RiskPage() {
                                 key={category}
                                 category={category}
                                 risks={groupedRisks[category]}
-                                onUpdateRisk={handleUpdateRiskStatus}
+                                onUpdateRiskStatus={handleUpdateRiskStatus}
                                 onAssignRisk={handleAssignRisk}
                             />
                         ))
