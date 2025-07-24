@@ -4,7 +4,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { getFirestore, doc, onSnapshot, setDoc, arrayUnion } from 'firebase/firestore';
-import { app, db, firebaseConfig } from '@/lib/firebase';
+import { app, db, isFirebaseConfigValid } from '@/lib/firebase';
 
 export type UserRole = "viewer" | "producer" | "core" | "admin";
 
@@ -32,7 +32,7 @@ const AuthContext = createContext<AuthContextType>({
 
 // Helper function to create a default user profile in Firestore
 const createDefaultUserProfile = async (user: User) => {
-    if (!db.app) { // Check if Firestore is initialized
+    if (!isFirebaseConfigValid) { 
         console.warn("Firestore not available. Cannot create user profile.");
         return null;
     }
@@ -56,12 +56,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const isFirebaseConfigValid = 
-        firebaseConfig.apiKey &&
-        firebaseConfig.authDomain &&
-        firebaseConfig.projectId &&
-        !firebaseConfig.apiKey.includes("YOUR_API_KEY");
-
     if (!isFirebaseConfigValid) {
       console.warn("Firebase not initialized, using mock user. All gated features will be available.");
       setUserProfile({

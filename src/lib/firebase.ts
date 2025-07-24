@@ -11,26 +11,25 @@ export const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-export function isFirebaseConfigValid(config: typeof firebaseConfig): boolean {
-    return !!(config.apiKey &&
-        config.authDomain &&
-        config.projectId &&
-        config.storageBucket &&
-        config.messagingSenderId &&
-        config.appId &&
-        !config.apiKey.includes("YOUR_API_KEY"));
-}
+export const isFirebaseConfigValid = 
+    !!firebaseConfig.apiKey &&
+    !!firebaseConfig.authDomain &&
+    !!firebaseConfig.projectId &&
+    !!firebaseConfig.storageBucket &&
+    !!firebaseConfig.messagingSenderId &&
+    !!firebaseConfig.appId &&
+    !firebaseConfig.apiKey.includes("YOUR_API_KEY");
 
 let app: FirebaseApp;
 let db: Firestore;
 
-if (isFirebaseConfigValid(firebaseConfig)) {
+if (isFirebaseConfigValid) {
     app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
     db = getFirestore(app);
 } else {
     console.warn("Firebase configuration is incomplete or contains placeholder values. Firebase features will be disabled. Please update your .env file.");
-    app = {} as FirebaseApp;
-    db = {} as Firestore;
+    app = {} as FirebaseApp; // Use a dummy object to avoid crashing
+    db = {} as Firestore; // Use a dummy object to avoid crashing
 }
 
 
