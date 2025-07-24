@@ -92,3 +92,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .progress-ring-circle-bg {
+    @apply text-muted/30;
+  }
+  .dark .progress-ring-circle-bg {
+    @apply text-muted/20;
+  }
+  .progress-ring-circle {
+    transition: stroke-dashoffset 0.35s;
+    @apply text-primary;
+  }
+}

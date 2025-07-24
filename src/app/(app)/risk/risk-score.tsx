@@ -1,8 +1,6 @@
 
 'use client';
 
-import { CircularProgressbarWithChildren, buildStyles } from 'react-circular-progressbar';
-import 'react-circular-progressbar/dist/styles.css';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -10,6 +8,65 @@ interface RiskScoreProps {
     score: number;
     isLoading: boolean;
 }
+
+const CircularProgress = ({ score }: { score: number }) => {
+    const radius = 52;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (score / 100) * circumference;
+
+    return (
+        <svg
+            className="w-full h-full"
+            viewBox="0 0 120 120"
+        >
+            <circle
+                className="progress-ring-circle-bg"
+                strokeWidth="12"
+                stroke="currentColor"
+                fill="transparent"
+                r={radius}
+                cx="60"
+                cy="60"
+            />
+            <circle
+                className="progress-ring-circle"
+                strokeWidth="12"
+                stroke="currentColor"
+                fill="transparent"
+                r={radius}
+                cx="60"
+                cy="60"
+                style={{
+                    strokeDasharray: circumference,
+                    strokeDashoffset: offset,
+                    strokeLinecap: 'round',
+                    transform: 'rotate(-90deg)',
+                    transformOrigin: '50% 50%',
+                }}
+            />
+             <text
+                x="50%"
+                y="50%"
+                dominantBaseline="middle"
+                textAnchor="middle"
+                className="text-4xl font-medium fill-foreground"
+            >
+                {score}
+            </text>
+            <text
+                x="50%"
+                y="50%"
+                dy="1.2em"
+                dominantBaseline="middle"
+                textAnchor="middle"
+                className="text-sm fill-muted-foreground"
+            >
+                / 100
+            </text>
+        </svg>
+    );
+};
+
 
 export function RiskScore({ score, isLoading }: RiskScoreProps) {
     if (isLoading) {
@@ -22,29 +79,8 @@ export function RiskScore({ score, isLoading }: RiskScoreProps) {
                 <CardTitle>Puntuación de Riesgo Global</CardTitle>
             </CardHeader>
              <CardContent className="flex justify-center p-6">
-                <div className="h-48 w-48">
-                    <svg width="0" height="0">
-                        <defs>
-                        <linearGradient id="riskGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="var(--color-primary)" />
-                            <stop offset="100%" stopColor="var(--color-primary-container)" />
-                        </linearGradient>
-                        </defs>
-                    </svg>
-                    <CircularProgressbarWithChildren
-                        value={score}
-                        maxValue={100}
-                        styles={buildStyles({
-                            pathColor: "url(#riskGrad)",
-                            trailColor:"rgba(0,0,0,.06)",
-                            strokeLinecap: 'round',
-                        })}
-                    >
-                        <div className="flex flex-col items-center">
-                            <span className="text-4xl font-medium text-foreground">{score}</span>
-                            <span className="text-sm text-muted-foreground">/ 100</span>
-                        </div>
-                    </CircularProgressbarWithChildren>
+                <div className="h-48 w-48 text-primary">
+                    <CircularProgress score={score} />
                 </div>
             </CardContent>
         </Card>

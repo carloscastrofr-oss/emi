@@ -24,13 +24,13 @@ export function RiskCard({ category, risks, onAssign }: RiskCardProps) {
     const categoryInfo = riskCategories[category];
     const [modalRisk, setModalRisk] = useState<Risk | null>(null);
 
-    if (!risks || risks.length === 0) {
-        return null;
-    }
-    
-    // Ensure categoryInfo is defined before proceeding
+    // This is the critical fix. If categoryInfo is not found, we render nothing.
     if (!categoryInfo) {
         console.warn(`No category info found for category: ${category}`);
+        return null;
+    }
+
+    if (!risks || risks.length === 0) {
         return null;
     }
 

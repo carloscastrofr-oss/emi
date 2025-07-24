@@ -45,9 +45,10 @@ const calculateRiskStats = (risks: Risk[]) => {
     const openRisks = risks.filter(r => r.status !== 'resolved');
 
     for (const risk of openRisks) {
-        if (byCategory[risk.category]) {
-            byCategory[risk.category]!.totalSeverity += risk.severity;
-            byCategory[risk.category]!.count++;
+        const categoryData = byCategory[risk.category];
+        if (categoryData) {
+            categoryData.totalSeverity += risk.severity;
+            categoryData.count++;
         }
     }
     
@@ -123,7 +124,7 @@ export default function RiskPage() {
         } else {
             // Real update handled by server action, which will trigger onSnapshot
             // But we can optimistically update the state for a better UX
-            setAllRisks(updateState);
+            setAllRisks(prevState => updateState(prevState));
         }
     };
 
