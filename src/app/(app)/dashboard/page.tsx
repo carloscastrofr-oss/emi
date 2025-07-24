@@ -19,40 +19,8 @@ const mockBrands = [
   { id: 'marca-b', name: 'Marca B', color: 'hsl(262, 84%, 59%)' },
 ];
 
-const mockRisks: Risk[] = [
-    { id: 'risk1', category: 'accessibility', title: 'Contraste insuficiente en btn-pay', componentId: 'button-primary', pageUrl: '/checkout', severity: 10, source: 'agent-a11y', detectedAt: "2024-07-23T10:00:00Z" as any, status: 'open', ownerUid: null, notes: '' },
-    { id: 'risk3', category: 'performance', title: 'LCP > 2.5s en página de inicio', pageUrl: '/', severity: 25, source: 'agent-perf', detectedAt: "2024-07-22T11:30:00Z" as any, status: 'in-progress', ownerUid: 'core456', notes: 'Investigando optimización de imágenes.', recommendation: 'Optimizar las imágenes de cabecera usando formato WebP y compresión.' },
-    { id: 'risk4', category: 'design-debt', title: 'Componente Card clonado 5 veces', componentId: 'card-clone', pageUrl: '/products', severity: 60, source: 'agent-debt', detectedAt: "2024-07-21T15:00:00Z" as any, status: 'open', ownerUid: null, notes: '' },
-];
-
-const calculateRiskScore = (risks: Risk[]): number => {
-    if (!risks || risks.length === 0) return 100;
-    
-    const weights: Record<RiskCategory, number> = {
-        accessibility: 0.40,
-        performance: 0.30,
-        'design-debt': 0.20,
-        governance: 0.10,
-    };
-    
-    const openRisks = risks.filter(r => r.status !== 'resolved');
-    if (openRisks.length === 0) return 100;
-
-    const totalSeverity = openRisks.reduce((acc, risk) => {
-        const severityScore = 100 - risk.severity;
-        return acc + (severityScore * (weights[risk.category] ?? 0.1));
-    }, 0);
-    
-    const totalWeight = openRisks.reduce((acc, risk) => acc + (weights[risk.category] ?? 0.1), 0);
-
-    if (totalWeight === 0) return 100;
-
-    return Math.round(totalSeverity / totalWeight);
-};
-
-
 const mockMetrics = {
-  'ds-core': { adoption: 82, tokenUsage: 95, a11yIssues: 12, roi: 120500, coverage: 65, contributors: 18, riskScore: calculateRiskScore(mockRisks) },
+  'ds-core': { adoption: 82, tokenUsage: 95, a11yIssues: 12, roi: 120500, coverage: 65, contributors: 18, riskScore: 92 },
   'marca-a': { adoption: 75, tokenUsage: 88, a11yIssues: 25, roi: 95000, coverage: 50, contributors: 10, riskScore: 88 },
   'marca-b': { adoption: 91, tokenUsage: 98, a11yIssues: 5, roi: 150000, coverage: 80, contributors: 25, riskScore: 95 },
 };
@@ -264,5 +232,3 @@ export default function DashboardPage() {
         </div>
     );
 }
-
-    

@@ -23,19 +23,20 @@ export function RiskCard({ category, risks, onUpdateRiskStatus, onAssignRisk }: 
     const categoryInfo = riskCategories[category];
     const [modalRisk, setModalRisk] = useState<Risk | null>(null);
 
+    // If there are no risks for this category, don't render the card.
+    // This was the source of the internal server error.
+    if (!risks || risks.length === 0) {
+        return null;
+    }
+
     const getSeverityColor = (severity: number) => {
         if (severity <= 25) return 'bg-destructive/80';
         if (severity <= 50) return 'bg-orange-500';
         if (severity <= 75) return 'bg-yellow-500';
-        return 'bg-green-500';
+        return 'bg-green-500'; // Ensure a value is always returned
     };
     
-    const openRisks = risks.filter(r => r.status !== 'resolved');
-    const hasCriticalRisk = openRisks.some(r => r.severity <= 25);
-
-    if (openRisks.length === 0) {
-        return null;
-    }
+    const hasCriticalRisk = risks.some(r => r.severity <= 25);
 
     const handleAssign = (assignee: { uid: string, name: string }) => {
         if (modalRisk) {
@@ -69,13 +70,13 @@ export function RiskCard({ category, risks, onUpdateRiskStatus, onAssignRisk }: 
                         <div>
                             <CardTitle className="text-xl">{categoryInfo.label}</CardTitle>
                             <CardDescription className={cn(hasCriticalRisk ? 'text-destructive-foreground/80' : '')}>
-                                {openRisks.length} riesgo{openRisks.length !== 1 ? 's' : ''} abierto{openRisks.length !== 1 ? 's' : ''}
+                                {risks.length} riesgo{risks.length !== 1 ? 's' : ''} abierto{risks.length !== 1 ? 's' : ''}
                             </CardDescription>
                         </div>
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {openRisks.map(risk => (
+                    {risks.map(risk => (
                          <motion.div 
                             key={risk.id} 
                             layout
