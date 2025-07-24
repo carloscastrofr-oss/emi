@@ -9,42 +9,35 @@ import { riskCategories, type Risk, type RiskCategory, type RiskStatus } from '@
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Lightbulb } from 'lucide-react';
+import { Lightbulb, UserCheck } from 'lucide-react';
 import { AssignRiskModal } from './assign-risk-modal';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+
 
 interface RiskCardProps {
     category: RiskCategory;
     risks: Risk[];
     onUpdateRiskStatus: (riskId: string, status: RiskStatus) => void;
-    onAssignRisk: (riskId: string, assignee: { uid: string, name: string }) => void;
+    onAssign: (riskId: string, assignee: { uid: string, name: string }) => void;
 }
 
-export function RiskCard({ category, risks, onUpdateRiskStatus, onAssignRisk }: RiskCardProps) {
+export function RiskCard({ category, risks, onUpdateRiskStatus, onAssign }: RiskCardProps) {
     const categoryInfo = riskCategories[category];
     const [modalRisk, setModalRisk] = useState<Risk | null>(null);
 
-    // If there are no risks for this category, don't render the card.
-    // This was the source of the internal server error.
     if (!risks || risks.length === 0) {
         return null;
     }
 
     const getSeverityColor = (severity: number) => {
-        if (severity <= 25) return 'bg-destructive/80';
+        if (severity <= 25) return 'bg-destructive';
         if (severity <= 50) return 'bg-orange-500';
         if (severity <= 75) return 'bg-yellow-500';
-        return 'bg-green-500'; // Ensure a value is always returned
+        return 'bg-green-500';
     };
     
     const hasCriticalRisk = risks.some(r => r.severity <= 25);
-
-    const handleAssign = (assignee: { uid: string, name: string }) => {
-        if (modalRisk) {
-            onAssignRisk(modalRisk.id, assignee);
-        }
-        setModalRisk(null);
-    }
-
+    
     return (
         <>
         {modalRisk && (
@@ -52,7 +45,7 @@ export function RiskCard({ category, risks, onUpdateRiskStatus, onAssignRisk }: 
                 risk={modalRisk}
                 open={!!modalRisk}
                 onClose={() => setModalRisk(null)}
-                onAssign={handleAssign}
+                onAssign={(assignee) => onAssign(modalRisk.id, assignee)}
             />
         )}
         <motion.div
@@ -83,16 +76,16 @@ export function RiskCard({ category, risks, onUpdateRiskStatus, onAssignRisk }: 
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
-                            className="flex flex-col gap-2 p-3 rounded-lg bg-background/50"
+                            className="flex flex-col gap-3 p-3 rounded-lg bg-background/50 border"
                         >
-                            <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-start justify-between gap-4">
                                 <div>
-                                    <p className="font-medium text-sm">{risk.title}</p>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="font-medium text-sm leading-tight">{risk.title}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">
                                         {risk.componentId && <Badge variant="secondary">{risk.componentId}</Badge>}
                                     </p>
                                 </div>
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-4 shrink-0">
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger>
@@ -102,12 +95,29 @@ export function RiskCard({ category, risks, onUpdateRiskStatus, onAssignRisk }: 
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                            <p>Severidad: {risk.severity} (0-100, 0 es crítico)</p>
+                                            <p>Severidad: {risk.severity} (0-100, 0 es más crítico)</p>
                                         </TooltipContent>
                                     </Tooltip>
                                 </TooltipProvider>
                                 <div className="flex gap-2">
-                                    <Button size="sm" variant="outline" onClick={() => setModalRisk(risk)}>Asignar</Button>
+                                     {risk.ownerUid ? (
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <Avatar className="h-8 w-8 text-xs">
+                                                        <AvatarFallback className="bg-primary/20 text-primary">
+                                                            {risk.ownerName?.charAt(0) || 'A'}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Asignado a: {risk.ownerName}</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    ) : (
+                                        <Button size="sm" variant="outline" onClick={() => setModalRisk(risk)}>Asignar</Button>
+                                    )}
                                     <Button size="sm" variant="ghost" onClick={() => onUpdateRiskStatus(risk.id, 'resolved')}>Resolver</Button>
                                 </div>
                                 </div>

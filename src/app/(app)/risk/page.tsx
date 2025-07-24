@@ -11,12 +11,12 @@ import { RiskFilters } from './risk-filters';
 import { RiskCard } from './risk-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { RiskCategoryBars } from './risk-category-bars';
-import { suggestMitigation } from '@/ai/flows/suggest-mitigation';
+import { assignRisk } from './actions';
 
 const mockRisks: Risk[] = [
     { id: 'risk1', category: 'accessibility', title: 'Contraste insuficiente en btn-pay', componentId: 'button-primary', pageUrl: '/checkout', severity: 10, source: 'agent-a11y', detectedAt: "2024-07-23T10:00:00Z" as any, status: 'open', ownerUid: null, notes: '' },
     { id: 'risk2', category: 'accessibility', title: 'Falta de rol ARIA en modal', componentId: 'modal-dialog', pageUrl: '/subscribe', severity: 40, source: 'agent-a11y', detectedAt: "2024-07-23T09:00:00Z" as any, status: 'open', ownerUid: null, notes: '' },
-    { id: 'risk3', category: 'performance', title: 'LCP > 2.5s en página de inicio', pageUrl: '/', severity: 25, source: 'agent-perf', detectedAt: "2024-07-22T11:30:00Z" as any, status: 'in-progress', ownerUid: 'core456', notes: 'Investigando optimización de imágenes.', recommendation: 'Optimizar las imágenes de cabecera usando formato WebP y compresión.' },
+    { id: 'risk3', category: 'performance', title: 'LCP > 2.5s en página de inicio', pageUrl: '/', severity: 25, source: 'agent-perf', detectedAt: "2024-07-22T11:30:00Z" as any, status: 'in-progress', ownerUid: 'core456', ownerName: 'Core Team', notes: 'Investigando optimización de imágenes.', recommendation: 'Optimizar las imágenes de cabecera usando formato WebP y compresión.' },
     { id: 'risk4', category: 'design-debt', title: 'Componente Card clonado 5 veces', componentId: 'card-clone', pageUrl: '/products', severity: 60, source: 'agent-debt', detectedAt: "2024-07-21T15:00:00Z" as any, status: 'open', ownerUid: null, notes: '' },
 ];
 
@@ -36,9 +36,7 @@ const calculateRiskStats = (risks: Risk[]) => {
     const byCategory: { [key in RiskCategory]?: { totalSeverity: number, count: number, average: number } } = {};
 
     for (const category of riskCategoryCodes) {
-        if(category in weights) {
-            byCategory[category] = { totalSeverity: 0, count: 0, average: 100 };
-        }
+        byCategory[category] = { totalSeverity: 0, count: 0, average: 100 };
     }
 
     const openRisks = risks.filter(r => r.status !== 'resolved');
@@ -52,7 +50,7 @@ const calculateRiskStats = (risks: Risk[]) => {
     
     let globalScore = 0;
     
-    (Object.keys(byCategory) as RiskCategory[]).forEach(cat => {
+    riskCategoryCodes.forEach(cat => {
         const categoryData = byCategory[cat]!;
         if (categoryData.count > 0) {
             categoryData.average = 100 - (categoryData.totalSeverity / categoryData.count);
@@ -64,7 +62,7 @@ const calculateRiskStats = (risks: Risk[]) => {
 
     return {
         score: Math.round(globalScore),
-        byCategory: (Object.keys(byCategory) as RiskCategory[]).reduce((acc, cat) => {
+        byCategory: riskCategoryCodes.reduce((acc, cat) => {
             acc[cat] = Math.round(byCategory[cat]!.average);
             return acc;
         }, {} as Record<RiskCategory, number>),
@@ -109,19 +107,24 @@ export default function RiskPage() {
     }, [allRisks]);
 
     const handleUpdateRiskStatus = (riskId: string, status: RiskStatus) => {
-        setAllRisks(currentRisks => 
-            currentRisks.map(risk => 
-                risk.id === riskId ? { ...risk, status } : risk
-            )
-        );
+        if (!isFirebaseConfigValid) {
+            setAllRisks(currentRisks => 
+                currentRisks.map(risk => 
+                    risk.id === riskId ? { ...risk, status } : risk
+                )
+            );
+        }
+        // In a real app, you would call a server action here to update Firestore.
     };
 
     const handleAssignRisk = (riskId: string, assignee: { uid: string, name: string }) => {
-        setAllRisks(currentRisks =>
-            currentRisks.map(risk =>
-                risk.id === riskId ? { ...risk, ownerUid: assignee.uid, ownerName: assignee.name, status: 'in-progress' } : risk
-            )
-        );
+        if (!isFirebaseConfigValid) {
+             setAllRisks(currentRisks =>
+                currentRisks.map(risk =>
+                    risk.id === riskId ? { ...risk, ownerUid: assignee.uid, ownerName: assignee.name, status: 'in-progress' } : risk
+                )
+            );
+        }
     };
 
 
@@ -173,7 +176,7 @@ export default function RiskPage() {
                                 category={category}
                                 risks={groupedRisks[category]}
                                 onUpdateRiskStatus={handleUpdateRiskStatus}
-                                onAssignRisk={handleAssignRisk}
+                                onAssign={handleAssignRisk}
                             />
                         ))
                     ) : (
