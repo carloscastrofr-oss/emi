@@ -51,10 +51,12 @@ export async function agentBusiness(input: AgentBusinessInput): Promise<void> {
     
     let componentId = "Unknown Component";
     try {
-        const kpiData = JSON.parse(input.kpiData);
-        componentId = kpiData.componentId || componentId;
+        // Safely parse the input JSON
+        const kpiDataObject = JSON.parse(input.kpiData);
+        componentId = kpiDataObject.componentId || componentId;
     } catch(e) {
-        console.error("Could not parse kpiData JSON");
+        console.error("Could not parse kpiData JSON in agent-business flow:", e);
+        // Keep componentId as "Unknown Component" and continue
     }
 
     const recommendationText = `Business Risk: ${output.businessRisk}. Refactor Priority: ${output.refactorPriority}. Estimated ROI: ${output.roiEstimate}.`;

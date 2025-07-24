@@ -153,33 +153,33 @@ const generateDesignStrategyFlow = ai.defineFlow(
         throw new Error("The design interpretation agent failed to produce an output.");
     }
 
-    if (!isFirebaseConfigValid) {
-        console.warn("Firebase no está configurado. Se devolverá una estrategia simulada sin guardarla.");
-        const mockStrategyData = {
-            ...data,
-            status: 'draft',
-        };
-        return {
-            strategyId: "mock-strategy-" + Date.now(),
-            markdown: markdownContent,
-            json: JSON.stringify(mockStrategyData, null, 2),
-            designInterpretation: interpretationOutput,
-        };
-    }
-    
     const strategyData = {
         ...data,
         status: 'draft',
         createdAt: serverTimestamp(),
     };
 
-    const docRef = await addDoc(collection(db, "designStrategies"), strategyData);
-
-    return {
-        strategyId: docRef.id,
-        markdown: markdownContent,
-        json: JSON.stringify(strategyData, null, 2),
-        designInterpretation: interpretationOutput,
-    };
+    if (!isFirebaseConfigValid) {
+        console.warn("Firebase no está configurado. Se devolverá una estrategia simulada sin guardarla.");
+        return {
+            strategyId: "mock-strategy-" + Date.now(),
+            markdown: markdownContent,
+            json: JSON.stringify({ ...strategyData, createdAt: new Date().toISOString() }, null, 2),
+            designInterpretation: interpretationOutput,
+        };
+    }
+    
+    try {
+        const docRef = await addDoc(collection(db, "designStrategies"), strategyData);
+        return {
+            strategyId: docRef.id,
+            markdown: markdownContent,
+            json: JSON.stringify(strategyData, null, 2),
+            designInterpretation: interpretationOutput,
+        };
+    } catch (error) {
+        console.error("Error al guardar en Firestore: ", error);
+        throw new Error("No se pudo guardar la estrategia en la base de datos.");
+    }
   }
 );

@@ -56,10 +56,12 @@ export async function agentDesign(input: AgentDesignInput): Promise<void> {
   
   let componentId = "Unknown Component";
   try {
+    // Safely parse the input JSON
     const componentUsageData = JSON.parse(input.componentUsage);
     componentId = componentUsageData.componentId || componentId;
   } catch (e) {
-    console.error("Could not parse componentUsage JSON");
+    console.error("Could not parse componentUsage JSON in agent-design flow:", e);
+    // Keep componentId as "Unknown Component" and continue
   }
 
 

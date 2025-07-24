@@ -50,10 +50,12 @@ export async function agentQA(input: AgentQaInput): Promise<void> {
 
     let component = "Unknown Component";
     try {
-        const qaData = JSON.parse(input.qaData);
-        component = qaData.component || component;
+        // Safely parse the input JSON
+        const qaDataObject = JSON.parse(input.qaData);
+        component = qaDataObject.component || component;
     } catch(e) {
-        console.error("Could not parse qaData JSON");
+        console.error("Could not parse qaData JSON in agent-qa flow:", e);
+        // Keep component as "Unknown Component" and continue
     }
 
     await addRecommendation({

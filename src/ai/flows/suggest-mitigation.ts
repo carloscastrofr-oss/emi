@@ -19,27 +19,38 @@ const MitigationOutputSchema = z.object({
   recommendation: z.string().describe('A concise, actionable suggestion for fixing the risk, under 30 words.'),
 });
 
-export async function suggestMitigation(risk: Risk): Promise<string> {
-  const prompt = ai.definePrompt({
+const suggestMitigationPrompt = ai.definePrompt({
     name: 'suggestMitigationPrompt',
     input: { schema: MitigationInputSchema },
     output: { schema: MitigationOutputSchema },
     prompt: `Suggest ONE actionable fix (max 30 words) for this Design System risk:
        Category: {{{category}}}. Title: {{{title}}}. Component: {{{componentId}}}.`,
-  });
+});
 
-  const { output } = await prompt({
-    category: risk.category,
-    title: risk.title,
-    componentId: risk.componentId,
-  });
 
-  if (!output?.recommendation) {
-    console.error("Failed to generate recommendation for risk:", risk.id);
-    return "No se pudo generar una recomendación. Revise manualmente.";
+const suggestMitigationFlow = ai.defineFlow(
+  {
+    name: 'suggestMitigationFlow',
+    inputSchema: MitigationInputSchema,
+    outputSchema: z.string(),
+  },
+  async (input) => {
+    const { output } = await suggestMitigationPrompt(input);
+    
+    if (!output?.recommendation) {
+        console.error("Failed to generate recommendation for risk input:", input);
+        return "No se pudo generar una recomendación. Revise manualmente.";
+    }
+
+    return output.recommendation.trim();
   }
+);
 
-  // In a real scenario, we would update the Firestore document here.
-  // For the prototype, we just return the string.
-  return output.recommendation.trim();
+
+export async function suggestMitigation(risk: Risk): Promise<string> {
+    return suggestMitigationFlow({
+        category: risk.category,
+        title: risk.title,
+        componentId: risk.componentId,
+    });
 }
