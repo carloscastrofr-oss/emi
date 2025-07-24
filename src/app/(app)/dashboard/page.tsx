@@ -10,7 +10,6 @@ import { ArrowUpRight, BarChart, Users, CheckCircle, Package, Search, TrendingUp
 import { Bar, CartesianGrid, XAxis, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
 import dynamic from 'next/dynamic';
 import type { Risk, RiskCategory, RiskStatus } from '@/types/risk';
-import { Timestamp } from 'firebase/firestore';
 
 
 // --- Mock Data ---
@@ -21,9 +20,9 @@ const mockBrands = [
 ];
 
 const mockRisks: Risk[] = [
-    { id: 'risk1', category: 'accessibility', title: 'Contraste insuficiente en btn-pay', componentId: 'button-primary', pageUrl: '/checkout', severity: 10, source: 'agent-a11y', detectedAt: Timestamp.now(), status: 'open', ownerUid: null, notes: '' },
-    { id: 'risk3', category: 'performance', title: 'LCP > 2.5s en página de inicio', pageUrl: '/', severity: 25, source: 'agent-perf', detectedAt: Timestamp.now(), status: 'in-progress', ownerUid: 'core456', notes: 'Investigando optimización de imágenes.', recommendation: 'Optimizar las imágenes de cabecera usando formato WebP y compresión.' },
-    { id: 'risk4', category: 'design-debt', title: 'Componente Card clonado 5 veces', componentId: 'card-clone', pageUrl: '/products', severity: 60, source: 'agent-debt', detectedAt: Timestamp.now(), status: 'open', ownerUid: null, notes: '' },
+    { id: 'risk1', category: 'accessibility', title: 'Contraste insuficiente en btn-pay', componentId: 'button-primary', pageUrl: '/checkout', severity: 10, source: 'agent-a11y', detectedAt: new Date() as any, status: 'open', ownerUid: null, notes: '' },
+    { id: 'risk3', category: 'performance', title: 'LCP > 2.5s en página de inicio', pageUrl: '/', severity: 25, source: 'agent-perf', detectedAt: new Date() as any, status: 'in-progress', ownerUid: 'core456', notes: 'Investigando optimización de imágenes.', recommendation: 'Optimizar las imágenes de cabecera usando formato WebP y compresión.' },
+    { id: 'risk4', category: 'design-debt', title: 'Componente Card clonado 5 veces', componentId: 'card-clone', pageUrl: '/products', severity: 60, source: 'agent-debt', detectedAt: new Date() as any, status: 'open', ownerUid: null, notes: '' },
 ];
 
 const calculateRiskScore = (risks: Risk[]): number => {

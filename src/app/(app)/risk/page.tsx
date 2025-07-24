@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/page-header';
-import { collection, query, where, onSnapshot, Timestamp } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db, isFirebaseConfigValid } from '@/lib/firebase';
 import { Risk, RiskCategory, RiskStatus, riskCategoryCodes, riskCategories } from '@/types/risk';
 import { RiskScore } from './risk-score';
@@ -14,10 +14,10 @@ import { RiskCategoryBars } from './risk-category-bars';
 import { suggestMitigation } from '@/ai/flows/suggest-mitigation';
 
 const mockRisks: Risk[] = [
-    { id: 'risk1', category: 'accessibility', title: 'Contraste insuficiente en btn-pay', componentId: 'button-primary', pageUrl: '/checkout', severity: 10, source: 'agent-a11y', detectedAt: Timestamp.now(), status: 'open', ownerUid: null, notes: '' },
-    { id: 'risk2', category: 'accessibility', title: 'Falta de rol ARIA en modal', componentId: 'modal-dialog', pageUrl: '/subscribe', severity: 40, source: 'agent-a11y', detectedAt: Timestamp.now(), status: 'open', ownerUid: null, notes: '' },
-    { id: 'risk3', category: 'performance', title: 'LCP > 2.5s en página de inicio', pageUrl: '/', severity: 25, source: 'agent-perf', detectedAt: Timestamp.now(), status: 'in-progress', ownerUid: 'core456', notes: 'Investigando optimización de imágenes.', recommendation: 'Optimizar las imágenes de cabecera usando formato WebP y compresión.' },
-    { id: 'risk4', category: 'design-debt', title: 'Componente Card clonado 5 veces', componentId: 'card-clone', pageUrl: '/products', severity: 60, source: 'agent-debt', detectedAt: Timestamp.now(), status: 'open', ownerUid: null, notes: '' },
+    { id: 'risk1', category: 'accessibility', title: 'Contraste insuficiente en btn-pay', componentId: 'button-primary', pageUrl: '/checkout', severity: 10, source: 'agent-a11y', detectedAt: new Date() as any, status: 'open', ownerUid: null, notes: '' },
+    { id: 'risk2', category: 'accessibility', title: 'Falta de rol ARIA en modal', componentId: 'modal-dialog', pageUrl: '/subscribe', severity: 40, source: 'agent-a11y', detectedAt: new Date() as any, status: 'open', ownerUid: null, notes: '' },
+    { id: 'risk3', category: 'performance', title: 'LCP > 2.5s en página de inicio', pageUrl: '/', severity: 25, source: 'agent-perf', detectedAt: new Date() as any, status: 'in-progress', ownerUid: 'core456', notes: 'Investigando optimización de imágenes.', recommendation: 'Optimizar las imágenes de cabecera usando formato WebP y compresión.' },
+    { id: 'risk4', category: 'design-debt', title: 'Componente Card clonado 5 veces', componentId: 'card-clone', pageUrl: '/products', severity: 60, source: 'agent-debt', detectedAt: new Date() as any, status: 'open', ownerUid: null, notes: '' },
 ];
 
 
@@ -84,23 +84,8 @@ export default function RiskPage() {
         setIsLoading(true);
         if (!isFirebaseConfigValid) {
             console.warn("Firebase not configured. Using mock data for risks.");
-            const risksWithRecommendations = Promise.all(mockRisks.map(async (risk) => {
-                if (!risk.recommendation) {
-                    try {
-                        const recommendation = await suggestMitigation(risk);
-                        return { ...risk, recommendation };
-                    } catch (error) {
-                        console.error("Error generating mock recommendation:", error);
-                        return risk;
-                    }
-                }
-                return risk;
-            }));
-
-            risksWithRecommendations.then(risks => {
-                setAllRisks(risks);
-                setIsLoading(false);
-            });
+            setAllRisks(mockRisks);
+            setIsLoading(false);
             return;
         }
         
