@@ -4,7 +4,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { getFirestore, doc, onSnapshot, setDoc, arrayUnion } from 'firebase/firestore';
-import { app, db, firebaseConfig, isConfigValid } from '@/lib/firebase';
+import { app, db, firebaseConfig } from '@/lib/firebase';
 
 export type UserRole = "viewer" | "producer" | "core" | "admin";
 
@@ -32,6 +32,10 @@ const AuthContext = createContext<AuthContextType>({
 
 // Helper function to create a default user profile in Firestore
 const createDefaultUserProfile = async (user: User) => {
+    if (!db.app) { // Check if Firestore is initialized
+        console.warn("Firestore not available. Cannot create user profile.");
+        return null;
+    }
     const userDocRef = doc(db, 'users', user.uid);
     const defaultProfile: Omit<UserProfile, 'uid'> = {
       email: user.email,
@@ -52,7 +56,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isConfigValid(firebaseConfig)) {
+    const isFirebaseConfigValid = 
+        firebaseConfig.apiKey &&
+        firebaseConfig.authDomain &&
+        firebaseConfig.projectId &&
+        !firebaseConfig.apiKey.includes("YOUR_API_KEY");
+
+    if (!isFirebaseConfigValid) {
       console.warn("Firebase not initialized, using mock user. All gated features will be available.");
       setUserProfile({
           uid: 'mock-user',
@@ -82,7 +92,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             } as UserProfile);
           } else {
             createDefaultUserProfile(authUser).then(profile => {
-                setUserProfile(profile);
+                if (profile) setUserProfile(profile);
             });
           }
           setLoading(false);
@@ -105,7 +115,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const value = { user, userProfile, loading };
 
-  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
