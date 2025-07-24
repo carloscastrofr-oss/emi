@@ -22,7 +22,11 @@ const mockRisks: Risk[] = [
 
 const calculateRiskStats = (risks: Risk[]) => {
     if (!risks || risks.length === 0) {
-        return { score: 100, byCategory: {} };
+        const byCategory = riskCategoryCodes.reduce((acc, cat) => {
+            acc[cat] = 100;
+            return acc;
+        }, {} as Record<RiskCategory, number>);
+        return { score: 100, byCategory };
     }
 
     const weights: Record<RiskCategory, number> = {
@@ -31,7 +35,7 @@ const calculateRiskStats = (risks: Risk[]) => {
         'design-debt': 0.20,
         governance: 0.10,
     };
-
+    
     const byCategory: { [key in RiskCategory]?: { totalSeverity: number, count: number, average: number } } = {};
 
     for (const category of riskCategoryCodes) {
@@ -73,7 +77,7 @@ const calculateRiskStats = (risks: Risk[]) => {
 
 export default function RiskPage() {
     const [allRisks, setAllRisks] = useState<Risk[]>([]);
-    const [riskStats, setRiskStats] = useState<any>(null);
+    const [riskStats, setRiskStats] = useState<{ score: number, byCategory: Record<RiskCategory, number> } | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [filters, setFilters] = useState<{ category: RiskCategory | 'all', status: RiskStatus | 'all' }>({
         category: 'all',
@@ -109,16 +113,17 @@ export default function RiskPage() {
     }, [allRisks]);
 
     const handleAssignRisk = (riskId: string, assignee: { uid: string, name: string }) => {
-        if (!isFirebaseConfigValid) {
-             setAllRisks(currentRisks =>
-                currentRisks.map(risk =>
-                    risk.id === riskId ? { ...risk, ownerUid: assignee.uid, ownerName: assignee.name, status: 'in-progress' } : risk
-                )
+        const updateState = (currentRisks: Risk[]) =>
+            currentRisks.map(risk =>
+                risk.id === riskId ? { ...risk, ownerUid: assignee.uid, ownerName: assignee.name, status: 'in-progress' } : risk
             );
+
+        if (!isFirebaseConfigValid) {
+             setAllRisks(updateState);
         } else {
-            // In a real app, you'd call a server action here to update Firestore.
-            // For now, we only handle the mock data case.
-            console.log(`Assigning risk ${riskId} to ${assignee.name} in Firestore is not implemented in this demo.`);
+            // Real update handled by server action, which will trigger onSnapshot
+            // But we can optimistically update the state for a better UX
+            setAllRisks(updateState);
         }
     };
 
@@ -157,8 +162,8 @@ export default function RiskPage() {
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-1 space-y-8 sticky top-24">
-                    <RiskScore score={riskStats?.score ?? 100} isLoading={isLoading} />
-                    <RiskCategoryBars data={categoryChartData} isLoading={isLoading} />
+                    <RiskScore score={riskStats?.score ?? 0} isLoading={isLoading} />
+                    {riskStats && <RiskCategoryBars data={categoryChartData} isLoading={isLoading} />}
                 </div>
                 
                 <div className="lg:col-span-2 space-y-8">

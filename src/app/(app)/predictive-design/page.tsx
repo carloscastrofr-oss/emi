@@ -18,8 +18,6 @@ import { Loader2, Wand2, AlertTriangle, Figma, Bot } from 'lucide-react';
 import { runPredictiveDesign } from '@/app/actions/runPredictiveDesign';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
-export const runtime = "nodejs";
-
 const formSchema = z.object({
   planningFile: z
     .any()

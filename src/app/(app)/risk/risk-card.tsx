@@ -27,6 +27,12 @@ export function RiskCard({ category, risks, onAssign }: RiskCardProps) {
     if (!risks || risks.length === 0) {
         return null;
     }
+    
+    // Ensure categoryInfo is defined before proceeding
+    if (!categoryInfo) {
+        console.warn(`No category info found for category: ${category}`);
+        return null;
+    }
 
     const getSeverityColor = (severity: number) => {
         if (severity <= 25) return 'bg-destructive';

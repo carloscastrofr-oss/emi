@@ -5,7 +5,7 @@ import { doc, updateDoc, arrayUnion, serverTimestamp } from 'firebase/firestore'
 import { db, isFirebaseConfigValid } from '@/lib/firebase';
 import { revalidatePath } from 'next/cache';
 
-export async function completeOnboardingStep(userId: string | null, stepId: string) {
+export async function completeOnboardingStep(userId: string | null, stepId: string): Promise<{ success: boolean; message?: string }> {
   if (!isFirebaseConfigValid) {
     console.log("Firebase no está configurado. Saltando completeOnboardingStep.");
     return { success: true, message: "Paso de onboarding simulado completado." };
