@@ -28,7 +28,8 @@ export function OnboardingTour({ run, setRun }: OnboardingTourProps) {
       const stepId = ONBOARDING_STEPS.find(s => s.tourStepSelector === step.target)?.id;
       
       if (stepId && userProfile && !userProfile.onboarding?.completed.includes(stepId)) {
-        await completeOnboardingStep(stepId);
+        // Pasamos el UID del usuario a la acción del servidor
+        await completeOnboardingStep(userProfile.uid, stepId);
       }
     }
     

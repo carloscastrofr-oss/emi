@@ -1,26 +1,22 @@
 
 'use server';
 
-import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, updateDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
 import { db, isFirebaseConfigValid } from '@/lib/firebase';
 import { revalidatePath } from 'next/cache';
 
-export async function completeOnboardingStep(stepId: string) {
+export async function completeOnboardingStep(userId: string | null, stepId: string) {
   if (!isFirebaseConfigValid) {
-    console.log("Firebase not configured. Skipping completeOnboardingStep.");
-    // In a real scenario, you might want to handle this differently,
-    // maybe by updating a local state for the mock user.
-    return { success: true, message: "Mock step completed." };
+    console.log("Firebase no está configurado. Saltando completeOnboardingStep.");
+    return { success: true, message: "Paso de onboarding simulado completado." };
   }
 
-  // This is a placeholder for getting the current user's ID.
-  // In a real app with server-side auth, you would get this from the session.
-  // For this prototype, we'll assume a way to get the user's ID exists.
-  // This part of the code will not work without a proper auth session setup.
-  const userId = 'HARDCODED_USER_ID_NEEDS_REPLACEMENT'; 
-
+  // En una acción de servidor, no podemos confiar en `getAuth().currentUser`.
+  // El UID del usuario debe pasarse como argumento desde un componente de cliente que tenga acceso a él.
   if (!userId) {
-    throw new Error('User not authenticated');
+    console.warn('No se proporcionó un UID de usuario a la acción del servidor. No se puede completar el paso de onboarding.');
+    // Devolvemos éxito para no romper la UI en modo de demostración o si el usuario no está logueado.
+    return { success: false, message: 'Usuario no autenticado.' };
   }
 
   const userDocRef = doc(db, 'users', userId);
@@ -28,14 +24,15 @@ export async function completeOnboardingStep(stepId: string) {
   try {
     await updateDoc(userDocRef, {
       'onboarding.completed': arrayUnion(stepId),
+      'onboarding.updatedAt': serverTimestamp(),
     });
-    // Revalidate paths to update UI that depends on this data
+    // Revalidar rutas para actualizar la UI que depende de estos datos
     revalidatePath('/(app)/dashboard', 'page');
     revalidatePath('/(app)/onboarding', 'page');
     revalidatePath('/(app)/layout', 'layout');
     return { success: true };
   } catch (error) {
-    console.error('Error completing onboarding step:', error);
-    return { success: false, message: 'Failed to update progress.' };
+    console.error('Error al completar el paso de onboarding:', error);
+    return { success: false, message: 'No se pudo actualizar el progreso.' };
   }
 }
