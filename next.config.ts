@@ -19,10 +19,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  allowedDevOrigins: [
-      'https://*.cloudworkstations.dev',
-      'https://*.firebase.app',
-  ],
+  experimental: {
+    allowedDevOrigins: [
+        'https://*.cloudworkstations.dev',
+        'https://*.firebase.app',
+    ],
+  }
 };
 
 export default nextConfig;
