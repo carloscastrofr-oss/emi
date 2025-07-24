@@ -11,11 +11,9 @@ export async function completeOnboardingStep(userId: string | null, stepId: stri
     return { success: true, message: "Paso de onboarding simulado completado." };
   }
 
-  // En una acción de servidor, no podemos confiar en `getAuth().currentUser`.
   // El UID del usuario debe pasarse como argumento desde un componente de cliente que tenga acceso a él.
   if (!userId) {
     console.warn('No se proporcionó un UID de usuario a la acción del servidor. No se puede completar el paso de onboarding.');
-    // Devolvemos éxito para no romper la UI en modo de demostración o si el usuario no está logueado.
     return { success: false, message: 'Usuario no autenticado.' };
   }
 
