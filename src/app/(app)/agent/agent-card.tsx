@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Bot } from "lucide-react";
+import { addRecommendation } from "./actions";
 
 interface AgentCardProps {
   title: string;
@@ -41,7 +42,18 @@ export function AgentCard({ title, description, icon: Icon, flow, formFields, pl
   async function onSubmit(values: Record<string, any>) {
     setIsLoading(true);
     try {
-      await flow(values);
+      const result = await flow(values);
+      
+      // If the flow is the accessibility agent, save the recommendation
+      if (title.includes("Accesibilidad")) {
+        const recommendationText = `Puntuación de Accesibilidad: ${result.score}/100. Se encontraron ${result.issues.length} problemas. Problema principal: ${result.issues[0]?.details || 'Ninguno'}`;
+        await addRecommendation({
+            agent: "Accessibility",
+            component: result.issues[0]?.node || values.url,
+            recommendation: recommendationText,
+        });
+      }
+
       toast({
         title: "Agente Ejecutado Exitosamente",
         description: `El agente ${title} ha generado una nueva recomendación.`,

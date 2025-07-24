@@ -4,11 +4,11 @@
  * @fileOverview AI-powered Accessibility & Inclusion agent.
  * - agentAccessibility - Runs an accessibility audit on a given URL.
  * - AgentAccessibilityInput - The input type for the agentAccessibility function.
+ * - AgentAccessibilityOutput - The return type for the agentAccessibility function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { addRecommendation } from '@/app/(app)/agent/actions';
 
 const AgentAccessibilityInputSchema = z.object({
   url: z.string().url().describe('The URL of the page to audit for accessibility.'),
@@ -23,9 +23,14 @@ const AgentAccessibilityOutputSchema = z.object({
     details: z.string().describe('A brief description of the issue.'),
   })).describe('A list of accessibility issues found on the page.'),
 });
+export type AgentAccessibilityOutput = z.infer<typeof AgentAccessibilityOutputSchema>;
 
 
-export async function agentAccessibility(input: AgentAccessibilityInput): Promise<void> {
+const agentAccessibilityFlow = ai.defineFlow({
+    name: 'agentAccessibilityFlow',
+    inputSchema: AgentAccessibilityInputSchema,
+    outputSchema: AgentAccessibilityOutputSchema,
+}, async (input) => {
     const prompt = ai.definePrompt({
         name: 'agentAccessibilityPrompt',
         input: {schema: AgentAccessibilityInputSchema},
@@ -49,11 +54,9 @@ export async function agentAccessibility(input: AgentAccessibilityInput): Promis
       throw new Error("Agent did not produce an output.");
     }
     
-    const recommendationText = `Puntuación de Accesibilidad: ${output.score}/100. Se encontraron ${output.issues.length} problemas. Problema principal: ${output.issues[0]?.details || 'Ninguno'}`;
+    return output;
+});
 
-    await addRecommendation({
-        agent: "Accessibility",
-        component: output.issues[0]?.node || input.url,
-        recommendation: recommendationText,
-    });
+export async function agentAccessibility(input: AgentAccessibilityInput): Promise<AgentAccessibilityOutput> {
+  return agentAccessibilityFlow(input);
 }

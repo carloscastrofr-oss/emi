@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview AI-powered Design Strategy Generator.
@@ -147,6 +148,7 @@ const generateDesignStrategyFlow = ai.defineFlow(
     const markdownContent = generateMarkdown(data);
     
     const { output: interpretationOutput } = await interpretationPrompt({ markdownContent, inputData: data });
+
     if (!interpretationOutput) {
         throw new Error("The design interpretation agent failed to produce an output.");
     }
