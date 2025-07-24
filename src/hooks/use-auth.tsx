@@ -4,7 +4,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { getFirestore, doc, onSnapshot, setDoc, arrayUnion } from 'firebase/firestore';
-import { app, db, isFirebaseConfigValid } from '@/lib/firebase';
+import { app, db, firebaseConfig, isConfigValid } from '@/lib/firebase';
 
 export type UserRole = "viewer" | "producer" | "core" | "admin";
 
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isFirebaseConfigValid) {
+    if (!isConfigValid(firebaseConfig)) {
       console.warn("Firebase not initialized, using mock user. All gated features will be available.");
       setUserProfile({
           uid: 'mock-user',

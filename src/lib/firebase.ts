@@ -11,28 +11,27 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// We only want to initialize firebase if all the required config values are present and not placeholders
-export const isFirebaseConfigValid = 
-    firebaseConfig.apiKey &&
-    firebaseConfig.authDomain &&
-    firebaseConfig.projectId &&
-    firebaseConfig.storageBucket &&
-    firebaseConfig.messagingSenderId &&
-    firebaseConfig.appId &&
-    !firebaseConfig.apiKey.includes("YOUR_API_KEY");
+function isConfigValid(config: typeof firebaseConfig): boolean {
+    return !!(config.apiKey &&
+        config.authDomain &&
+        config.projectId &&
+        config.storageBucket &&
+        config.messagingSenderId &&
+        config.appId &&
+        !config.apiKey.includes("YOUR_API_KEY"));
+}
 
 let app: FirebaseApp;
 let db: Firestore;
 
-if (isFirebaseConfigValid) {
+if (isConfigValid(firebaseConfig)) {
     app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
     db = getFirestore(app);
 } else {
     console.warn("Firebase configuration is incomplete or contains placeholder values. Firebase features will be disabled. Please update your .env file.");
-    // Use dummy objects to avoid crashing the app
     app = {} as FirebaseApp;
     db = {} as Firestore;
 }
 
 
-export { app, db };
+export { app, db, firebaseConfig, isConfigValid };
