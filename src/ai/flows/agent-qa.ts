@@ -3,11 +3,11 @@
  * @fileOverview AI-powered QA agent.
  * - agentQA - Analyzes usability failures and suggests improvements.
  * - AgentQaInput - The input type for the agentQA function.
+ * - AgentQaOutput - The return type for the agentQA function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { addRecommendation } from '@/app/(app)/agent/actions';
 
 const AgentQaInputSchema = z.object({
   qaData: z
@@ -17,12 +17,19 @@ const AgentQaInputSchema = z.object({
 export type AgentQaInput = z.infer<typeof AgentQaInputSchema>;
 
 const AgentQaOutputSchema = z.object({
+  component: z.string().describe('The component being analyzed'),
   highErrorRateComponents: z.array(z.string()).describe('A list of component names flagged for high error rates.'),
   validationSuggestions: z.string().describe('Suggestions for real-time validation or structural fixes to prevent errors.'),
   testRecommendations: z.string().describe('Recommendations for new test cases or QA checklist items.'),
 });
+export type AgentQaOutput = z.infer<typeof AgentQaOutputSchema>;
 
-export async function agentQA(input: AgentQaInput): Promise<void> {
+
+const agentQaFlow = ai.defineFlow({
+    name: 'agentQaFlow',
+    inputSchema: AgentQaInputSchema,
+    outputSchema: AgentQaOutputSchema,
+}, async (input) => {
     const prompt = ai.definePrompt({
         name: 'agentQaPrompt',
         input: {schema: AgentQaInputSchema},
@@ -39,6 +46,7 @@ export async function agentQA(input: AgentQaInput): Promise<void> {
         2. Identify patterns of usability failures or interaction bugs.
         3. Flag components that have a high error rate.
         4. Recommend new test cases or items to add to a QA checklist.
+        5. Extract the component name from the input data.
 
         Provide the output in the specified JSON format.`,
     });
@@ -47,20 +55,10 @@ export async function agentQA(input: AgentQaInput): Promise<void> {
     if (!output) {
       throw new Error("Agent did not produce an output.");
     }
+    
+    return output;
+});
 
-    let component = "Unknown Component";
-    try {
-        // Safely parse the input JSON
-        const qaDataObject = JSON.parse(input.qaData);
-        component = qaDataObject.component || component;
-    } catch(e) {
-        console.error("Could not parse qaData JSON in agent-qa flow:", e);
-        // Keep component as "Unknown Component" and continue
-    }
-
-    await addRecommendation({
-        agent: "QA",
-        component: output.highErrorRateComponents[0] || component,
-        recommendation: `${output.validationSuggestions}. Consider adding these tests: ${output.testRecommendations}`
-    });
+export async function agentQA(input: AgentQaInput): Promise<AgentQaOutput> {
+    return agentQaFlow(input);
 }

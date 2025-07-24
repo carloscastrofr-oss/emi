@@ -3,11 +3,11 @@
  * @fileOverview AI-powered Design Debt & Governance agent.
  * - agentDesignDebt - Analyzes design debt from various sources.
  * - AgentDesignDebtInput - The input type for the agentDesignDebt function.
+ * - AgentDesignDebtOutput - The return type for the agentDesignDebt function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { addRecommendation } from '@/app/(app)/agent/actions';
 
 const AgentDesignDebtInputSchema = z.object({
   designDebtInput: z
@@ -22,9 +22,15 @@ const AgentDesignDebtOutputSchema = z.object({
   lostRoi: z.string().describe('An estimate of the lost ROI due to design debt.'),
   migrationPRPrompt: z.string().describe('A prompt to generate a pull request for migrating a component.'),
 });
+export type AgentDesignDebtOutput = z.infer<typeof AgentDesignDebtOutputSchema>;
 
-export async function agentDesignDebt(input: AgentDesignDebtInput): Promise<void> {
-    const prompt = ai.definePrompt({
+
+const agentDesignDebtFlow = ai.defineFlow({
+    name: 'agentDesignDebtFlow',
+    inputSchema: AgentDesignDebtInputSchema,
+    outputSchema: AgentDesignDebtOutputSchema,
+}, async (input) => {
+     const prompt = ai.definePrompt({
         name: 'agentDesignDebtPrompt',
         input: {schema: AgentDesignDebtInputSchema},
         output: {schema: AgentDesignDebtOutputSchema},
@@ -48,12 +54,10 @@ export async function agentDesignDebt(input: AgentDesignDebtInput): Promise<void
     if (!output) {
       throw new Error("Agent did not produce an output.");
     }
+    
+    return output;
+});
 
-    const recommendationText = `Puntuación de Deuda: ${output.debtScore}/100. ROI perdido estimado: ${output.lostRoi}. Componentes divergentes: ${output.divergentComponents.join(', ')}.`;
-
-    await addRecommendation({
-        agent: "Design Debt",
-        component: output.divergentComponents[0] || 'Varios',
-        recommendation: recommendationText,
-    });
+export async function agentDesignDebt(input: AgentDesignDebtInput): Promise<AgentDesignDebtOutput> {
+    return agentDesignDebtFlow(input);
 }

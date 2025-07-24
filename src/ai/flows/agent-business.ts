@@ -7,8 +7,6 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { addRecommendation } from '@/app/(app)/agent/actions';
-
 
 const AgentBusinessInputSchema = z.object({
   kpiData: z
@@ -18,12 +16,19 @@ const AgentBusinessInputSchema = z.object({
 export type AgentBusinessInput = z.infer<typeof AgentBusinessInputSchema>;
 
 const AgentBusinessOutputSchema = z.object({
+  componentId: z.string().describe('The ID of the component being analyzed.'),
   roiEstimate: z.string().describe('An estimated Return on Investment (ROI) of using or reusing a specific component.'),
   refactorPriority: z.string().describe('A suggested priority level (e.g., High, Medium, Low) for refactoring the component.'),
   businessRisk: z.string().describe('An assessment of business risk from inconsistent or underperforming design system elements.'),
 });
+export type AgentBusinessOutput = z.infer<typeof AgentBusinessOutputSchema>;
 
-export async function agentBusiness(input: AgentBusinessInput): Promise<void> {
+
+const agentBusinessFlow = ai.defineFlow({
+    name: 'agentBusinessFlow',
+    inputSchema: AgentBusinessInputSchema,
+    outputSchema: AgentBusinessOutputSchema,
+}, async (input) => {
     const prompt = ai.definePrompt({
         name: 'agentBusinessPrompt',
         input: {schema: AgentBusinessInputSchema},
@@ -40,6 +45,7 @@ export async function agentBusiness(input: AgentBusinessInput): Promise<void> {
         2. Estimate the ROI of using/reusing the component.
         3. Suggest a priority level for refactoring the component based on its business impact.
         4. Indicate the business risk associated with this component or inconsistent design system elements.
+        5. Extract the componentId from the input data.
 
         Provide the output in the specified JSON format.`,
     });
@@ -49,21 +55,9 @@ export async function agentBusiness(input: AgentBusinessInput): Promise<void> {
       throw new Error("Agent did not produce an output.");
     }
     
-    let componentId = "Unknown Component";
-    try {
-        // Safely parse the input JSON
-        const kpiDataObject = JSON.parse(input.kpiData);
-        componentId = kpiDataObject.componentId || componentId;
-    } catch(e) {
-        console.error("Could not parse kpiData JSON in agent-business flow:", e);
-        // Keep componentId as "Unknown Component" and continue
-    }
+    return output;
+});
 
-    const recommendationText = `Business Risk: ${output.businessRisk}. Refactor Priority: ${output.refactorPriority}. Estimated ROI: ${output.roiEstimate}.`;
-
-    await addRecommendation({
-        agent: "Business",
-        component: componentId,
-        recommendation: recommendationText,
-    });
+export async function agentBusiness(input: AgentBusinessInput): Promise<AgentBusinessOutput> {
+    return agentBusinessFlow(input);
 }

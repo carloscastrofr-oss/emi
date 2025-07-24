@@ -11,7 +11,6 @@ import { RiskFilters } from './risk-filters';
 import { RiskCard } from './risk-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { RiskCategoryBars } from './risk-category-bars';
-import { assignRisk } from './actions';
 
 const mockRisks: Risk[] = [
     { id: 'risk1', category: 'accessibility', title: 'Contraste insuficiente en btn-pay', componentId: 'button-primary', pageUrl: '/checkout', severity: 10, source: 'agent-a11y', detectedAt: "2024-07-23T10:00:00Z" as any, status: 'open', ownerUid: null, notes: '' },
@@ -51,19 +50,22 @@ const calculateRiskStats = (risks: Risk[]) => {
     let globalScore = 0;
     
     riskCategoryCodes.forEach(cat => {
-        const categoryData = byCategory[cat]!;
-        if (categoryData.count > 0) {
-            categoryData.average = 100 - (categoryData.totalSeverity / categoryData.count);
-        } else {
-            categoryData.average = 100;
+        const categoryData = byCategory[cat];
+        if (categoryData) {
+            if (categoryData.count > 0) {
+                categoryData.average = 100 - (categoryData.totalSeverity / categoryData.count);
+            } else {
+                categoryData.average = 100;
+            }
+            globalScore += categoryData.average * weights[cat];
         }
-        globalScore += categoryData.average * weights[cat];
     });
 
     return {
         score: Math.round(globalScore),
         byCategory: riskCategoryCodes.reduce((acc, cat) => {
-            acc[cat] = Math.round(byCategory[cat]!.average);
+            const categoryData = byCategory[cat];
+            acc[cat] = categoryData ? Math.round(categoryData.average) : 100;
             return acc;
         }, {} as Record<RiskCategory, number>),
     };
@@ -106,17 +108,6 @@ export default function RiskPage() {
         setRiskStats(calculateRiskStats(allRisks));
     }, [allRisks]);
 
-    const handleUpdateRiskStatus = (riskId: string, status: RiskStatus) => {
-        if (!isFirebaseConfigValid) {
-            setAllRisks(currentRisks => 
-                currentRisks.map(risk => 
-                    risk.id === riskId ? { ...risk, status } : risk
-                )
-            );
-        }
-        // In a real app, you would call a server action here to update Firestore.
-    };
-
     const handleAssignRisk = (riskId: string, assignee: { uid: string, name: string }) => {
         if (!isFirebaseConfigValid) {
              setAllRisks(currentRisks =>
@@ -124,6 +115,10 @@ export default function RiskPage() {
                     risk.id === riskId ? { ...risk, ownerUid: assignee.uid, ownerName: assignee.name, status: 'in-progress' } : risk
                 )
             );
+        } else {
+            // In a real app, you'd call a server action here to update Firestore.
+            // For now, we only handle the mock data case.
+            console.log(`Assigning risk ${riskId} to ${assignee.name} in Firestore is not implemented in this demo.`);
         }
     };
 
@@ -175,7 +170,6 @@ export default function RiskPage() {
                                 key={category}
                                 category={category}
                                 risks={groupedRisks[category]}
-                                onUpdateRiskStatus={handleUpdateRiskStatus}
                                 onAssign={handleAssignRisk}
                             />
                         ))

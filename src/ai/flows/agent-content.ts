@@ -3,11 +3,11 @@
  * @fileOverview AI-powered content agent.
  * - agentContent - Analyzes UX writing and suggests improvements.
  * - AgentContentInput - The input type for the agentContent function.
+ * - AgentContentOutput - The return type for the agentContent function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { addRecommendation } from '@/app/(app)/agent/actions';
 
 const AgentContentInputSchema = z.object({
   uiText: z.string().describe('Current UI text to be analyzed (e.g., labels, placeholders, error messages).'),
@@ -24,8 +24,14 @@ const AgentContentOutputSchema = z.object({
   toneAnalysis: z.string().describe('A check on the tone (e.g., formal, friendly, compliant) with suggestions.'),
   accessibilityHints: z.string().describe('Hints for accessibility, such as using labels correctly or improving error message specificity.'),
 });
+export type AgentContentOutput = z.infer<typeof AgentContentOutputSchema>;
 
-export async function agentContent(input: AgentContentInput): Promise<void> {
+
+const agentContentFlow = ai.defineFlow({
+    name: 'agentContentFlow',
+    inputSchema: AgentContentInputSchema,
+    outputSchema: AgentContentOutputSchema,
+}, async (input) => {
     const prompt = ai.definePrompt({
         name: 'agentContentPrompt',
         input: {schema: AgentContentInputSchema},
@@ -50,15 +56,10 @@ export async function agentContent(input: AgentContentInput): Promise<void> {
     if (!output) {
         throw new Error("Agent did not produce an output.");
     }
-    
-    const firstProposal = output.rewriteProposals[0];
-    const recommendationText = firstProposal 
-        ? `Suggestion for "${firstProposal.original}": "${firstProposal.suggestion}". Reasoning: ${firstProposal.reasoning}`
-        : "No specific rewrite proposals. General feedback provided.";
 
-    await addRecommendation({
-        agent: "Content",
-        component: "General UI Text",
-        recommendation: recommendationText,
-    });
+    return output;
+});
+
+export async function agentContent(input: AgentContentInput): Promise<AgentContentOutput> {
+    return agentContentFlow(input);
 }

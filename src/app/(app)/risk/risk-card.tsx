@@ -17,11 +17,10 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 interface RiskCardProps {
     category: RiskCategory;
     risks: Risk[];
-    onUpdateRiskStatus: (riskId: string, status: RiskStatus) => void;
     onAssign: (riskId: string, assignee: { uid: string, name: string }) => void;
 }
 
-export function RiskCard({ category, risks, onUpdateRiskStatus, onAssign }: RiskCardProps) {
+export function RiskCard({ category, risks, onAssign }: RiskCardProps) {
     const categoryInfo = riskCategories[category];
     const [modalRisk, setModalRisk] = useState<Risk | null>(null);
 
@@ -118,7 +117,7 @@ export function RiskCard({ category, risks, onUpdateRiskStatus, onAssign }: Risk
                                     ) : (
                                         <Button size="sm" variant="outline" onClick={() => setModalRisk(risk)}>Asignar</Button>
                                     )}
-                                    <Button size="sm" variant="ghost" onClick={() => onUpdateRiskStatus(risk.id, 'resolved')}>Resolver</Button>
+                                    <Button size="sm" variant="ghost">Resolver</Button>
                                 </div>
                                 </div>
                             </div>

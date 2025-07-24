@@ -7,6 +7,7 @@
  */
 
 import { ai } from '@/ai/genkit';
+import { z } from 'zod';
 import { PredictiveDesignInputSchema, PredictiveDesignOutputSchema, type PredictiveDesignInput, type PredictiveDesignOutput } from '@/types/predictive-design';
 
 // This is a simulation. In a real scenario, this flow would:

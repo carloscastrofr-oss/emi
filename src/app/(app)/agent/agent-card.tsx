@@ -44,13 +44,45 @@ export function AgentCard({ title, description, icon: Icon, flow, formFields, pl
     try {
       const result = await flow(values);
       
-      // If the flow is the accessibility agent, save the recommendation
+      let agentType;
+      let recommendationText;
+      let componentId = "Unknown";
+      let figmaPrompt;
+
       if (title.includes("Accesibilidad")) {
-        const recommendationText = `Puntuación de Accesibilidad: ${result.score}/100. Se encontraron ${result.issues.length} problemas. Problema principal: ${result.issues[0]?.details || 'Ninguno'}`;
+        agentType = "Accessibility";
+        recommendationText = `Puntuación de Accesibilidad: ${result.score}/100. Se encontraron ${result.issues.length} problemas. Problema principal: ${result.issues[0]?.details || 'Ninguno'}`;
+        componentId = result.issues[0]?.node || values.url;
+      } else if (title.includes("Diseño")) {
+        agentType = "Design";
+        recommendationText = `Contrast Score of ${result.contrastScore} is too low. ${result.layoutImprovements}. Consider updating tokens: Colors: ${result.designTokenSuggestions.colors.join(', ')}, Spacing: ${result.designTokenSuggestions.spacing.join(', ')}, Typography: ${result.designTokenSuggestions.typography.join(', ')}`;
+        componentId = result.componentId;
+        figmaPrompt = result.figmaPrompt;
+      } else if (title.includes("Contenido")) {
+        agentType = "Content";
+        const firstProposal = result.rewriteProposals[0];
+        recommendationText = firstProposal ? `Suggestion for "${firstProposal.original}": "${firstProposal.suggestion}". Reasoning: ${firstProposal.reasoning}` : "No specific rewrite proposals.";
+        componentId = "General UI Text";
+      } else if (title.includes("QA")) {
+        agentType = "QA";
+        recommendationText = `${result.validationSuggestions}. Consider adding these tests: ${result.testRecommendations}`;
+        componentId = result.highErrorRateComponents[0] || result.component;
+      } else if (title.includes("Negocio")) {
+        agentType = "Business";
+        recommendationText = `Business Risk: ${result.businessRisk}. Refactor Priority: ${result.refactorPriority}. Estimated ROI: ${result.roiEstimate}.`;
+        componentId = result.componentId;
+      } else if (title.includes("Deuda de Diseño")) {
+        agentType = "Design Debt";
+        recommendationText = `Puntuación de Deuda: ${result.debtScore}/100. ROI perdido estimado: ${result.lostRoi}. Componentes divergentes: ${result.divergentComponents.join(', ')}.`;
+        componentId = result.divergentComponents[0] || 'Varios';
+      }
+
+      if (agentType && recommendationText) {
         await addRecommendation({
-            agent: "Accessibility",
-            component: result.issues[0]?.node || values.url,
+            agent: agentType as any,
+            component: componentId,
             recommendation: recommendationText,
+            ...(figmaPrompt && { figmaPrompt }),
         });
       }
 
