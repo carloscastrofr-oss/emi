@@ -9,7 +9,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowUpRight, BarChart, Users, CheckCircle, Package, Search, TrendingUp, ShieldAlert } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import type { Risk, RiskCategory, RiskStatus } from '@/types/risk';
-import { BrandBarChart } from './brand-bar-chart';
+
+const BrandBarChart = dynamic(() => import('./brand-bar-chart').then(mod => mod.BrandBarChart), {
+  ssr: false,
+  loading: () => <Skeleton className="h-[350px] w-full rounded-expressive" />,
+});
 
 // --- Mock Data ---
 const mockBrands = [

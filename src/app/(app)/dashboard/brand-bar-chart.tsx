@@ -4,13 +4,6 @@
 import { Bar, BarChart, CartesianGrid, XAxis, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { Skeleton } from '@/components/ui/skeleton';
-import dynamic from 'next/dynamic';
-
-const DynamicBarChart = dynamic(() => import('recharts').then(mod => mod.BarChart), {
-  ssr: false,
-  loading: () => <Skeleton className="h-[250px] w-full" />,
-});
 
 const CustomTooltip = ({ active, payload, barColor }: any) => {
   if (active && payload && payload.length) {
@@ -37,7 +30,7 @@ export function BrandBarChart({ data, barColor }: { data: {name: string, value: 
                 <CardContent>
                      <div style={{ width: '100%', height: 250 }}>
                         <ResponsiveContainer>
-                            <DynamicBarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
+                            <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
                                 <defs>
                                     <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor={barColor} stopOpacity={0.6}/>
@@ -48,7 +41,7 @@ export function BrandBarChart({ data, barColor }: { data: {name: string, value: 
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} dy={10} />
                                 <RechartsTooltip content={<CustomTooltip barColor={barColor} />} cursor={{ fill: 'hsl(var(--accent))', radius: 12 }} />
                                 <Bar dataKey="value" radius={[12, 12, 0, 0]} fill="url(#colorBar)" />
-                            </DynamicBarChart>
+                            </BarChart>
                         </ResponsiveContainer>
                     </div>
                 </CardContent>
