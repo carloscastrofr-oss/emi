@@ -47,7 +47,7 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { RequireRole } from "@/components/auth/require-role";
 import { Badge } from "@/components/ui/badge";
 import { ONBOARDING_STEPS } from "@/lib/onboarding-data";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Panel", roles: ["viewer", "producer", "core", "admin"], className: "dashboard-page-link" },
@@ -181,10 +181,26 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   )
 }
 
+function ClientOnly({ children }: { children: React.ReactNode }) {
+    const [hasMounted, setHasMounted] = useState(false);
+    useEffect(() => {
+        setHasMounted(true);
+    }, []);
+
+    if (!hasMounted) {
+        return null;
+    }
+
+    return <>{children}</>;
+}
+
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <AuthProvider>
-      <AppLayoutContent>{children}</AppLayoutContent>
-    </AuthProvider>
+    <ClientOnly>
+        <AuthProvider>
+            <AppLayoutContent>{children}</AppLayoutContent>
+        </AuthProvider>
+    </ClientOnly>
   )
 }
