@@ -7,19 +7,9 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowUpRight, BarChart, Users, CheckCircle, Package, Search, TrendingUp, ShieldAlert } from 'lucide-react';
-import dynamic from 'next/dynamic';
+import { BrandBarChart } from './brand-bar-chart';
+import { MetricCard } from './metric-card';
 import type { Risk, RiskCategory, RiskStatus } from '@/types/risk';
-
-const BrandBarChart = dynamic(() => import('./brand-bar-chart').then(mod => mod.BrandBarChart), {
-  ssr: false,
-  loading: () => <Skeleton className="h-[350px] w-full rounded-expressive" />,
-});
-
-const MetricCard = dynamic(() => import('./metric-card').then(mod => mod.MetricCard), {
-    ssr: false,
-    loading: () => <Skeleton className="h-[108px] w-full rounded-expressive" />
-});
-
 
 // --- Mock Data ---
 const mockBrands = [
