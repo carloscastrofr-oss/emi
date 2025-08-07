@@ -19,59 +19,52 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Accessibility, Palette, MessageSquare, TestTube, Briefcase, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { agentAccessibility } from "@/ai/flows/agent-accessibility";
-import { agentDesign } from "@/ai/flows/agent-design";
-import { agentContent } from "@/ai/flows/agent-content";
-import { agentQA } from "@/ai/flows/agent-qa";
-import { agentBusiness } from "@/ai/flows/agent-business";
-import { agentDesignDebt } from "@/ai/flows/agent-design-debt";
-
 const agents = [
   {
+    name: "accessibility",
     title: "Agente de Accesibilidad e Inclusión",
     description: "Ejecuta una auditoría de accesibilidad en una URL para identificar problemas de WCAG.",
     icon: Accessibility,
-    flow: agentAccessibility,
     formFields: [{ name: "url", label: "URL de la página a auditar" }],
     placeholder: "https://example.com/checkout",
   },
   {
+    name: "design",
     title: "Agente de Diseño",
     description: "Analiza el uso de un componente y sugiere mejoras de diseño y tokens.",
     icon: Palette,
-    flow: agentDesign,
     formFields: [{ name: "componentUsage", label: "Datos de Uso del Componente (JSON)" }],
     placeholder: '{"componentId":"button-primary","contrast_ratio":2.5,...}',
   },
   {
+    name: "content",
     title: "Agente de Contenido",
     description: "Analiza el texto de la UI y los comentarios para proponer mejoras en el micro-copy.",
     icon: MessageSquare,
-    flow: agentContent,
     formFields: [{ name: "uiText", label: "Texto de la UI" }, { name: "userFeedback", label: "Feedback del Usuario (Opcional)" }],
     placeholder: "Su pago fue rechazado.",
   },
   {
+    name: "qa",
     title: "Agente de QA",
     description: "Identifica componentes con altas tasas de error y recomienda pruebas.",
     icon: TestTube,
-    flow: agentQA,
     formFields: [{ name: "qaData", label: "Datos de QA (JSON)" }],
     placeholder: '{"component":"FormularioDePago","error_rate":0.35,...}',
   },
   {
+    name: "business",
     title: "Agente de Negocio",
     description: "Analiza el impacto en KPIs de negocio y estima el ROI de los componentes.",
     icon: Briefcase,
-    flow: agentBusiness,
     formFields: [{ name: "kpiData", label: "Datos de KPIs (JSON)" }],
     placeholder: '{"componentId":"HeroBanner","impact":-0.05,...}',
   },
   {
+    name: "design-debt",
     title: "Agente de Deuda de Diseño",
     description: "Evalúa la deuda de diseño, identifica componentes divergentes y estima el ROI perdido.",
     icon: Trash2,
-    flow: agentDesignDebt,
     formFields: [{ name: "designDebtInput", label: "Inventario de Deuda (JSON)" }],
     placeholder: '{"cloned_components":["card-v1","card-v2"],...}',
   },
@@ -150,10 +143,10 @@ export default function AgentPage({
                 {agents.map((agent) => (
                     <AgentCard
                         key={agent.title}
+                        agentName={agent.name}
                         title={agent.title}
                         description={agent.description}
                         icon={agent.icon}
-                        flow={agent.flow}
                         formFields={agent.formFields}
                         placeholder={agent.placeholder}
                     />

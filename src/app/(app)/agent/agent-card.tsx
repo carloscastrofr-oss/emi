@@ -8,19 +8,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Bot } from "lucide-react";
-import { addRecommendation } from "./actions";
+import { addRecommendation, runAgent } from "./actions";
 
 interface AgentCardProps {
+  agentName: string;
   title: string;
   description: string;
   icon: React.ElementType;
-  flow: (input: any) => Promise<any>;
   formFields: { name: string; label: string }[];
   placeholder?: string;
   initialValues?: Record<string, string>;
 }
 
-export function AgentCard({ title, description, icon: Icon, flow, formFields, placeholder, initialValues }: AgentCardProps) {
+export function AgentCard({ agentName, title, description, icon: Icon, formFields, placeholder, initialValues }: AgentCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -42,7 +42,7 @@ export function AgentCard({ title, description, icon: Icon, flow, formFields, pl
   async function onSubmit(values: Record<string, any>) {
     setIsLoading(true);
     try {
-      const result = await flow(values);
+      const result = await runAgent(agentName, values);
       
       let agentType;
       let recommendationText;
