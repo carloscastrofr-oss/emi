@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,25 +51,11 @@ const kpiConfig = [
 
 // --- Main Page Component ---
 export default function DashboardPage() {
-    const [brands] = useState(mockBrands);
     const [activeBrand, setActiveBrand] = useState('ds-core');
-    const [loading, setLoading] = useState(true);
-    const [metrics, setMetrics] = useState<any>(null);
-    const [chartData, setChartData] = useState<any>(null);
 
-    useEffect(() => {
-        setLoading(true);
-        // Simulate fetching data for the active brand
-        const timer = setTimeout(() => {
-            setMetrics((mockMetrics as any)[activeBrand]);
-            setChartData((mockChartData as any)[activeBrand]);
-            setLoading(false);
-        }, 500);
-
-        return () => clearTimeout(timer);
-    }, [activeBrand]);
-
-    const activeBrandData = brands.find(b => b.id === activeBrand) || brands[0];
+    const activeBrandData = mockBrands.find(b => b.id === activeBrand) || mockBrands[0];
+    const metrics = (mockMetrics as any)[activeBrand];
+    const chartData = (mockChartData as any)[activeBrand];
     
     const pageVariants = {
         initial: { opacity: 0, y: 20 },
@@ -87,7 +73,7 @@ export default function DashboardPage() {
         <div className="space-y-6 dashboard-header">
             <Tabs value={activeBrand} onValueChange={setActiveBrand}>
                 <TabsList className="bg-transparent p-0 gap-4">
-                    {brands.map(b => (
+                    {mockBrands.map(b => (
                         <motion.div
                             key={b.id}
                             whileHover={{ y: -2, boxShadow:'var(--tw-shadow-e8)' }}
@@ -120,34 +106,21 @@ export default function DashboardPage() {
                     transition={pageTransition}
                 >
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-                        {loading ? (
-                            Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-[108px] w-full rounded-expressive" />)
-                        ) : (
-                            kpiConfig.map(kpi => (
-                                <MetricCard key={kpi.id} label={kpi.label} value={metrics?.[kpi.id]} icon={kpi.icon} format={kpi.format} color={activeBrandData.color} />
-                            ))
-                        )}
+                        {kpiConfig.map(kpi => (
+                            <MetricCard key={kpi.id} label={kpi.label} value={metrics?.[kpi.id]} icon={kpi.icon} format={kpi.format} color={activeBrandData.color} />
+                        ))}
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2 mt-4">
-                        {loading ? (
-                            <>
-                                <Skeleton className="h-[350px] w-full rounded-expressive" />
-                                <Skeleton className="h-[350px] w-full rounded-expressive" />
-                            </>
-                        ) : (
-                            <>
-                                <BrandBarChart data={chartData} barColor={activeBrandData.color} />
-                                <motion.div whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
-                                    <Card className="rounded-expressive shadow-e2 h-full">
-                                        <CardHeader><CardTitle>Uso de Tokens</CardTitle></CardHeader>
-                                        <CardContent className="flex items-center justify-center h-[250px]">
-                                            <p className="text-muted-foreground">Gráfica de área próximamente</p>
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
-                            </>
-                        )}
+                        <BrandBarChart data={chartData} barColor={activeBrandData.color} />
+                        <motion.div whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
+                            <Card className="rounded-expressive shadow-e2 h-full">
+                                <CardHeader><CardTitle>Uso de Tokens</CardTitle></CardHeader>
+                                <CardContent className="flex items-center justify-center h-[250px]">
+                                    <p className="text-muted-foreground">Gráfica de área próximamente</p>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
                     </div>
                  </motion.div>
             </AnimatePresence>
