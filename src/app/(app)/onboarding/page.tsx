@@ -13,9 +13,9 @@ import { OnboardingTour } from './onboarding-tour';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
-export default function OnboardingPage() {
-  const { userProfile } = useAuth();
+function OnboardingClientContent() {
   const [isTourRunning, setTourRunning] = useState(false);
+  const { userProfile } = useAuth();
 
   const userRole = userProfile?.role || 'viewer';
   const completedSteps = userProfile?.onboarding?.completed || [];
@@ -33,14 +33,9 @@ export default function OnboardingPage() {
   const handleStartTour = () => {
     setTourRunning(true);
   };
-
+  
   return (
-    <div>
-      <PageHeader
-        title="Bienvenido a DesignOS"
-        description="Completa estos pasos para familiarizarte con la plataforma."
-      />
-      
+    <>
       <Card className="mb-8 rounded-expressive onboarding-page-checklist">
         <CardHeader>
           <CardTitle>Tu Progreso de Inducción</CardTitle>
@@ -83,11 +78,25 @@ export default function OnboardingPage() {
             </Button>
         </CardFooter>
       </Card>
+      <OnboardingTour run={isTourRunning} setRun={setTourRunning} />
+    </>
+  );
+}
 
-      <OnboardingTour
-        run={isTourRunning}
-        setRun={setTourRunning}
+
+export default function OnboardingPage() {
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  return (
+    <div>
+      <PageHeader
+        title="Bienvenido a DesignOS"
+        description="Completa estos pasos para familiarizarte con la plataforma."
       />
+      {hasMounted ? <OnboardingClientContent /> : null}
     </div>
   );
 }
