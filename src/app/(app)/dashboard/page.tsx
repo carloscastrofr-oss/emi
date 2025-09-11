@@ -5,13 +5,12 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowUpRight, BarChart, Users, CheckCircle, Package, Search, TrendingUp, ShieldAlert } from 'lucide-react';
 import { BrandBarChart } from './brand-bar-chart';
 import { MetricCard } from './metric-card';
 import type { Risk, RiskCategory, RiskStatus } from '@/types/risk';
+import dynamic from 'next/dynamic';
 
-// --- Mock Data ---
 const mockBrands = [
   { id: 'ds-core', name: 'DS Core', color: 'hsl(var(--primary))' },
   { id: 'marca-a', name: 'Marca A', color: 'hsl(217, 89%, 61%)' },
@@ -49,14 +48,13 @@ const kpiConfig = [
 ];
 
 
-// --- Main Page Component ---
-export default function DashboardPage() {
+function DashboardClientContent() {
     const [activeBrand, setActiveBrand] = useState('ds-core');
 
     const activeBrandData = mockBrands.find(b => b.id === activeBrand) || mockBrands[0];
     const metrics = (mockMetrics as any)[activeBrand];
     const chartData = (mockChartData as any)[activeBrand];
-    
+
     const pageVariants = {
         initial: { opacity: 0, y: 20 },
         in: { opacity: 1, y: 0 },
@@ -126,4 +124,10 @@ export default function DashboardPage() {
             </AnimatePresence>
         </div>
     );
+}
+
+const DynamicDashboard = dynamic(() => Promise.resolve(DashboardClientContent), { ssr: false });
+
+export default function DashboardPage() {
+    return <DynamicDashboard />;
 }
