@@ -86,6 +86,7 @@ function OnboardingClientContent() {
 
 export default function OnboardingPage() {
   const [hasMounted, setHasMounted] = useState(false);
+
   useEffect(() => {
     setHasMounted(true);
   }, []);

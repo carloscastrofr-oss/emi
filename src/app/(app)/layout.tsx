@@ -70,7 +70,8 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const { userProfile } = useAuth();
   
   const relevantSteps = useMemo(() => {
-    return ONBOARDING_STEPS.filter(step => step.roles.includes(userProfile?.role || 'viewer'));
+    if (!userProfile?.role) return [];
+    return ONBOARDING_STEPS.filter(step => step.roles.includes(userProfile.role));
   }, [userProfile?.role]);
 
   const completedStepsCount = useMemo(() => {
