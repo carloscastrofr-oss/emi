@@ -79,8 +79,8 @@ Porque entendemos tu pasión. Cada taza que servimos es el resultado de un cuida
   return (
     <div className="space-y-8">
       <PageHeader
-        title="Agente de Contenido"
-        description="Produce copy y micro-copy, segmentado por ciudad."
+        title="AI Writing"
+        description="Produce copy y micro-copy, segmentado por ciudad y audiencia."
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
