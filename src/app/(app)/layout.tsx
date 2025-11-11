@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookUser,
-  FlaskConical,
   KanbanSquare,
   LayoutDashboard,
   Package,
@@ -54,7 +53,6 @@ const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Panel", roles: ["viewer", "producer", "core", "admin"], className: "dashboard-page-link" },
   { href: "/kit", icon: Package, label: "Kit", roles: ["viewer", "producer", "core", "admin"], className: "kit-page-link" },
   { href: "/contenido", icon: FileText, label: "Contenido", roles: ["producer", "core", "admin"], className: "content-page-link" },
-  { href: "/labs", icon: FlaskConical, label: "Labs", roles: ["producer", "core", "admin"], className: "labs-page-link" },
   { href: "/workbench", icon: KanbanSquare, label: "Workbench", roles: ["producer", "core", "admin"], className: "workbench-page-link" },
   { href: "/agent", icon: Bot, label: "Agent", roles: ["core", "admin"], className: "agent-page-link" },
   { href: "/ai-toolkit", icon: Sparkles, label: "AI Toolkit", roles: ["producer", "core", "admin"], className: "ai-toolkit-page-link" },

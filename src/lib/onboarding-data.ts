@@ -18,14 +18,6 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
     tourStepSelector: '.kit-page-link',
   },
   {
-    id: 'generate_ideas',
-    title: 'Genera ideas con IA',
-    description: 'Usa el Laboratorio de IA para idear nuevos componentes.',
-    roles: ['producer', 'core', 'admin'],
-    order: 3,
-    tourStepSelector: '.labs-page-link',
-  },
-  {
     id: 'run_agent',
     title: 'Ejecuta un Agente de IA',
     description: 'Activa un agente para analizar tu sistema de diseño.',
@@ -48,11 +40,6 @@ export const ONBOARDING_TOURS: TourConfig[] = [
         target: '.kit-page-link',
         content: 'Aquí puedes encontrar y descargar kits de inicio para acelerar tus proyectos.',
         title: 'Sección de Kits',
-      },
-      {
-        target: '.labs-page-link',
-        content: 'Experimenta con IA para generar ideas innovadoras para componentes.',
-        title: 'Laboratorio de IA',
       },
        {
         target: '.agent-page-link',
@@ -78,11 +65,6 @@ export const ONBOARDING_TOURS: TourConfig[] = [
         target: '.kit-page-link',
         content: 'Aquí puedes encontrar y descargar kits de inicio para acelerar tus proyectos.',
         title: 'Sección de Kits',
-      },
-      {
-        target: '.labs-page-link',
-        content: 'Experimenta con IA para generar ideas innovadoras para componentes.',
-        title: 'Laboratorio de IA',
       },
       {
         target: '.onboarding-page-checklist',
