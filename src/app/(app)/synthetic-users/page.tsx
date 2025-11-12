@@ -7,6 +7,7 @@ import { PanelBuilder } from "./panel-builder";
 import { TestDashboard } from "./test-dashboard";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
+import { ResearchSynthAgentCard } from "../ai-toolkit/research-synth-agent-card";
 
 export default function SyntheticUsersPage() {
   const [activeTab, setActiveTab] = useState("builder");
@@ -33,10 +34,16 @@ export default function SyntheticUsersPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList>
           <TabsTrigger value="builder">Constructor de Paneles</TabsTrigger>
+          <TabsTrigger value="synth">Síntesis de Investigación</TabsTrigger>
           <TabsTrigger value="dashboard">Panel de Pruebas</TabsTrigger>
         </TabsList>
         <TabsContent value="builder">
           <PanelBuilder />
+        </TabsContent>
+        <TabsContent value="synth">
+            <div className="pt-6 max-w-2xl mx-auto">
+                <ResearchSynthAgentCard />
+            </div>
         </TabsContent>
         <TabsContent value="dashboard">
           <TestDashboard onLaunchTest={() => setActiveTab('builder')} />
