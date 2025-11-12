@@ -43,6 +43,85 @@ export default function ObserverPage() {
         return "Visualización en vivo de la densidad de clics por componente.";
     }
 
+    const renderContent = () => {
+        switch (analysis.type) {
+            case 'performance':
+                return analysis.id ? <PerformanceCard item={analysis.id} /> : null;
+            case 'test':
+                return isABMode ? (
+                    <>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <HeatmapCard title="Variante A" description="Heatmap para la variante de control." />
+                            <HeatmapCard title="Variante B" description="Heatmap para la nueva variante." />
+                        </div>
+                        <StatsCompareCard />
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <InsightsCard variant="A" />
+                        <InsightsCard variant="B" />
+                        </div>
+                    </>
+                ) : null;
+            case 'audit':
+                return null; // The content is within the ABTestControls card itself.
+            case 'page':
+            default:
+                return (
+                    <>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <HeatmapCard 
+                                title={getHeatmapTitle()}
+                                description={getHeatmapDescription()}
+                            />
+                            <InsightsCard />
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <motion.div
+                                className="lg:col-span-1 h-full"
+                                whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
+                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                            >
+                                <Card className="rounded-expressive shadow-e2 h-full">
+                                    <CardHeader className="flex flex-row items-center gap-4">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                                            <List className="h-6 w-6 text-primary" />
+                                        </div>
+                                        <div>
+                                            <CardTitle>Componentes Principales</CardTitle>
+                                            <CardDescription>Clasificación de uso de componentes.</CardDescription>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <TopComponentsList />
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                            <motion.div
+                                className="lg:col-span-2 h-full"
+                                whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
+                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                            >
+                                <Card className="rounded-expressive shadow-e2 h-full">
+                                    <CardHeader className="flex flex-row items-center gap-4">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                                            <TrendingUp className="h-6 w-6 text-primary" />
+                                        </div>
+                                        <div>
+                                            <CardTitle>Tendencia de Adopción</CardTitle>
+                                            <CardDescription>Adopción de componentes en los últimos 6 meses.</CardDescription>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <ObserverTrendChart />
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                        </div>
+                    </>
+                );
+        }
+    };
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -54,75 +133,10 @@ export default function ObserverPage() {
         analysis={analysis}
         onAnalysisChange={setAnalysis}
       />
-
-      {analysis.type === 'performance' && analysis.id ? (
-        <PerformanceCard item={analysis.id} />
-      ) : isABMode ? (
-        <>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <HeatmapCard title="Variante A" description="Heatmap para la variante de control." />
-                <HeatmapCard title="Variante B" description="Heatmap para la nueva variante." />
-            </div>
-            <StatsCompareCard />
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <InsightsCard variant="A" />
-              <InsightsCard variant="B" />
-            </div>
-        </>
-      ) : (
-        <>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <HeatmapCard 
-                    title={getHeatmapTitle()}
-                    description={getHeatmapDescription()}
-                />
-                <InsightsCard />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <motion.div
-                    className="lg:col-span-1 h-full"
-                    whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                >
-                    <Card className="rounded-expressive shadow-e2 h-full">
-                        <CardHeader className="flex flex-row items-center gap-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                                <List className="h-6 w-6 text-primary" />
-                            </div>
-                            <div>
-                                <CardTitle>Componentes Principales</CardTitle>
-                                <CardDescription>Clasificación de uso de componentes.</CardDescription>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <TopComponentsList />
-                        </CardContent>
-                    </Card>
-                </motion.div>
-                <motion.div
-                    className="lg:col-span-2 h-full"
-                    whileHover={{ y: -4, boxShadow: 'var(--tw-shadow-e8)'}}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                >
-                    <Card className="rounded-expressive shadow-e2 h-full">
-                        <CardHeader className="flex flex-row items-center gap-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                                <TrendingUp className="h-6 w-6 text-primary" />
-                            </div>
-                            <div>
-                                <CardTitle>Tendencia de Adopción</CardTitle>
-                                <CardDescription>Adopción de componentes en los últimos 6 meses.</CardDescription>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <ObserverTrendChart />
-                        </CardContent>
-                    </Card>
-                </motion.div>
-            </div>
-        </>
-      )}
+      
+      <div className="space-y-8">
+        {renderContent()}
+      </div>
     </div>
   );
 }

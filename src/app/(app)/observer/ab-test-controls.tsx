@@ -6,13 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRangePicker } from "./date-range-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Import, PlusCircle, TestTube2, Gauge } from 'lucide-react';
+import { Import, PlusCircle, TestTube2, Gauge, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { RequireRole } from '@/components/auth/require-role';
 import { CreateABTestDialog } from './create-ab-test-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from '@/components/ui/label';
+import { UIA11yReviewAgentCard } from '../ai-toolkit/ui-a11y-review-agent-card';
+
 
 const mockTests = [
     { id: 'demoCheckout', name: 'Color del CTA en Checkout' },
@@ -20,7 +22,7 @@ const mockTests = [
     { id: 'pricingPageLayout', name: 'Layout de Página de Precios' }
 ];
 
-type AnalysisType = 'page' | 'test' | 'performance';
+type AnalysisType = 'page' | 'test' | 'performance' | 'audit';
 
 export interface Analysis {
     type: AnalysisType | null;
@@ -56,6 +58,9 @@ export function ABTestControls({ analysis, onAnalysisChange }: ABTestControlsPro
             case 'performance':
                 defaultId = 'button';
                 break;
+            case 'audit':
+                defaultId = null; // No default for audit
+                break;
         }
         onAnalysisChange({ type: newType, id: defaultId });
     };
@@ -75,8 +80,8 @@ export function ABTestControls({ analysis, onAnalysisChange }: ABTestControlsPro
             <CardHeader>
                 <div className="flex flex-wrap justify-between items-center gap-4">
                     <div>
-                        <CardTitle>Menú</CardTitle>
-                        <CardDescription>Selecciona una página, rango de fechas, un test A/B o un análisis de rendimiento.</CardDescription>
+                        <CardTitle>Menú de Análisis</CardTitle>
+                        <CardDescription>Selecciona un tipo de análisis: mapas de calor, A/B tests, rendimiento o auditoría IA.</CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
                          <RequireRole roles={['core', 'admin']}>
@@ -97,10 +102,11 @@ export function ABTestControls({ analysis, onAnalysisChange }: ABTestControlsPro
                      <DateRangePicker />
                 </div>
                  <Tabs value={analysis.type ?? 'page'} onValueChange={handleTabChange} className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
+                    <TabsList className="grid w-full grid-cols-4">
                         <TabsTrigger value="page">Mapas de Calor</TabsTrigger>
                         <TabsTrigger value="test">A/B Test</TabsTrigger>
                         <TabsTrigger value="performance">Rendimiento</TabsTrigger>
+                        <TabsTrigger value="audit">Auditoría IA</TabsTrigger>
                     </TabsList>
                     <TabsContent value="page" className="pt-4">
                         <Label className="text-sm text-muted-foreground mb-2 block">Página</Label>
@@ -147,6 +153,11 @@ export function ABTestControls({ analysis, onAnalysisChange }: ABTestControlsPro
                                 </SelectItem>
                             </SelectContent>
                         </Select>
+                    </TabsContent>
+                    <TabsContent value="audit" className="pt-4">
+                         <div className="max-w-2xl">
+                           <UIA11yReviewAgentCard />
+                         </div>
                     </TabsContent>
                 </Tabs>
             </CardContent>
