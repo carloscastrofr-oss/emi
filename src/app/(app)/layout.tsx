@@ -55,7 +55,6 @@ const navItems = [
   { href: "/kit", icon: Package, label: "Kit", roles: ["viewer", "producer", "core", "admin"], className: "kit-page-link" },
   { href: "/ai-writing", icon: PenSquare, label: "AI Writing", roles: ["producer", "core", "admin"], className: "content-page-link" },
   { href: "/workbench", icon: KanbanSquare, label: "Workbench", roles: ["producer", "core", "admin"], className: "workbench-page-link" },
-  { href: "/ai-toolkit", icon: Sparkles, label: "AI Toolkit", roles: ["producer", "core", "admin"], className: "ai-toolkit-page-link" },
   { href: "/observer", icon: View, label: "Observer", roles: ["core", "admin"], className: "observer-page-link" },
   { href: "/risk", icon: ShieldAlert, label: "Riesgos", roles: ["core", "admin"], className: "risk-page-link" },
   { href: "/synthetic-users", icon: Users, label: "SynthUsers", roles: ["core", "admin"], className: "synthetic-users-page-link" },

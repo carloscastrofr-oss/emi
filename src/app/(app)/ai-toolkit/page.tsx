@@ -2,18 +2,15 @@
 'use client';
 
 import { PageHeader } from "@/components/page-header";
-import { StorytellerAgentCard } from './storyteller-agent-card';
 
 export default function AIToolkitPage() {
   return (
     <div className="space-y-8">
       <PageHeader
         title="AI Toolkit"
-        description="Conjunto de agentes de IA para potenciar tu sistema de diseño."
+        description="Esta sección ha sido eliminada."
       />
-      <div className="grid gap-6 md:grid-cols-1">
-        <StorytellerAgentCard />
-      </div>
+      <p>El contenido de esta página ha sido reubicado a otras secciones de la aplicación.</p>
     </div>
   );
 }
