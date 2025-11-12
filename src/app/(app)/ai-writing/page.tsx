@@ -24,7 +24,7 @@ const formSchema = z.object({
   blocks: z.string().min(1, 'El número de bloques es requerido.'),
 });
 
-export default function ContenidoPage() {
+export default function AIWritingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [generatedContent, setGeneratedContent] = useState('');
   const { toast } = useToast();
@@ -243,3 +243,5 @@ Porque entendemos tu pasión. Cada taza que servimos es el resultado de un cuida
     </div>
   );
 }
+
+    
