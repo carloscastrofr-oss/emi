@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from "react";
@@ -34,19 +35,19 @@ export default function SyntheticUsersPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList>
           <TabsTrigger value="builder">Constructor de Paneles</TabsTrigger>
-          <TabsTrigger value="synth">Síntesis de Investigación</TabsTrigger>
           <TabsTrigger value="dashboard">Panel de Pruebas</TabsTrigger>
+          <TabsTrigger value="synth">Síntesis de Investigación</TabsTrigger>
         </TabsList>
         <TabsContent value="builder">
           <PanelBuilder />
+        </TabsContent>
+        <TabsContent value="dashboard">
+          <TestDashboard onLaunchTest={() => setActiveTab('builder')} />
         </TabsContent>
         <TabsContent value="synth">
             <div className="pt-6 max-w-2xl mx-auto">
                 <ResearchSynthAgentCard />
             </div>
-        </TabsContent>
-        <TabsContent value="dashboard">
-          <TestDashboard onLaunchTest={() => setActiveTab('builder')} />
         </TabsContent>
       </Tabs>
     </div>
