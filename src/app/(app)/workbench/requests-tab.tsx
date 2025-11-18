@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from "react";
@@ -36,7 +37,7 @@ const newRequestSchema = z.object({
   description: z.string().min(10, "La descripción debe tener al menos 10 caracteres."),
   priority: z.enum(requestPriorities, { required_error: "La prioridad es requerida." }),
   figmaFileUrl: z.string().url("Debe ser una URL de Figma válida.").optional().or(z.literal('')),
-  addToJira: z.boolean().default(false).optional(),
+  jiraIssue: z.string().optional(),
 });
 
 
@@ -52,7 +53,7 @@ function NewRequestDialog({ open, onOpenChange }: { open: boolean, onOpenChange:
         description: "",
         priority: "Media",
         figmaFileUrl: "",
-        addToJira: false,
+        jiraIssue: "",
       },
     });
   
@@ -62,11 +63,16 @@ function NewRequestDialog({ open, onOpenChange }: { open: boolean, onOpenChange:
         return;
       }
       setIsLoading(true);
-      const result = await submitComponentRequest({ ...values, requesterUid: userProfile.uid });
+      // We are omitting jiraIssue from the payload for now as it's not in the server action type.
+      const { jiraIssue, ...payload } = values;
+      const result = await submitComponentRequest({ ...payload, requesterUid: userProfile.uid });
       setIsLoading(false);
   
       if (result.success) {
         toast({ title: "Solicitud Creada", description: "Tu solicitud de componente ha sido enviada." });
+        if (jiraIssue) {
+            toast({ title: "Info Jira", description: `Se ha anotado el ticket: ${jiraIssue}`});
+        }
         onOpenChange(false);
         form.reset();
       } else {
@@ -118,21 +124,19 @@ function NewRequestDialog({ open, onOpenChange }: { open: boolean, onOpenChange:
                   <FormMessage />
                 </FormItem>
               )} />
-                <FormField
+              <FormField
                 control={form.control}
-                name="addToJira"
+                name="jiraIssue"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-2">
-                    <div className="space-y-0.5">
-                      <FormLabel>Agregar a Jira</FormLabel>
+                  <FormItem>
+                      <FormLabel>Ticket de Jira (Opcional)</FormLabel>
+                      <div className="flex gap-2">
+                        <FormControl>
+                            <Input placeholder="Ej: DS-123" {...field} />
+                        </FormControl>
+                        <Button type="button" variant="secondary">Agregar</Button>
+                      </div>
                       <FormMessage />
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
                   </FormItem>
                 )}
               />
