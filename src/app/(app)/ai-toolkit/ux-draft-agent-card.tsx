@@ -20,8 +20,29 @@ export function UXDraftAgentCard() {
   const handleGenerate = () => {
     setOutput(JSON.stringify(
       {
-        "flows":[{"nombre":"Flujo de compra","pasos":[{"id":"paso-1","titulo":"Ver producto"},{"id":"paso-2","titulo":"Añadir al carrito"}]}],
-        "microcopy":[{"componente":"Button","texto":"Comprar Ahora","tono":"Directo","criteriosAceptacion":"El botón es claramente visible"}],
+        "userJourneys": [
+          {
+            "persona": "Usuario nuevo",
+            "journeyName": "Primer contacto y registro",
+            "steps": ["Descubre el producto", "Visita la página de inicio", "Se registra para una prueba gratuita"]
+          }
+        ],
+        "casosDeUso": [
+          {
+            "id": "CU-01",
+            "nombre": "Registro de cuenta",
+            "actor": "Usuario nuevo",
+            "descripcion": "El usuario completa el formulario de registro para crear una nueva cuenta."
+          }
+        ],
+        "experienceMap": {
+          "stages": ["Descubrimiento", "Consideración", "Decisión"],
+          "touchpoints": {
+            "Descubrimiento": ["Publicidad en redes", "Búsqueda orgánica"],
+            "Consideración": ["Lectura de blog", "Comparación de precios"],
+            "Decisión": ["Página de checkout", "Correo de confirmación"]
+          }
+        }
       }, null, 2)
     );
   };
