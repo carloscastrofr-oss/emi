@@ -18,6 +18,8 @@ import { UXDraftAgentCard } from '../ai-toolkit/ux-draft-agent-card';
 
 const formSchema = z.object({
   topic: z.string().min(1, 'El tópico es requerido.'),
+  userType: z.string().min(1, 'El tipo de usuario es requerido.'),
+  clientType: z.string().min(1, 'El tipo de cliente es requerido.'),
   city: z.string().min(1, 'La ciudad es requerida.'),
   language: z.string().min(1, 'El idioma es requerido.'),
   tone: z.string().min(1, 'El tono es requerido.'),
@@ -32,7 +34,9 @@ export default function AIWritingPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      topic: 'Café de especialidad',
+      topic: 'Créditos hipotecarios para jóvenes',
+      userType: 'Joven profesional',
+      clientType: 'Cliente nuevo',
       city: 'Ciudad de México',
       language: 'Español',
       tone: 'Amigable',
@@ -46,13 +50,13 @@ export default function AIWritingPage() {
     try {
       // Mocking the API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      const mockResult = `### El Rincón del Café: Tu Oasis en CDMX
+      const mockResult = `### Tu Futuro Hogar Comienza Hoy
 
-En el corazón de la Ciudad de México, te espera un refugio para los amantes del buen café. Sumérgete en el aroma de granos recién tostados y déjate llevar por una experiencia sensorial única. Nuestro café de especialidad no es solo una bebida, es un momento de pausa, un deleite para el paladar y el alma.
+Sabemos que dar el primer paso para comprar tu casa es una gran decisión. En [Nombre del Banco], queremos que ese paso sea firme y seguro. Descubre nuestros créditos hipotecarios diseñados especialmente para jóvenes profesionales como tú, con tasas preferenciales y un proceso claro y sin complicaciones. Tu futuro te espera, y estamos aquí para abrirte la puerta.
 
-### ¿Por Qué Nos Eligen los Chilangos?
+### ¿Por Qué un Crédito Hipotecario con Nosotros?
 
-Porque entendemos tu pasión. Cada taza que servimos es el resultado de un cuidadoso proceso, desde la selección de granos de fincas locales hasta el tueste artesanal que resalta sus notas más exquisitas. Ven con tus amigos, a una junta de trabajo o simplemente a disfrutar de un buen libro. ¡Te sentirás como en casa!`;
+Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu carrera en crecimiento, con asesoría personalizada para que tomes la mejor decisión financiera. Olvídate del papeleo interminable y de los términos que nadie entiende. Con nosotros, el camino a tu nuevo hogar es más fácil de lo que imaginas.`;
       setGeneratedContent(mockResult);
       toast({
         title: "Contenido Generado",
@@ -71,9 +75,9 @@ Porque entendemos tu pasión. Cada taza que servimos es el resultado de un cuida
   }
 
   const userInsights = [
-      "Los usuarios de CDMX responden bien a un tono casual que use jerga local como 'chilangos'.",
-      "El concepto 'hecho en México' o 'producto local' genera alta confianza y preferencia de compra.",
-      "Las publicaciones que invitan a un espacio físico para trabajar o socializar ('café-oficina') tienen un alto engagement.",
+      "Los usuarios jóvenes valoran la transparencia y un lenguaje claro, evitando la jerga financiera compleja.",
+      "La percepción de 'proceso complicado' es la principal barrera para solicitar un crédito hipotecario en este segmento.",
+      "Los clientes nuevos responden positivamente a ofertas que demuestran que el banco entiende su etapa de vida (ej. primer empleo, matrimonio).",
   ];
 
   return (
@@ -96,6 +100,32 @@ Porque entendemos tu pasión. Cada taza que servimos es el resultado de un cuida
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Tópico</FormLabel>
+                          <FormControl>
+                            <Input className="bg-background/80" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control}
+                      name="userType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tipo de usuario</FormLabel>
+                          <FormControl>
+                            <Input className="bg-background/80" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="clientType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tipo de cliente</FormLabel>
                           <FormControl>
                             <Input className="bg-background/80" {...field} />
                           </FormControl>
@@ -243,5 +273,7 @@ Porque entendemos tu pasión. Cada taza que servimos es el resultado de un cuida
     </div>
   );
 }
+
+    
 
     
