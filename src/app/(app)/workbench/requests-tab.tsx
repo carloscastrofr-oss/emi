@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 
 import type { ComponentRequest, RequestStatus, RequestPriority } from "@/types/component-request";
 import { requestPriorities } from "@/types/component-request";
@@ -35,6 +36,7 @@ const newRequestSchema = z.object({
   description: z.string().min(10, "La descripción debe tener al menos 10 caracteres."),
   priority: z.enum(requestPriorities, { required_error: "La prioridad es requerida." }),
   figmaFileUrl: z.string().url("Debe ser una URL de Figma válida.").optional().or(z.literal('')),
+  addToJira: z.boolean().default(false).optional(),
 });
 
 
@@ -50,6 +52,7 @@ function NewRequestDialog({ open, onOpenChange }: { open: boolean, onOpenChange:
         description: "",
         priority: "Media",
         figmaFileUrl: "",
+        addToJira: false,
       },
     });
   
@@ -115,6 +118,24 @@ function NewRequestDialog({ open, onOpenChange }: { open: boolean, onOpenChange:
                   <FormMessage />
                 </FormItem>
               )} />
+                <FormField
+                control={form.control}
+                name="addToJira"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-2">
+                    <div className="space-y-0.5">
+                      <FormLabel>Agregar a Jira</FormLabel>
+                      <FormMessage />
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
               <DialogFooter>
                 <Button type="submit" disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
