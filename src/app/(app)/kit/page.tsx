@@ -11,7 +11,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Github, FileText, SwatchBook, Package, Palette, ShoppingCart, ArrowRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Github, FileText, SwatchBook, Package, Palette, ShoppingCart, ArrowRight, Search } from "lucide-react";
 import { RequireRole } from "@/components/auth/require-role";
 
 
@@ -61,6 +62,14 @@ export default function KitPage({
         title="Kit"
         description="Descarga kits de inicio para arrancar tus proyectos."
       />
+      <div className="relative mb-8">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+        <Input
+          type="search"
+          placeholder="Busca en los kits con IA..."
+          className="w-full rounded-full bg-background/50 pl-12 pr-4 py-6 text-base"
+        />
+      </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {kits.map((kit) => (
             <motion.div
