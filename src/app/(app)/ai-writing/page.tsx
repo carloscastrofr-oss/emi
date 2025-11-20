@@ -14,7 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Loader2, Sparkles, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { UXDraftAgentCard } from '../ai-toolkit/ux-draft-agent-card';
 
 const formSchema = z.object({
   topic: z.string().min(1, 'El tópico es requerido.'),
@@ -243,14 +242,6 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
                 </Card>
             </motion.div>
           )}
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <UXDraftAgentCard />
-          </motion.div>
         </div>
 
         <div className="lg:col-span-1">
@@ -273,7 +264,3 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
     </div>
   );
 }
-
-    
-
-    

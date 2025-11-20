@@ -20,6 +20,7 @@ import {
   ShieldAlert,
   Sparkles,
   PenSquare,
+  Workflow,
 } from "lucide-react";
 
 import {
@@ -54,6 +55,7 @@ const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Panel", roles: ["viewer", "producer", "core", "admin"], className: "dashboard-page-link" },
   { href: "/kit", icon: Package, label: "Kit", roles: ["viewer", "producer", "core", "admin"], className: "kit-page-link" },
   { href: "/ai-writing", icon: PenSquare, label: "AI Writing", roles: ["producer", "core", "admin"], className: "content-page-link" },
+  { href: "/ai-flow", icon: Workflow, label: "AI Flow", roles: ["producer", "core", "admin"], className: "ai-flow-page-link" },
   { href: "/workbench", icon: KanbanSquare, label: "Workbench", roles: ["producer", "core", "admin"], className: "workbench-page-link" },
   { href: "/observer", icon: View, label: "Observer", roles: ["core", "admin"], className: "observer-page-link" },
   { href: "/risk", icon: ShieldAlert, label: "Riesgos", roles: ["core", "admin"], className: "risk-page-link" },
