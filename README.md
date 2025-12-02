@@ -176,6 +176,60 @@ Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
 ---
 
+## 📝 Convenciones de Commits
+
+Este proyecto sigue [Conventional Commits](https://www.conventionalcommits.org/) para mantener un historial limpio y facilitar el versionado semántico.
+
+> ⚡ **Validación automática:** Los commits son validados automáticamente con [Husky](https://typicode.github.io/husky/) + [commitlint](https://commitlint.js.org/). Commits que no sigan el formato serán rechazados.
+
+### Formato
+
+```
+<tipo>: <descripción>
+```
+
+### Tipos de Commit
+
+| Tipo | Descripción | Ejemplo |
+|------|-------------|---------|
+| `feat` | Nueva funcionalidad | `feat: add drag and drop file upload` |
+| `fix` | Corrección de bug | `fix: resolve token expiration issue` |
+| `docs` | Cambios en documentación | `docs: update installation steps` |
+| `style` | Formato, espacios (sin cambios de lógica) | `style: fix button indentation` |
+| `refactor` | Refactorización sin cambiar funcionalidad | `refactor: simplify error handling` |
+| `perf` | Mejoras de rendimiento | `perf: optimize search query with index` |
+| `test` | Agregar o corregir tests | `test: add task filter tests` |
+| `build` | Cambios en build o dependencias | `build: upgrade next.js to 15.1` |
+| `ci` | Configuración de CI/CD | `ci: add deploy workflow` |
+| `chore` | Mantenimiento general | `chore: update seed data script` |
+
+### Ejemplos
+
+```bash
+# Feature nuevo
+feat: add tone selection dropdown
+
+# Bug fix con referencia a issue
+fix: prevent duplicate task submissions
+
+Closes #123
+
+# Breaking change
+feat!: change auth endpoint response format
+
+BREAKING CHANGE: /api/auth/login now returns different structure
+```
+
+### Reglas
+
+- ✅ Usar imperativo: `add feature` no `added feature`
+- ✅ Primera letra minúscula en descripción
+- ✅ Sin punto final
+- ✅ Máximo 72 caracteres en primera línea
+- ❌ No usar: `wip`, `misc`, `update`, `changes`
+
+---
+
 ## 👥 Roles de Usuario
 
 | Rol | Permisos |
