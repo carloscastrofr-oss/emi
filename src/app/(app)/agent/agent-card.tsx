@@ -41,9 +41,11 @@ export function AgentCard({
 
   const defaultValues = formFields.reduce(
     (acc, field) => {
-      if (initialValues && initialValues[field.name]) {
-        acc[field.name] = initialValues[field.name];
-      } else if (field.name === formFields[0].name) {
+      const initialValue = initialValues?.[field.name];
+      const firstFieldName = formFields[0]?.name;
+      if (initialValue) {
+        acc[field.name] = initialValue;
+      } else if (firstFieldName && field.name === firstFieldName) {
         acc[field.name] = placeholder || "";
       } else {
         acc[field.name] = "";

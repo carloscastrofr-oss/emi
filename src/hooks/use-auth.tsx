@@ -105,6 +105,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(null);
         setUserProfile(null);
         setLoading(false);
+        return;
       }
     });
 

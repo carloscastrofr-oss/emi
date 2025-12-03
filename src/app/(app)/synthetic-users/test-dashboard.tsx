@@ -57,7 +57,7 @@ export function TestDashboard({ onLaunchTest }: TestDashboardProps) {
           </div>
         </div>
         <div className="pt-4">
-          <Select defaultValue={mockTests[0].id}>
+          <Select defaultValue={mockTests[0]?.id}>
             <SelectTrigger className="w-full md:w-[320px]">
               <SelectValue placeholder="Selecciona un test..." />
             </SelectTrigger>

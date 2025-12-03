@@ -171,7 +171,7 @@ export function PanelBuilder() {
                       variant="secondary"
                       className="text-sm py-1 pl-3 pr-2 bg-primary-container text-on-primary-container hover:bg-primary-container/80"
                     >
-                      {segmentFields[index].value}
+                      {field.value}
                       <button
                         type="button"
                         onClick={() => removeSegment(index)}

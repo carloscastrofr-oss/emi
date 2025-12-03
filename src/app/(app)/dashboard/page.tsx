@@ -114,7 +114,7 @@ const kpiConfig = [
 function DashboardClientContent() {
   const [activeBrand, setActiveBrand] = useState("ds-core");
 
-  const activeBrandData = mockBrands.find((b) => b.id === activeBrand) || mockBrands[0];
+  const activeBrandData = mockBrands.find((b) => b.id === activeBrand) ?? mockBrands[0]!;
   const metrics = (mockMetrics as any)[activeBrand];
   const chartData = (mockChartData as any)[activeBrand];
 

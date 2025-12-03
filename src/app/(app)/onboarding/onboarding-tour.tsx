@@ -17,9 +17,9 @@ export function OnboardingTour({ run, setRun }: OnboardingTourProps) {
   const tourSteps = React.useMemo(() => {
     const role = userProfile?.role || "viewer";
     const tourConfig =
-      ONBOARDING_TOURS.find((t) => t.role === role) ||
+      ONBOARDING_TOURS.find((t) => t.role === role) ??
       ONBOARDING_TOURS[ONBOARDING_TOURS.length - 1];
-    return tourConfig.steps.map((s) => ({ ...s, disableBeacon: true }));
+    return tourConfig?.steps.map((s) => ({ ...s, disableBeacon: true })) ?? [];
   }, [userProfile?.role]);
 
   const handleJoyrideCallback = async (data: CallBackProps) => {

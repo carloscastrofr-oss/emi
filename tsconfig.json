@@ -1,27 +1,52 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
+    // Target & Library
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "ESNext"],
+
+    // Module System (Next.js specific)
     "module": "esnext",
     "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
     "jsx": "preserve",
+    "noEmit": true,
+    "isolatedModules": true,
+
+    // Interoperability
+    "allowJs": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+
+    // Strict Type-Checking (from backend team rules)
+    "strict": true,
+    // strict: true enables: alwaysStrict, strictNullChecks, strictFunctionTypes,
+    // strictBindCallApply, strictPropertyInitialization, noImplicitAny, noImplicitThis, useUnknownInCatchVariables
+
+    // Additional Type-Checking (from backend team rules)
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUncheckedIndexedAccess": true, // Arrays/objects indexing returns T | undefined
+
+    // Unused Variables - delegated to ESLint as per backend team convention
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+
+    // Performance & Build
     "incremental": true,
+    "skipLibCheck": true,
+
+    // Next.js Plugin
     "plugins": [
       {
         "name": "next"
       }
     ],
+
+    // Path Aliases
     "paths": {
       "@/*": ["./src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", ".next", "build", "coverage"]
 }
