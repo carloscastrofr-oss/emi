@@ -68,17 +68,17 @@
 
 ### 1.2 Objetivos de Negocio
 
-* [Objetivo 1 de negocio]
-* [Objetivo 2 de negocio]
-* [Objetivo 3 de negocio]
+- [Objetivo 1 de negocio]
+- [Objetivo 2 de negocio]
+- [Objetivo 3 de negocio]
 
 > Tip: Usar verbos de impacto (acelerar, reducir, escalar, mejorar, automatizar) y, cuando sea posible, cuantificar (porcentaje, tiempos, costos).
 
 ### 1.3 Usuarios Target
 
-* [Rol principal #1]: [Qué hace con el producto]
-* [Rol principal #2]: [Qué hace con el producto]
-* [Otros roles relevantes]
+- [Rol principal #1]: [Qué hace con el producto]
+- [Rol principal #2]: [Qué hace con el producto]
+- [Otros roles relevantes]
 
 ---
 
@@ -86,17 +86,17 @@
 
 ### 2.1 Problema Actual
 
-* [Dolor / ineficiencia #1]
-* [Dolor / ineficiencia #2]
-* [Dolor / ineficiencia #3]
+- [Dolor / ineficiencia #1]
+- [Dolor / ineficiencia #2]
+- [Dolor / ineficiencia #3]
 
 > Tip: Enfocarse en tiempos, costos, riesgos, fricción operativa o de experiencia de usuario.
 
 ### 2.2 Oportunidad
 
-* [Factor tecnológico / de mercado #1]
-* [Beneficio potencial #2]
-* [Reducción de costos / aumento de velocidad / escalabilidad]
+- [Factor tecnológico / de mercado #1]
+- [Beneficio potencial #2]
+- [Reducción de costos / aumento de velocidad / escalabilidad]
 
 ---
 
@@ -106,12 +106,12 @@
 
 ✅ [Bloque funcional 1]
 
-* [Punto concreto de funcionalidad]
-* [Punto concreto de funcionalidad]
+- [Punto concreto de funcionalidad]
+- [Punto concreto de funcionalidad]
 
 ✅ [Bloque funcional 2]
 
-* [Punto concreto de funcionalidad]
+- [Punto concreto de funcionalidad]
 
 > Incluir únicamente lo que razonablemente se puede entregar en el MVP.
 
@@ -135,9 +135,9 @@
 **Descripción:** [Descripción breve y clara de lo que hace este requisito.]
 **Criterios de Aceptación:**
 
-* [Criterio 1]
-* [Criterio 2]
-* [Criterio 3]
+- [Criterio 1]
+- [Criterio 2]
+- [Criterio 3]
   **Prioridad:** [Alta / Media / Baja]
   **Complejidad:** [Baja / Media / Alta]
 
@@ -145,7 +145,7 @@
 **Descripción:** [...]
 **Criterios de Aceptación:**
 
-* [...]
+- [...]
   **Prioridad:** [...]
   **Complejidad:** [...]
 
@@ -155,7 +155,7 @@
 **Descripción:** [...]
 **Criterios de Aceptación:**
 
-* [...]
+- [...]
   **Prioridad:** [...]
   **Complejidad:** [...]
 
@@ -167,29 +167,29 @@
 
 ### 5.1 Performance
 
-* [Tiempo máximo aceptable para operaciones clave]
-* [Tiempos de carga de pantallas críticas]
+- [Tiempo máximo aceptable para operaciones clave]
+- [Tiempos de carga de pantallas críticas]
 
 ### 5.2 Escalabilidad
 
-* [Límites aproximados de uso por unidad (usuario / instancia / cliente)]
-* [Escenarios de uso concurrente]
+- [Límites aproximados de uso por unidad (usuario / instancia / cliente)]
+- [Escenarios de uso concurrente]
 
 ### 5.3 Calidad
 
-* [Resolución mínima / exactitud / consistencia esperada]
-* [Porcentaje de resultados relevantes / aprobados]
+- [Resolución mínima / exactitud / consistencia esperada]
+- [Porcentaje de resultados relevantes / aprobados]
 
 ### 5.4 Seguridad
 
-* [Autenticación y autorización]
-* [Privacidad de datos y accesos]
-* [Manejo de enlaces públicos / temporales]
+- [Autenticación y autorización]
+- [Privacidad de datos y accesos]
+- [Manejo de enlaces públicos / temporales]
 
 ### 5.5 Usabilidad
 
-* [Nivel de simplicidad de la UI]
-* [Requerimientos de feedback visual y manejo de errores]
+- [Nivel de simplicidad de la UI]
+- [Requerimientos de feedback visual y manejo de errores]
 
 > Si algún aspecto aún no está definido, escribir explícitamente: "Aún no se han definido requisitos no funcionales para [tema]".
 
@@ -199,17 +199,17 @@
 
 ### 6.1 Stack Tecnológico
 
-* Frontend: [Framework + versión]
-* Backend: [Plataforma / servicios]
-* IA: [Modelo(s) de IA usados]
-* Otros: [Procesamiento de documentos, librerías, etc.]
+- Frontend: [Framework + versión]
+- Backend: [Plataforma / servicios]
+- IA: [Modelo(s) de IA usados]
+- Otros: [Procesamiento de documentos, librerías, etc.]
 
 ### 6.2 Flujos de IA
 
 Ruta de código sugerida: `src/ai/flows/`
 
-* `[nombre-del-flow-principal].ts`: [Descripción breve del flow]
-* [Otros flows si aplican]
+- `[nombre-del-flow-principal].ts`: [Descripción breve del flow]
+- [Otros flows si aplican]
 
 ### 6.3 Estructura de Datos
 
@@ -244,10 +244,10 @@ Ruta de código sugerida: `src/ai/flows/`
 
 > Incluir aquí un ejemplo de metaprompt o estructura de prompt que combine:
 >
-> * Prompt del usuario
-> * Contexto de negocio / marca
-> * Instrucciones de estilo
-> * Reglas de calidad y restricciones
+> - Prompt del usuario
+> - Contexto de negocio / marca
+> - Instrucciones de estilo
+> - Reglas de calidad y restricciones
 
 ```txt
 [Describir aquí la plantilla de metaprompt que utilizará el agente]
@@ -266,8 +266,8 @@ Ruta de código sugerida: `src/ai/flows/`
 
 ### 7.2 Flujos Secundarios (opcional)
 
-* [Flujo de gestión de recursos]
-* [Flujo de consulta / reporting]
+- [Flujo de gestión de recursos]
+- [Flujo de consulta / reporting]
 
 ---
 
@@ -275,22 +275,22 @@ Ruta de código sugerida: `src/ai/flows/`
 
 ### 8.1 KPIs de Producto
 
-* [Métrica de adopción]
-* [Métrica de satisfacción]
-* [Métrica de calidad percibida]
+- [Métrica de adopción]
+- [Métrica de satisfacción]
+- [Métrica de calidad percibida]
 
 ### 8.2 KPIs Técnicos
 
-* [Uptime]
-* [Latencia]
-* [Error rate]
-* [Costo por operación/unidad]
+- [Uptime]
+- [Latencia]
+- [Error rate]
+- [Costo por operación/unidad]
 
 ### 8.3 KPIs de Negocio
 
-* [Ahorro de costos]
-* [Incremento de velocidad o throughput]
-* [Retorno de inversión estimado]
+- [Ahorro de costos]
+- [Incremento de velocidad o throughput]
+- [Retorno de inversión estimado]
 
 > Si aún no se cuentan con KPIs claros, dejar explícito: "Las métricas de éxito aún no se han definido; se establecerán en conjunto con negocio y tecnología".
 
@@ -300,18 +300,18 @@ Ruta de código sugerida: `src/ai/flows/`
 
 **Fase 1: MVP ([Trimestre / Fecha])**
 
-* [Feature / entregable #1]
-* [Feature / entregable #2]
+- [Feature / entregable #1]
+- [Feature / entregable #2]
 
 **Fase 2: Mejoras ([Trimestre / Fecha])**
 
-* [Mejora 1]
-* [Mejora 2]
+- [Mejora 1]
+- [Mejora 2]
 
 **Fase 3: Avanzado ([Trimestre / Fecha])**
 
-* [Funcionalidad avanzada 1]
-* [Integraciones / automatizaciones]
+- [Funcionalidad avanzada 1]
+- [Integraciones / automatizaciones]
 
 > Si no hay roadmap aún, indicarlo: "El roadmap detallado aún no se ha definido".
 
@@ -332,11 +332,11 @@ Ruta de código sugerida: `src/ai/flows/`
 
 ### 11.1 Externas
 
-* [APIs, vendors, servicios cloud, modelos de IA, etc.]
+- [APIs, vendors, servicios cloud, modelos de IA, etc.]
 
 ### 11.2 Internas
 
-* [Otros equipos / sistemas / módulos de la organización]
+- [Otros equipos / sistemas / módulos de la organización]
 
 ---
 

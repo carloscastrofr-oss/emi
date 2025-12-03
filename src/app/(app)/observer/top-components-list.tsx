@@ -1,5 +1,4 @@
-
-'use client';
+"use client";
 
 import {
   Table,
@@ -33,8 +32,8 @@ export function TopComponentsList() {
           <TableRow key={component.name}>
             <TableCell className="font-medium">{component.name}</TableCell>
             <TableCell className="flex items-center gap-4 justify-end">
-                <span className="text-muted-foreground w-8">{component.usage}%</span>
-                <Progress value={component.usage} className="h-2 flex-1" />
+              <span className="text-muted-foreground w-8">{component.usage}%</span>
+              <Progress value={component.usage} className="h-2 flex-1" />
             </TableCell>
           </TableRow>
         ))}

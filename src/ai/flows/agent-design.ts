@@ -1,4 +1,4 @@
-'use server';
+"use server";
 /**
  * @fileOverview AI-powered design agent.
  * - agentDesign - Analyzes design properties and suggests improvements.
@@ -6,39 +6,45 @@
  * - AgentDesignOutput - The return type for the agentDesign function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { ai } from "@/ai/genkit";
+import { z } from "genkit";
 
 const AgentDesignInputSchema = z.object({
   componentUsage: z
     .string()
-    .describe('JSON data representing component usage, including token values, visual properties, and accessibility metrics.'),
+    .describe(
+      "JSON data representing component usage, including token values, visual properties, and accessibility metrics."
+    ),
 });
 export type AgentDesignInput = z.infer<typeof AgentDesignInputSchema>;
 
 const AgentDesignOutputSchema = z.object({
-  componentId: z.string().describe('The ID of the component being analyzed.'),
-  contrastScore: z.string().describe('The calculated contrast score of the component.'),
-  designTokenSuggestions: z.object({
-    colors: z.array(z.string()).describe('Suggested new color tokens.'),
-    spacing: z.array(z.string()).describe('Suggested new spacing tokens.'),
-    typography: z.array(z.string()).describe('Suggested new typography tokens.'),
-  }).describe('Suggestions for updating design tokens.'),
-  layoutImprovements: z.string().describe('Suggestions for layout or responsiveness improvements.'),
-  figmaPrompt: z.string().describe('A prompt for Figma to generate an improved component variant.'),
+  componentId: z.string().describe("The ID of the component being analyzed."),
+  contrastScore: z.string().describe("The calculated contrast score of the component."),
+  designTokenSuggestions: z
+    .object({
+      colors: z.array(z.string()).describe("Suggested new color tokens."),
+      spacing: z.array(z.string()).describe("Suggested new spacing tokens."),
+      typography: z.array(z.string()).describe("Suggested new typography tokens."),
+    })
+    .describe("Suggestions for updating design tokens."),
+  layoutImprovements: z.string().describe("Suggestions for layout or responsiveness improvements."),
+  figmaPrompt: z.string().describe("A prompt for Figma to generate an improved component variant."),
 });
 export type AgentDesignOutput = z.infer<typeof AgentDesignOutputSchema>;
 
-const agentDesignFlow = ai.defineFlow({
-    name: 'agentDesignFlow',
+const agentDesignFlow = ai.defineFlow(
+  {
+    name: "agentDesignFlow",
     inputSchema: AgentDesignInputSchema,
     outputSchema: AgentDesignOutputSchema,
-}, async (input) => {
+  },
+  async (input) => {
     const prompt = ai.definePrompt({
-        name: 'agentDesignPrompt',
-        input: {schema: AgentDesignInputSchema},
-        output: {schema: AgentDesignOutputSchema},
-        prompt: `You are a design systems expert AI agent. Analyze the provided component usage data.
+      name: "agentDesignPrompt",
+      input: { schema: AgentDesignInputSchema },
+      output: { schema: AgentDesignOutputSchema },
+      prompt: `You are a design systems expert AI agent. Analyze the provided component usage data.
 
         Component Usage Data:
         \`\`\`json
@@ -56,13 +62,14 @@ const agentDesignFlow = ai.defineFlow({
         Provide the output in the specified JSON format.`,
     });
 
-    const {output} = await prompt(input);
+    const { output } = await prompt(input);
     if (!output) {
-        throw new Error("Agent did not produce an output.");
+      throw new Error("Agent did not produce an output.");
     }
-    
+
     return output;
-});
+  }
+);
 
 export async function agentDesign(input: AgentDesignInput): Promise<AgentDesignOutput> {
   return agentDesignFlow(input);

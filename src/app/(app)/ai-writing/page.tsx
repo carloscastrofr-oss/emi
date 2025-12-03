@@ -1,54 +1,66 @@
+"use client";
 
-'use client';
-
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { PageHeader } from '@/components/page-header';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Sparkles, MessageSquare } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { motion } from 'framer-motion';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { PageHeader } from "@/components/page-header";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Loader2, Sparkles, MessageSquare } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 
 const formSchema = z.object({
-  topic: z.string().min(1, 'El tópico es requerido.'),
-  userType: z.string().min(1, 'El tipo de usuario es requerido.'),
-  clientType: z.string().min(1, 'El tipo de cliente es requerido.'),
-  city: z.string().min(1, 'La ciudad es requerida.'),
-  language: z.string().min(1, 'El idioma es requerido.'),
-  tone: z.string().min(1, 'El tono es requerido.'),
-  blocks: z.string().min(1, 'El número de bloques es requerido.'),
+  topic: z.string().min(1, "El tópico es requerido."),
+  userType: z.string().min(1, "El tipo de usuario es requerido."),
+  clientType: z.string().min(1, "El tipo de cliente es requerido."),
+  city: z.string().min(1, "La ciudad es requerida."),
+  language: z.string().min(1, "El idioma es requerido."),
+  tone: z.string().min(1, "El tono es requerido."),
+  blocks: z.string().min(1, "El número de bloques es requerido."),
 });
 
 export default function AIWritingPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [generatedContent, setGeneratedContent] = useState('');
+  const [generatedContent, setGeneratedContent] = useState("");
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      topic: 'Créditos hipotecarios para jóvenes',
-      userType: 'Joven profesional',
-      clientType: 'Cliente nuevo',
-      city: 'Ciudad de México',
-      language: 'Español',
-      tone: 'Amigable',
-      blocks: '2',
+      topic: "Créditos hipotecarios para jóvenes",
+      userType: "Joven profesional",
+      clientType: "Cliente nuevo",
+      city: "Ciudad de México",
+      language: "Español",
+      tone: "Amigable",
+      blocks: "2",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    setGeneratedContent('');
+    setGeneratedContent("");
     try {
       // Mocking the API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       const mockResult = `### Tu Futuro Hogar Comienza Hoy
 
 Sabemos que dar el primer paso para comprar tu casa es una gran decisión. En [Nombre del Banco], queremos que ese paso sea firme y seguro. Descubre nuestros créditos hipotecarios diseñados especialmente para jóvenes profesionales como tú, con tasas preferenciales y un proceso claro y sin complicaciones. Tu futuro te espera, y estamos aquí para abrirte la puerta.
@@ -60,13 +72,13 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
       toast({
         title: "Contenido Generado",
         description: "El Agente de Contenido ha completado su tarea.",
-      })
+      });
     } catch (error) {
       console.error(error);
       toast({
-        title: 'Error',
-        description: 'No se pudo generar el contenido. Por favor, inténtalo de nuevo.',
-        variant: 'destructive',
+        title: "Error",
+        description: "No se pudo generar el contenido. Por favor, inténtalo de nuevo.",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -74,9 +86,9 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
   }
 
   const userInsights = [
-      "Los usuarios jóvenes valoran la transparencia y un lenguaje claro, evitando la jerga financiera compleja.",
-      "La percepción de 'proceso complicado' es la principal barrera para solicitar un crédito hipotecario en este segmento.",
-      "Los clientes nuevos responden positivamente a ofertas que demuestran que el banco entiende su etapa de vida (ej. primer empleo, matrimonio).",
+    "Los usuarios jóvenes valoran la transparencia y un lenguaje claro, evitando la jerga financiera compleja.",
+    "La percepción de 'proceso complicado' es la principal barrera para solicitar un crédito hipotecario en este segmento.",
+    "Los clientes nuevos responden positivamente a ofertas que demuestran que el banco entiende su etapa de vida (ej. primer empleo, matrimonio).",
   ];
 
   return (
@@ -106,7 +118,7 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
                         </FormItem>
                       )}
                     />
-                     <FormField
+                    <FormField
                       control={form.control}
                       name="userType"
                       render={({ field }) => (
@@ -141,7 +153,7 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
                           <FormControl>
                             <Input className="bg-background/80" {...field} />
                           </FormControl>
-                           <FormMessage />
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -156,7 +168,7 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
                           <FormControl>
                             <Input className="bg-background/80" {...field} />
                           </FormControl>
-                           <FormMessage />
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -179,7 +191,7 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
                               <SelectItem value="Formal">Formal</SelectItem>
                             </SelectContent>
                           </Select>
-                           <FormMessage />
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -202,7 +214,7 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
                               <SelectItem value="4">4</SelectItem>
                             </SelectContent>
                           </Select>
-                           <FormMessage />
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -222,24 +234,28 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
 
           {generatedContent && (
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
             >
-                <Card className="rounded-expressive">
+              <Card className="rounded-expressive">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2">
                     <Sparkles className="text-primary h-5 w-5" />
                     Contenido Generado
-                    </CardTitle>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div
+                  <div
                     className="prose prose-sm dark:prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{ __html: generatedContent.replace(/### (.*?)\n/g, '<h3>$1</h3>').replace(/\n/g, '<br />') }}
-                    />
+                    dangerouslySetInnerHTML={{
+                      __html: generatedContent
+                        .replace(/### (.*?)\n/g, "<h3>$1</h3>")
+                        .replace(/\n/g, "<br />"),
+                    }}
+                  />
                 </CardContent>
-                </Card>
+              </Card>
             </motion.div>
           )}
         </div>

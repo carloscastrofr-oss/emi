@@ -1,8 +1,8 @@
 "use client";
 
-import { useAuth, UserRole } from '@/hooks/use-auth';
-import { ReactNode } from 'react';
-import { Skeleton } from '../ui/skeleton';
+import { useAuth, UserRole } from "@/hooks/use-auth";
+import { ReactNode } from "react";
+import { Skeleton } from "../ui/skeleton";
 
 interface RequireRoleProps {
   children: ReactNode;
@@ -11,7 +11,12 @@ interface RequireRoleProps {
   showIsBlocked?: boolean;
 }
 
-export function RequireRole({ children, roles, fallback = null, showIsBlocked = false }: RequireRoleProps) {
+export function RequireRole({
+  children,
+  roles,
+  fallback = null,
+  showIsBlocked = false,
+}: RequireRoleProps) {
   const { userProfile, loading } = useAuth();
 
   if (loading) {
@@ -22,11 +27,7 @@ export function RequireRole({ children, roles, fallback = null, showIsBlocked = 
 
   if (!hasAccess) {
     if (showIsBlocked) {
-        return (
-            <div className="opacity-50 cursor-not-allowed">
-                {children}
-            </div>
-        )
+      return <div className="opacity-50 cursor-not-allowed">{children}</div>;
     }
     return fallback;
   }

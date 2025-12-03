@@ -5,10 +5,30 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, PlusCircle } from "lucide-react";
 import { createABTest } from "./actions";
@@ -24,7 +44,13 @@ const formSchema = z.object({
   // startDate and endDate could be added here with a DatePicker
 });
 
-export function CreateABTestDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
+export function CreateABTestDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   const { toast } = useToast();
   const { userProfile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +68,11 @@ export function CreateABTestDialog({ open, onOpenChange }: { open: boolean, onOp
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!userProfile) {
-      toast({ title: "Error", description: "Debes iniciar sesión para crear un experimento.", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Debes iniciar sesión para crear un experimento.",
+        variant: "destructive",
+      });
       return;
     }
     setIsLoading(true);
@@ -69,62 +99,100 @@ export function CreateABTestDialog({ open, onOpenChange }: { open: boolean, onOp
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 py-4">
-            <FormField control={form.control} name="name" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre del Experimento</FormLabel>
-                <FormControl><Input placeholder="Ej: Color del CTA en Checkout" {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nombre del Experimento</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ej: Color del CTA en Checkout" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="type" render={({ field }) => (
-                <FormItem>
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
                     <FormLabel>Tipo</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                        <SelectContent>
-                            <SelectItem value="screen">Pantalla</SelectItem>
-                            <SelectItem value="component">Componente</SelectItem>
-                        </SelectContent>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="screen">Pantalla</SelectItem>
+                        <SelectItem value="component">Componente</SelectItem>
+                      </SelectContent>
                     </Select>
                     <FormMessage />
-                </FormItem>
-                )} />
-                <FormField control={form.control} name="kpi" render={({ field }) => (
-                <FormItem>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="kpi"
+                render={({ field }) => (
+                  <FormItem>
                     <FormLabel>KPI</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                        <SelectContent>
-                            <SelectItem value="click-thru">Click-Through Rate</SelectItem>
-                            <SelectItem value="task-success">Task Success</SelectItem>
-                            <SelectItem value="time-on-task">Time on Task</SelectItem>
-                        </SelectContent>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="click-thru">Click-Through Rate</SelectItem>
+                        <SelectItem value="task-success">Task Success</SelectItem>
+                        <SelectItem value="time-on-task">Time on Task</SelectItem>
+                      </SelectContent>
                     </Select>
                     <FormMessage />
-                </FormItem>
-                )} />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            <FormField control={form.control} name="aId" render={({ field }) => (
+            <FormField
+              control={form.control}
+              name="aId"
+              render={({ field }) => (
                 <FormItem>
-                <FormLabel>ID Variante A</FormLabel>
-                <FormControl><Input placeholder="Ej: /checkout-v1 o button-primary" {...field} /></FormControl>
-                <FormMessage />
+                  <FormLabel>ID Variante A</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ej: /checkout-v1 o button-primary" {...field} />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
-            )} />
-            <FormField control={form.control} name="bId" render={({ field }) => (
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="bId"
+              render={({ field }) => (
                 <FormItem>
-                <FormLabel>ID Variante B</FormLabel>
-                <FormControl><Input placeholder="Ej: /checkout-v2 o button-secondary" {...field} /></FormControl>
-                <FormMessage />
+                  <FormLabel>ID Variante B</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ej: /checkout-v2 o button-secondary" {...field} />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
-            )} />
-            
+              )}
+            />
+
             <DialogFooter>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+                {isLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                )}
                 Crear Experimento
               </Button>
             </DialogFooter>

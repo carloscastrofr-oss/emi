@@ -1,8 +1,7 @@
-
-'use server';
-import { config } from 'dotenv';
+"use server";
+import { config } from "dotenv";
 config();
 
-import '@/ai/flows/analyze-design-system.ts';
-import '@/ai/flows/generate-design-strategy.ts';
-import '@/ai/flows/suggest-mitigation.ts';
+import "@/ai/flows/analyze-design-system.ts";
+import "@/ai/flows/generate-design-strategy.ts";
+import "@/ai/flows/suggest-mitigation.ts";

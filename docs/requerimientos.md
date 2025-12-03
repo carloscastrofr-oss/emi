@@ -7,11 +7,11 @@ Noviembre 2025
 
 ## Control de versiones del documento
 
-| Fecha | Owner | Versión | Estatus |
-| --- | --- | --- | --- |
-| Q4 2025 | Equipo Multiplica | 1.0 | En Definición |
-|  |  |  |  |
-|  |  |  |  |
+| Fecha   | Owner             | Versión | Estatus       |
+| ------- | ----------------- | ------- | ------------- |
+| Q4 2025 | Equipo Multiplica | 1.0     | En Definición |
+|         |                   |         |               |
+|         |                   |         |               |
 
 ---
 
@@ -200,6 +200,7 @@ Product Designer es un sistema integral de gestión de diseño potenciado por IA
 **Criterios de Aceptación:**
 
 **Flujo de Registro/Login Directo:**
+
 - Implementacion de modulo de creacion de cuenta
 - Implementacion de modulo de recuperacion de contraseña
 - El usuario accede a la pantalla de login
@@ -209,6 +210,7 @@ Product Designer es un sistema integral de gestión de diseño potenciado por IA
 - Todo usuario debe tener al menos un workspace asignado para usar el sistema
 
 **Flujo de Invitación por Link:**
+
 - Usuario recibe link de invitación generado por Admin o Product Design Lead
 - Al hacer clic en el link, es redirigido a pantalla de registro/login
 - Link contiene token que asocia al usuario con cliente y workspace específico
@@ -218,6 +220,7 @@ Product Designer es un sistema integral de gestión de diseño potenciado por IA
 - Link puede ser de un solo uso o de usos múltiples (configurable al generarlo)
 
 **General:**
+
 - Sesión persiste entre recargas de página
 - Logout cierra sesión y redirige a login
 - Todos los usuarios deben tener al menos un workspace asignado (asegurado por flujo de invitación o asignación por admin)
@@ -394,6 +397,7 @@ Product Designer es un sistema integral de gestión de diseño potenciado por IA
 - Usuario invitado recibe el rol especificado en el link
 
 **Escenarios de Usuario Existente:**
+
 - Si usuario ya tiene acceso al workspace: se muestra mensaje indicando que ya tiene acceso y se ofrece actualizar su rol
 - Si usuario no tiene acceso al workspace: se agrega automáticamente con el rol especificado
 - Si usuario tiene acceso con diferente rol: se pregunta si quiere actualizar el rol o mantener el existente
@@ -1057,11 +1061,11 @@ erDiagram
     users ||--o{ ai_flow_sessions : "crea"
     users ||--o{ workbench_tasks : "crea/asigna"
     users ||--o{ strategy_sessions : "crea"
-    
+
     clients ||--o{ workspaces : "contiene"
     clients ||--o{ user_client_roles : "tiene"
     clients ||--o{ invitation_links : "asociado"
-    
+
     workspaces ||--o{ user_workspace_roles : "tiene"
     workspaces ||--o{ invitation_links : "asociado"
     workspaces ||--o{ kit_categories : "contiene"
@@ -1072,21 +1076,21 @@ erDiagram
     workspaces ||--o{ ai_flow_insights : "contiene"
     workspaces ||--o{ workbench_tasks : "contiene"
     workspaces ||--o{ strategy_sessions : "contiene"
-    
+
     invitation_links ||--o{ invitation_link_uses : "registra"
-    
+
     kit_categories ||--o{ kit_resources : "organiza"
-    
+
     kit_resources ||--o{ kit_resource_tags : "tiene"
     kit_resources ||--o{ ai_writing_session_resources : "usado_en"
     kit_resources ||--o{ ai_flow_session_resources : "usado_en"
-    
+
     ai_writing_sessions ||--o{ ai_writing_session_resources : "usa"
     ai_writing_sessions ||--|| ai_writing_insights : "genera"
-    
+
     ai_flow_sessions ||--o{ ai_flow_session_resources : "usa"
     ai_flow_sessions ||--|| ai_flow_insights : "genera"
-    
+
     users {
         varchar id PK "uid Google Identity"
         varchar email UK
@@ -1097,7 +1101,7 @@ erDiagram
         timestamp last_login
         timestamp updated_at
     }
-    
+
     clients {
         uuid id PK
         varchar name
@@ -1109,7 +1113,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     workspaces {
         uuid id PK
         uuid client_id FK
@@ -1120,7 +1124,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     user_client_roles {
         uuid id PK
         varchar user_id FK
@@ -1128,7 +1132,7 @@ erDiagram
         varchar role "admin"
         timestamp created_at
     }
-    
+
     user_workspace_roles {
         uuid id PK
         varchar user_id FK
@@ -1137,7 +1141,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     invitation_links {
         uuid id PK
         varchar token UK
@@ -1151,14 +1155,14 @@ erDiagram
         integer used_count
         integer max_uses "NULL=ilimitado"
     }
-    
+
     invitation_link_uses {
         uuid id PK
         uuid invitation_link_id FK
         varchar user_id FK
         timestamp used_at
     }
-    
+
     kit_categories {
         uuid id PK
         uuid workspace_id FK
@@ -1168,7 +1172,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     kit_resources {
         uuid id PK
         uuid workspace_id FK
@@ -1185,14 +1189,14 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     kit_resource_tags {
         uuid id PK
         uuid resource_id FK
         varchar tag
         timestamp created_at
     }
-    
+
     ai_writing_sessions {
         uuid id PK
         uuid workspace_id FK
@@ -1205,14 +1209,14 @@ erDiagram
         varchar created_by FK
         timestamp created_at
     }
-    
+
     ai_writing_session_resources {
         uuid id PK
         uuid session_id FK
         uuid resource_id FK
         timestamp created_at
     }
-    
+
     ai_writing_insights {
         uuid id PK
         uuid session_id FK
@@ -1222,7 +1226,7 @@ erDiagram
         jsonb keywords
         timestamp created_at
     }
-    
+
     ai_flow_sessions {
         uuid id PK
         uuid workspace_id FK
@@ -1234,14 +1238,14 @@ erDiagram
         varchar created_by FK
         timestamp created_at
     }
-    
+
     ai_flow_session_resources {
         uuid id PK
         uuid session_id FK
         uuid resource_id FK
         timestamp created_at
     }
-    
+
     ai_flow_insights {
         uuid id PK
         uuid session_id FK
@@ -1251,7 +1255,7 @@ erDiagram
         jsonb patterns_detected
         timestamp created_at
     }
-    
+
     workbench_tasks {
         uuid id PK
         uuid workspace_id FK
@@ -1271,7 +1275,7 @@ erDiagram
         varchar approved_by FK
         varchar closed_by FK
     }
-    
+
     strategy_sessions {
         uuid id PK
         uuid workspace_id FK
@@ -1387,7 +1391,7 @@ Las siguientes entidades se almacenan en Firestore por ser configuraciones/setti
 6. Solicitud aprobada pasa a Backlog
 7. En Backlog, hace clic en tarea para ver detalle
 8. Edita campos directamente
-9.  Usa filtros: asignados a mí, prioridad
+9. Usa filtros: asignados a mí, prioridad
 10. Ordena por fecha, prioridad, o deadline
 11. Marca tareas como cerradas cuando completan
 
@@ -1569,15 +1573,15 @@ Las siguientes entidades se almacenan en Firestore por ser configuraciones/setti
 
 ## 10. Riesgos y Mitigaciones
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-| --- | --- | --- | --- |
-| Costos de API de IA exceden presupuesto | Media | Alto | Implementar rate limiting, caching de resultados similares, monitoreo continuo de costos |
-| Calidad de generaciones de IA inconsistente | Media | Medio | Prompts optimizados, validación humana, feedback loop para mejorar prompts |
-| Usuarios no adoptan múltiples módulos | Media | Alto | Onboarding guiado, demos de valor, incentivos de uso cruzado entre módulos |
-| Aislamiento de workspaces tiene fuga de datos | Baja | Crítico | Revisión exhaustiva de Row Level Security (RLS), auditorías de seguridad, testing de aislamiento |
-| Performance de búsqueda degrada con volumen | Media | Medio | Implementar paginación, índices optimizados en AlloyDB, caché de búsquedas frecuentes |
-| Falta de claridad en roles y permisos | Media | Medio | Documentación clara de matriz de permisos, UI que comunica limitaciones por rol |
-| Dependencia de prototipo incompleto | Alta | Medio | Sesiones de alineación con stakeholders, validación de alcance antes de implementar |
+| Riesgo                                        | Probabilidad | Impacto | Mitigación                                                                                       |
+| --------------------------------------------- | ------------ | ------- | ------------------------------------------------------------------------------------------------ |
+| Costos de API de IA exceden presupuesto       | Media        | Alto    | Implementar rate limiting, caching de resultados similares, monitoreo continuo de costos         |
+| Calidad de generaciones de IA inconsistente   | Media        | Medio   | Prompts optimizados, validación humana, feedback loop para mejorar prompts                       |
+| Usuarios no adoptan múltiples módulos         | Media        | Alto    | Onboarding guiado, demos de valor, incentivos de uso cruzado entre módulos                       |
+| Aislamiento de workspaces tiene fuga de datos | Baja         | Crítico | Revisión exhaustiva de Row Level Security (RLS), auditorías de seguridad, testing de aislamiento |
+| Performance de búsqueda degrada con volumen   | Media        | Medio   | Implementar paginación, índices optimizados en AlloyDB, caché de búsquedas frecuentes            |
+| Falta de claridad en roles y permisos         | Media        | Medio   | Documentación clara de matriz de permisos, UI que comunica limitaciones por rol                  |
+| Dependencia de prototipo incompleto           | Alta         | Medio   | Sesiones de alineación con stakeholders, validación de alcance antes de implementar              |
 
 ---
 
@@ -1613,20 +1617,19 @@ Las siguientes entidades se almacenan en Firestore por ser configuraciones/setti
 
 ## 12. Aprobaciones
 
-| Rol | Nombre | Fecha | Firma |
-| --- | --- | --- | --- |
-| Product Owner | [Pendiente] | Pendiente |  |
-| Tech Lead | [Pendiente] | Pendiente |  |
-| Engineering | [Pendiente] | Pendiente |  |
-| UX Lead | [Pendiente] | Pendiente |  |
+| Rol           | Nombre      | Fecha     | Firma |
+| ------------- | ----------- | --------- | ----- |
+| Product Owner | [Pendiente] | Pendiente |       |
+| Tech Lead     | [Pendiente] | Pendiente |       |
+| Engineering   | [Pendiente] | Pendiente |       |
+| UX Lead       | [Pendiente] | Pendiente |       |
 
 ---
 
 ## 13. Historial de Cambios
 
-| Versión | Fecha | Autor | Cambios |
-| --- | --- | --- | --- |
-| 1.0 | 2025-11-28 | Sistema | Documento inicial generado basado en definiciones de equipo, draft técnico y arquitectura propuesta |
-| 1.1 | 2025-12-01 | Equipo | Corrección de inconsistencias: RF-001 (usuarios siempre tienen workspace), RF-002/RF-004 (eliminado "modo de pruebas"), RF-008 (un rol por workspace), RF-009 (rol obligatorio), RF-010 (escenarios de usuario existente, simplificación max_uses), RF-029 (referencia corregida), RF-037 (no persistir preferencias), RF-039 (movido a FASE 2), RF-045 (usar interfaz existente), actualización de estructura de datos y flujos de usuario |
-|  |  |  |  |
-
+| Versión | Fecha      | Autor   | Cambios                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ------- | ---------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.0     | 2025-11-28 | Sistema | Documento inicial generado basado en definiciones de equipo, draft técnico y arquitectura propuesta                                                                                                                                                                                                                                                                                                                                         |
+| 1.1     | 2025-12-01 | Equipo  | Corrección de inconsistencias: RF-001 (usuarios siempre tienen workspace), RF-002/RF-004 (eliminado "modo de pruebas"), RF-008 (un rol por workspace), RF-009 (rol obligatorio), RF-010 (escenarios de usuario existente, simplificación max_uses), RF-029 (referencia corregida), RF-037 (no persistir preferencias), RF-039 (movido a FASE 2), RF-045 (usar interfaz existente), actualización de estructura de datos y flujos de usuario |
+|         |            |         |                                                                                                                                                                                                                                                                                                                                                                                                                                             |

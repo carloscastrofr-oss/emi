@@ -1,5 +1,4 @@
-
-'use server';
+"use server";
 
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db, isFirebaseConfigValid } from "@/lib/firebase";
@@ -14,9 +13,9 @@ import { agentDesignDebt } from "@/ai/flows/agent-design-debt";
 
 export interface Recommendation {
   agent: "Accessibility" | "Design" | "Content" | "QA" | "Business" | "Design Debt";
-  component: string,
-  recommendation: string,
-  figmaPrompt?: string,
+  component: string;
+  recommendation: string;
+  figmaPrompt?: string;
 }
 
 export async function addRecommendation(recommendation: Recommendation) {
@@ -29,7 +28,7 @@ export async function addRecommendation(recommendation: Recommendation) {
   if (!recommendation.agent || !recommendation.component || !recommendation.recommendation) {
     throw new Error("Datos de recomendación no válidos.");
   }
-  
+
   try {
     await addDoc(collection(db, "recommendations"), {
       ...recommendation,
@@ -44,18 +43,18 @@ export async function addRecommendation(recommendation: Recommendation) {
 // Server action to run a specific agent flow by name
 export async function runAgent(agentName: string, input: any): Promise<any> {
   switch (agentName) {
-    case 'accessibility':
+    case "accessibility":
       return agentAccessibility(input);
-    case 'design':
+    case "design":
       return agentDesign(input);
-    case 'content':
+    case "content":
       return agentContent(input);
-    case 'qa':
+    case "qa":
       return agentQA(input);
-    case 'business':
+    case "business":
       return agentBusiness(input);
-    case 'design-debt':
-        return agentDesignDebt(input);
+    case "design-debt":
+      return agentDesignDebt(input);
     default:
       throw new Error(`Agent "${agentName}" not found.`);
   }

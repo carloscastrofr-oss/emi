@@ -1,5 +1,4 @@
-
-import type { Timestamp } from 'firebase/firestore';
+import type { Timestamp } from "firebase/firestore";
 
 export interface BrandMetrics {
   adoption: number;

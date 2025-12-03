@@ -1,5 +1,4 @@
-
-'use client';
+"use client";
 
 import { useState } from "react";
 import { PageHeader } from "@/components/page-header";
@@ -19,14 +18,22 @@ export default function SyntheticUsersPage() {
         title="Usuarios Sintéticos"
         description="Valida ideas de diseño en etapas tempranas con paneles de usuarios generados por IA."
       />
-      
-      <Alert variant="destructive" className="bg-orange-100 border-orange-200 text-orange-800 dark:bg-orange-950 dark:border-orange-800 dark:text-orange-200 [&>svg]:text-orange-600">
+
+      <Alert
+        variant="destructive"
+        className="bg-orange-100 border-orange-200 text-orange-800 dark:bg-orange-950 dark:border-orange-800 dark:text-orange-200 [&>svg]:text-orange-600"
+      >
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>Entorno de Simulación</AlertTitle>
         <AlertDescription>
-          Los datos en esta sección son generados por IA y no reemplazan la investigación con usuarios reales. 
-          Úsalo como un primer filtro para validar hipótesis. 
-          <a href="https://www.nngroup.com/articles/ai-personas/" target="_blank" rel="noopener noreferrer" className="font-bold underline ml-1">
+          Los datos en esta sección son generados por IA y no reemplazan la investigación con
+          usuarios reales. Úsalo como un primer filtro para validar hipótesis.
+          <a
+            href="https://www.nngroup.com/articles/ai-personas/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold underline ml-1"
+          >
             Saber más.
           </a>
         </AlertDescription>
@@ -42,12 +49,12 @@ export default function SyntheticUsersPage() {
           <PanelBuilder />
         </TabsContent>
         <TabsContent value="dashboard">
-          <TestDashboard onLaunchTest={() => setActiveTab('builder')} />
+          <TestDashboard onLaunchTest={() => setActiveTab("builder")} />
         </TabsContent>
         <TabsContent value="synth">
-            <div className="pt-6 max-w-2xl mx-auto">
-                <ResearchSynthAgentCard />
-            </div>
+          <div className="pt-6 max-w-2xl mx-auto">
+            <ResearchSynthAgentCard />
+          </div>
         </TabsContent>
       </Tabs>
     </div>

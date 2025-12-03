@@ -5,7 +5,14 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Bot } from "lucide-react";
 import { addRecommendation, runAgent } from "./actions";
@@ -20,20 +27,31 @@ interface AgentCardProps {
   initialValues?: Record<string, string>;
 }
 
-export function AgentCard({ agentName, title, description, icon: Icon, formFields, placeholder, initialValues }: AgentCardProps) {
+export function AgentCard({
+  agentName,
+  title,
+  description,
+  icon: Icon,
+  formFields,
+  placeholder,
+  initialValues,
+}: AgentCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const defaultValues = formFields.reduce((acc, field) => {
-    if (initialValues && initialValues[field.name]) {
-      acc[field.name] = initialValues[field.name];
-    } else if (field.name === formFields[0].name) {
-      acc[field.name] = placeholder || "";
-    } else {
+  const defaultValues = formFields.reduce(
+    (acc, field) => {
+      if (initialValues && initialValues[field.name]) {
+        acc[field.name] = initialValues[field.name];
+      } else if (field.name === formFields[0].name) {
+        acc[field.name] = placeholder || "";
+      } else {
         acc[field.name] = "";
-    }
-    return acc;
-  }, {} as Record<string, string>);
+      }
+      return acc;
+    },
+    {} as Record<string, string>
+  );
 
   const form = useForm({
     defaultValues,
@@ -43,7 +61,7 @@ export function AgentCard({ agentName, title, description, icon: Icon, formField
     setIsLoading(true);
     try {
       const result = await runAgent(agentName, values);
-      
+
       let agentType;
       let recommendationText;
       let componentId = "Unknown";
@@ -51,17 +69,19 @@ export function AgentCard({ agentName, title, description, icon: Icon, formField
 
       if (title.includes("Accesibilidad")) {
         agentType = "Accessibility";
-        recommendationText = `Puntuación de Accesibilidad: ${result.score}/100. Se encontraron ${result.issues.length} problemas. Problema principal: ${result.issues[0]?.details || 'Ninguno'}`;
+        recommendationText = `Puntuación de Accesibilidad: ${result.score}/100. Se encontraron ${result.issues.length} problemas. Problema principal: ${result.issues[0]?.details || "Ninguno"}`;
         componentId = result.issues[0]?.node || values.url;
       } else if (title.includes("Diseño")) {
         agentType = "Design";
-        recommendationText = `Contrast Score of ${result.contrastScore} is too low. ${result.layoutImprovements}. Consider updating tokens: Colors: ${result.designTokenSuggestions.colors.join(', ')}, Spacing: ${result.designTokenSuggestions.spacing.join(', ')}, Typography: ${result.designTokenSuggestions.typography.join(', ')}`;
+        recommendationText = `Contrast Score of ${result.contrastScore} is too low. ${result.layoutImprovements}. Consider updating tokens: Colors: ${result.designTokenSuggestions.colors.join(", ")}, Spacing: ${result.designTokenSuggestions.spacing.join(", ")}, Typography: ${result.designTokenSuggestions.typography.join(", ")}`;
         componentId = result.componentId;
         figmaPrompt = result.figmaPrompt;
       } else if (title.includes("Contenido")) {
         agentType = "Content";
         const firstProposal = result.rewriteProposals[0];
-        recommendationText = firstProposal ? `Suggestion for "${firstProposal.original}": "${firstProposal.suggestion}". Reasoning: ${firstProposal.reasoning}` : "No specific rewrite proposals.";
+        recommendationText = firstProposal
+          ? `Suggestion for "${firstProposal.original}": "${firstProposal.suggestion}". Reasoning: ${firstProposal.reasoning}`
+          : "No specific rewrite proposals.";
         componentId = "General UI Text";
       } else if (title.includes("QA")) {
         agentType = "QA";
@@ -73,16 +93,16 @@ export function AgentCard({ agentName, title, description, icon: Icon, formField
         componentId = result.componentId;
       } else if (title.includes("Deuda de Diseño")) {
         agentType = "Design Debt";
-        recommendationText = `Puntuación de Deuda: ${result.debtScore}/100. ROI perdido estimado: ${result.lostRoi}. Componentes divergentes: ${result.divergentComponents.join(', ')}.`;
-        componentId = result.divergentComponents[0] || 'Varios';
+        recommendationText = `Puntuación de Deuda: ${result.debtScore}/100. ROI perdido estimado: ${result.lostRoi}. Componentes divergentes: ${result.divergentComponents.join(", ")}.`;
+        componentId = result.divergentComponents[0] || "Varios";
       }
 
       if (agentType && recommendationText) {
         await addRecommendation({
-            agent: agentType as any,
-            component: componentId,
-            recommendation: recommendationText,
-            ...(figmaPrompt && { figmaPrompt }),
+          agent: agentType as any,
+          component: componentId,
+          recommendation: recommendationText,
+          ...(figmaPrompt && { figmaPrompt }),
         });
       }
 
@@ -117,7 +137,7 @@ export function AgentCard({ agentName, title, description, icon: Icon, formField
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {formFields.map((field) => (
-                <FormField
+              <FormField
                 key={field.name}
                 control={form.control}
                 name={field.name}

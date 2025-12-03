@@ -9,7 +9,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
     "typecheck": "tsc --noEmit",
+    "test:commit": "npm run format && npm run lint && npm run typecheck",
+    "test:pr": "npm run format && npm run lint && npm run typecheck && npm run build",
     "prepare": "husky"
   },
   "dependencies": {
@@ -63,7 +68,11 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "eslint --fix"
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,scss}": [
+      "prettier --write"
     ]
   },
   "devDependencies": {
@@ -77,11 +86,14 @@
     "@types/react-dom": "^18",
     "eslint": "9.39.1",
     "eslint-config-next": "16.0.6",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
     "genkit-cli": "^1.13.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "postcss": "^8",
+    "prettier": "^3.7.3",
     "tailwindcss": "^3.4.1",
     "typescript": "^5",
     "typescript-eslint": "^8.48.1"

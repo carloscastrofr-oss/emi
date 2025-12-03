@@ -1,5 +1,4 @@
-
-'use server';
+"use server";
 /**
  * @fileOverview AI-powered Accessibility & Inclusion agent.
  * - agentAccessibility - Runs an accessibility audit on a given URL.
@@ -7,35 +6,42 @@
  * - AgentAccessibilityOutput - The return type for the agentAccessibility function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { ai } from "@/ai/genkit";
+import { z } from "genkit";
 
 const AgentAccessibilityInputSchema = z.object({
-  url: z.string().url().describe('The URL of the page to audit for accessibility.'),
+  url: z.string().url().describe("The URL of the page to audit for accessibility."),
 });
 export type AgentAccessibilityInput = z.infer<typeof AgentAccessibilityInputSchema>;
 
 const AgentAccessibilityOutputSchema = z.object({
-  score: z.number().min(0).max(100).describe('The overall accessibility score from 0 to 100.'),
-  issues: z.array(z.object({
-    rule: z.string().describe('The accessibility rule that was violated (e.g., "color-contrast").'),
-    node: z.string().describe('The CSS selector or identifier for the problematic element.'),
-    details: z.string().describe('A brief description of the issue.'),
-  })).describe('A list of accessibility issues found on the page.'),
+  score: z.number().min(0).max(100).describe("The overall accessibility score from 0 to 100."),
+  issues: z
+    .array(
+      z.object({
+        rule: z
+          .string()
+          .describe('The accessibility rule that was violated (e.g., "color-contrast").'),
+        node: z.string().describe("The CSS selector or identifier for the problematic element."),
+        details: z.string().describe("A brief description of the issue."),
+      })
+    )
+    .describe("A list of accessibility issues found on the page."),
 });
 export type AgentAccessibilityOutput = z.infer<typeof AgentAccessibilityOutputSchema>;
 
-
-const agentAccessibilityFlow = ai.defineFlow({
-    name: 'agentAccessibilityFlow',
+const agentAccessibilityFlow = ai.defineFlow(
+  {
+    name: "agentAccessibilityFlow",
     inputSchema: AgentAccessibilityInputSchema,
     outputSchema: AgentAccessibilityOutputSchema,
-}, async (input) => {
+  },
+  async (input) => {
     const prompt = ai.definePrompt({
-        name: 'agentAccessibilityPrompt',
-        input: {schema: AgentAccessibilityInputSchema},
-        output: {schema: AgentAccessibilityOutputSchema},
-        prompt: `You are an AI Accessibility Auditor. You are an expert in WCAG 2.2, axe-core, and Lighthouse.
+      name: "agentAccessibilityPrompt",
+      input: { schema: AgentAccessibilityInputSchema },
+      output: { schema: AgentAccessibilityOutputSchema },
+      prompt: `You are an AI Accessibility Auditor. You are an expert in WCAG 2.2, axe-core, and Lighthouse.
         Analyze the provided URL and identify accessibility issues. Simulate running a Lighthouse and axe-core audit.
 
         URL to Audit: {{{url}}}
@@ -49,14 +55,17 @@ const agentAccessibilityFlow = ai.defineFlow({
         Provide the output in the specified JSON format. For the analysis of a checkout page, find at least two issues. One should be a color-contrast issue on a payment button.`,
     });
 
-    const {output} = await prompt(input);
+    const { output } = await prompt(input);
     if (!output) {
       throw new Error("Agent did not produce an output.");
     }
-    
-    return output;
-});
 
-export async function agentAccessibility(input: AgentAccessibilityInput): Promise<AgentAccessibilityOutput> {
+    return output;
+  }
+);
+
+export async function agentAccessibility(
+  input: AgentAccessibilityInput
+): Promise<AgentAccessibilityOutput> {
   return agentAccessibilityFlow(input);
 }

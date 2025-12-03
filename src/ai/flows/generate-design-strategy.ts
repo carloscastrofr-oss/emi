@@ -1,5 +1,4 @@
-
-'use server';
+"use server";
 /**
  * @fileOverview AI-powered Design Strategy Generator.
  *
@@ -8,10 +7,10 @@
  * - GenerateDesignStrategyOutput - The return type for the generateDesignStrategy function.
  */
 
-import { ai } from '@/ai/genkit';
-import { z } from 'zod';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db, isFirebaseConfigValid } from '@/lib/firebase';
+import { ai } from "@/ai/genkit";
+import { z } from "zod";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { db, isFirebaseConfigValid } from "@/lib/firebase";
 
 const OKRSchema = z.object({
   objective: z.string(),
@@ -27,29 +26,38 @@ const GenerateDesignStrategyInputSchema = z.object({
   scopeProducts: z.array(z.string()).min(1, "Define al menos un producto en el alcance."),
   legacyConstraints: z.string().optional(),
   governance: z.object({
-      accountableRole: z.string(),
-      workflow: z.string(),
+    accountableRole: z.string(),
+    workflow: z.string(),
   }),
   kpiWeights: z.object({
-      csat: z.number(),
-      a11y: z.number(),
-      adoption: z.number(),
+    csat: z.number(),
+    a11y: z.number(),
+    adoption: z.number(),
   }),
   budget: z.object({
-      usd: z.number().optional(),
-      hoursWeek: z.number().optional(),
+    usd: z.number().optional(),
+    hoursWeek: z.number().optional(),
   }),
   authorUid: z.string().optional(),
 });
 
-
 export type GenerateDesignStrategyInput = z.infer<typeof GenerateDesignStrategyInputSchema>;
 
 const DesignInterpretationSchema = z.object({
-    strategicSummary: z.string().describe("Un resumen breve de la estrategia de diseño para un diseñador."),
-    componentSuggestions: z.array(z.string()).describe("Una lista de ideas concretas de componentes basadas en el roadmap y las personas."),
-    userExperienceGoals: z.string().describe("Objetivos clave de experiencia de usuario en los que centrarse durante la implementación, ponderados por los KPIs."),
-    governanceModel: z.string().describe("Recomendaciones sobre cómo implementar el modelo de gobernanza propuesto."),
+  strategicSummary: z
+    .string()
+    .describe("Un resumen breve de la estrategia de diseño para un diseñador."),
+  componentSuggestions: z
+    .array(z.string())
+    .describe("Una lista de ideas concretas de componentes basadas en el roadmap y las personas."),
+  userExperienceGoals: z
+    .string()
+    .describe(
+      "Objetivos clave de experiencia de usuario en los que centrarse durante la implementación, ponderados por los KPIs."
+    ),
+  governanceModel: z
+    .string()
+    .describe("Recomendaciones sobre cómo implementar el modelo de gobernanza propuesto."),
 });
 
 const GenerateDesignStrategyOutputSchema = z.object({
@@ -60,15 +68,16 @@ const GenerateDesignStrategyOutputSchema = z.object({
 });
 export type GenerateDesignStrategyOutput = z.infer<typeof GenerateDesignStrategyOutputSchema>;
 
-
 function generateMarkdown(data: GenerateDesignStrategyInput): string {
-    const okrsMd = data.okrs.map(okr => `* **${okr.objective}**\n  * ${okr.krs.split('\n').join('\n  * ')}`).join('\n\n');
-    const personasMd = data.personas.map(p => `* ${p}`).join('\n');
-    const principlesMd = data.principles.map(p => `* ${p}`).join('\n');
-    const scopeMd = data.scopeProducts.map(p => `* ${p}`).join('\n');
-    const kpisMd = `* CSAT (Peso: ${data.kpiWeights.csat})\n* Accesibilidad (Peso: ${data.kpiWeights.a11y})\n* Adopción (Peso: ${data.kpiWeights.adoption})`;
-    
-    return `
+  const okrsMd = data.okrs
+    .map((okr) => `* **${okr.objective}**\n  * ${okr.krs.split("\n").join("\n  * ")}`)
+    .join("\n\n");
+  const personasMd = data.personas.map((p) => `* ${p}`).join("\n");
+  const principlesMd = data.principles.map((p) => `* ${p}`).join("\n");
+  const scopeMd = data.scopeProducts.map((p) => `* ${p}`).join("\n");
+  const kpisMd = `* CSAT (Peso: ${data.kpiWeights.csat})\n* Accesibilidad (Peso: ${data.kpiWeights.a11y})\n* Adopción (Peso: ${data.kpiWeights.adoption})`;
+
+  return `
 # Estrategia de Sistema de Diseño
 
 ## 1. Visión y Propuesta de Valor
@@ -102,16 +111,19 @@ ${principlesMd}
     `.trim();
 }
 
-
-export async function generateDesignStrategy(input: GenerateDesignStrategyInput): Promise<GenerateDesignStrategyOutput> {
+export async function generateDesignStrategy(
+  input: GenerateDesignStrategyInput
+): Promise<GenerateDesignStrategyOutput> {
   return generateDesignStrategyFlow(input);
 }
 
 const interpretationPrompt = ai.definePrompt({
-    name: 'interpretDesignStrategyPrompt',
-    input: { schema: z.object({ markdownContent: z.string(), inputData: GenerateDesignStrategyInputSchema }) },
-    output: { schema: DesignInterpretationSchema },
-    prompt: `Eres un estratega y coach de diseño experto. Tu tarea es analizar el siguiente documento de estrategia de diseño y los datos de entrada para traducirlo en ideas accionables y creativas para un diseñador UI/UX.
+  name: "interpretDesignStrategyPrompt",
+  input: {
+    schema: z.object({ markdownContent: z.string(), inputData: GenerateDesignStrategyInputSchema }),
+  },
+  output: { schema: DesignInterpretationSchema },
+  prompt: `Eres un estratega y coach de diseño experto. Tu tarea es analizar el siguiente documento de estrategia de diseño y los datos de entrada para traducirlo en ideas accionables y creativas para un diseñador UI/UX.
 
 IMPORTANTE: Toda la salida y las respuestas DEBEN estar en español.
 
@@ -137,49 +149,53 @@ Proporciona la salida en el formato JSON especificado.
 `,
 });
 
-
 const generateDesignStrategyFlow = ai.defineFlow(
   {
-    name: 'generateDesignStrategyFlow',
+    name: "generateDesignStrategyFlow",
     inputSchema: GenerateDesignStrategyInputSchema,
     outputSchema: GenerateDesignStrategyOutputSchema,
   },
   async (data) => {
     const markdownContent = generateMarkdown(data);
-    
-    const { output: interpretationOutput } = await interpretationPrompt({ markdownContent, inputData: data });
+
+    const { output: interpretationOutput } = await interpretationPrompt({
+      markdownContent,
+      inputData: data,
+    });
 
     if (!interpretationOutput) {
-        throw new Error("The design interpretation agent failed to produce an output.");
+      throw new Error("The design interpretation agent failed to produce an output.");
     }
 
     const strategyData = {
-        ...data,
-        status: 'draft',
-        createdAt: serverTimestamp(),
+      ...data,
+      status: "draft",
+      createdAt: serverTimestamp(),
     };
 
     if (!isFirebaseConfigValid) {
-        console.warn("Firebase no está configurado. Se devolverá una estrategia simulada sin guardarla.");
-        return {
-            strategyId: "mock-strategy-" + Date.now(),
-            markdown: markdownContent,
-            json: JSON.stringify({ ...strategyData, createdAt: new Date().toISOString() }, null, 2),
-            designInterpretation: interpretationOutput,
-        };
+      console.warn(
+        "Firebase no está configurado. Se devolverá una estrategia simulada sin guardarla."
+      );
+      return {
+        strategyId: "mock-strategy-" + Date.now(),
+        markdown: markdownContent,
+        json: JSON.stringify({ ...strategyData, createdAt: new Date().toISOString() }, null, 2),
+        designInterpretation: interpretationOutput,
+      };
     }
-    
+
     try {
-        const docRef = await addDoc(collection(db, "designStrategies"), strategyData);
-        return {
-            strategyId: docRef.id,
-            markdown: markdownContent,
-            json: JSON.stringify(strategyData, null, 2),
-            designInterpretation: interpretationOutput,
-        };
+      const docRef = await addDoc(collection(db, "designStrategies"), strategyData);
+      return {
+        strategyId: docRef.id,
+        markdown: markdownContent,
+        json: JSON.stringify(strategyData, null, 2),
+        designInterpretation: interpretationOutput,
+      };
     } catch (error) {
-        console.error("Error al guardar en Firestore: ", error);
-        throw new Error("No se pudo guardar la estrategia en la base de datos.");
+      console.error("Error al guardar en Firestore: ", error);
+      throw new Error("No se pudo guardar la estrategia en la base de datos.");
     }
   }
 );

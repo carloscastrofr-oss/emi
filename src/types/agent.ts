@@ -1,5 +1,4 @@
-
-import type { Timestamp } from 'firebase/firestore';
+import type { Timestamp } from "firebase/firestore";
 
 export type AgentStatus = "active" | "inactive";
 export type AgentIntegration = "figma" | "notion" | "drive" | "slack" | "jira";

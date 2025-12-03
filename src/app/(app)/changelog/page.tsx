@@ -1,11 +1,5 @@
 import { PageHeader } from "@/components/page-header";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 const changelog = [
@@ -29,12 +23,12 @@ const changelog = [
   },
 ];
 
-const badgeVariant : {[key:string]: "default" | "secondary" | "destructive" | "outline"} = {
-    Añadido: "default",
-    Corregido: "secondary",
-    Mejorado: "outline",
-    Breaking: "destructive",
-}
+const badgeVariant: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
+  Añadido: "default",
+  Corregido: "secondary",
+  Mejorado: "outline",
+  Breaking: "destructive",
+};
 
 export default function ChangelogPage() {
   return (
@@ -46,7 +40,9 @@ export default function ChangelogPage() {
       <Card>
         <CardHeader>
           <CardTitle>Historial de Cambios</CardTitle>
-          <CardDescription>Notas de lanzamiento y actualizaciones para el sistema de diseño.</CardDescription>
+          <CardDescription>
+            Notas de lanzamiento y actualizaciones para el sistema de diseño.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-8">
@@ -59,8 +55,8 @@ export default function ChangelogPage() {
                 <ul className="mt-4 list-none space-y-2 pl-2">
                   {release.changes.map((change) => (
                     <li key={change.text} className="flex items-center gap-3">
-                       <Badge variant={badgeVariant[change.type]}>{change.type}</Badge>
-                       <span>{change.text}</span>
+                      <Badge variant={badgeVariant[change.type]}>{change.type}</Badge>
+                      <span>{change.text}</span>
                     </li>
                   ))}
                 </ul>

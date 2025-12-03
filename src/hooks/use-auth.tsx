@@ -1,10 +1,9 @@
-
 "use client";
 
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
-import { getFirestore, doc, onSnapshot, setDoc, arrayUnion } from 'firebase/firestore';
-import { app, db, isFirebaseConfigValid } from '@/lib/firebase';
+import { useState, useEffect, createContext, useContext, ReactNode } from "react";
+import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { getFirestore, doc, onSnapshot, setDoc, arrayUnion } from "firebase/firestore";
+import { app, db, isFirebaseConfigValid } from "@/lib/firebase";
 
 export type UserRole = "viewer" | "producer" | "core" | "admin";
 
@@ -15,7 +14,7 @@ export interface UserProfile {
   role: UserRole;
   onboarding?: {
     completed: string[];
-  }
+  };
 }
 
 interface AuthContextType {
@@ -32,23 +31,22 @@ const AuthContext = createContext<AuthContextType>({
 
 // Helper function to create a default user profile in Firestore
 const createDefaultUserProfile = async (user: User) => {
-    if (!isFirebaseConfigValid) { 
-        console.warn("Firestore not available. Cannot create user profile.");
-        return null;
-    }
-    const userDocRef = doc(db, 'users', user.uid);
-    const defaultProfile: Omit<UserProfile, 'uid'> = {
-      email: user.email,
-      displayName: user.displayName || 'New User',
-      role: 'viewer', // Assign a default role
-      onboarding: {
-        completed: []
-      }
-    };
-    await setDoc(userDocRef, defaultProfile, { merge: true });
-    return { uid: user.uid, ...defaultProfile } as UserProfile;
+  if (!isFirebaseConfigValid) {
+    console.warn("Firestore not available. Cannot create user profile.");
+    return null;
+  }
+  const userDocRef = doc(db, "users", user.uid);
+  const defaultProfile: Omit<UserProfile, "uid"> = {
+    email: user.email,
+    displayName: user.displayName || "New User",
+    role: "viewer", // Assign a default role
+    onboarding: {
+      completed: [],
+    },
+  };
+  await setDoc(userDocRef, defaultProfile, { merge: true });
+  return { uid: user.uid, ...defaultProfile } as UserProfile;
 };
-
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -57,44 +55,50 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (!isFirebaseConfigValid) {
-      console.warn("Firebase not initialized, using mock user. All gated features will be available.");
+      console.warn(
+        "Firebase not initialized, using mock user. All gated features will be available."
+      );
       setUserProfile({
-          uid: 'mock-user',
-          email: 'usuario@example.com',
-          displayName: 'Usuario de Muestra',
-          role: 'admin',
-          onboarding: {
-            completed: ['view_dashboard']
-          }
+        uid: "mock-user",
+        email: "usuario@example.com",
+        displayName: "Usuario de Muestra",
+        role: "admin",
+        onboarding: {
+          completed: ["view_dashboard"],
+        },
       });
       setLoading(false);
       return;
     }
 
     const auth = getAuth(app);
-    
+
     const unsubscribeAuth = onAuthStateChanged(auth, (authUser) => {
       if (authUser) {
         setUser(authUser);
-        const userDocRef = doc(db, 'users', authUser.uid);
-        
-        const unsubscribeSnapshot = onSnapshot(userDocRef, (docSnap) => {
-          if (docSnap.exists()) {
-            setUserProfile({
-              uid: authUser.uid,
-              ...docSnap.data(),
-            } as UserProfile);
-          } else {
-            createDefaultUserProfile(authUser).then(profile => {
+        const userDocRef = doc(db, "users", authUser.uid);
+
+        const unsubscribeSnapshot = onSnapshot(
+          userDocRef,
+          (docSnap) => {
+            if (docSnap.exists()) {
+              setUserProfile({
+                uid: authUser.uid,
+                ...docSnap.data(),
+              } as UserProfile);
+            } else {
+              createDefaultUserProfile(authUser).then((profile) => {
                 if (profile) setUserProfile(profile);
-            });
-          }
-          setLoading(false);
-        }, (error) => {
+              });
+            }
+            setLoading(false);
+          },
+          (error) => {
             console.error("Error fetching user profile:", error);
             setUserProfile(null);
             setLoading(false);
-        });
+          }
+        );
 
         return () => unsubscribeSnapshot();
       } else {

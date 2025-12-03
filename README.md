@@ -40,25 +40,25 @@
 
 ## 📚 Documentación
 
-| Documento | Descripción |
-|-----------|-------------|
+| Documento                                   | Descripción                                                          |
+| ------------------------------------------- | -------------------------------------------------------------------- |
 | [📘 Requerimientos](docs/requerimientos.md) | Especificación funcional completa, requisitos, arquitectura y flujos |
-| [📋 Tasks](docs/tasks.md) | Tareas estructuradas por módulos con estimaciones |
-| [📐 Blueprint](docs/blueprint.md) | Diseño inicial y features core del producto |
+| [📋 Tasks](docs/tasks.md)                   | Tareas estructuradas por módulos con estimaciones                    |
+| [📐 Blueprint](docs/blueprint.md)           | Diseño inicial y features core del producto                          |
 
 ---
 
 ## 🧩 Módulos
 
-| Módulo | Descripción |
-|--------|-------------|
-| 🔐 **Auth** | Autenticación con Google Identity Platform, sistema de roles y permisos por workspace |
-| 👤 **Admin Panel** | Gestión de clientes, workspaces, usuarios e invitaciones por link |
-| 📁 **Kit** | Gestor de recursos de diseño: documentos, URLs, categorías con búsqueda |
-| ✍️ **AI Writing** | Generación de copy y microcopy con Gemini AI, conexión con recursos de Kit |
-| 🔀 **AI Flow** | Generación de flujos de usuario en formato JSON compatible con Figma |
-| 📋 **Workbench** | Sistema de solicitudes, backlog, aprobaciones y gestión de tareas |
-| 🎯 **Strategy** | Generación de estrategias completas de Design System con IA |
+| Módulo             | Descripción                                                                           |
+| ------------------ | ------------------------------------------------------------------------------------- |
+| 🔐 **Auth**        | Autenticación con Google Identity Platform, sistema de roles y permisos por workspace |
+| 👤 **Admin Panel** | Gestión de clientes, workspaces, usuarios e invitaciones por link                     |
+| 📁 **Kit**         | Gestor de recursos de diseño: documentos, URLs, categorías con búsqueda               |
+| ✍️ **AI Writing**  | Generación de copy y microcopy con Gemini AI, conexión con recursos de Kit            |
+| 🔀 **AI Flow**     | Generación de flujos de usuario en formato JSON compatible con Figma                  |
+| 📋 **Workbench**   | Sistema de solicitudes, backlog, aprobaciones y gestión de tareas                     |
+| 🎯 **Strategy**    | Generación de estrategias completas de Design System con IA                           |
 
 ---
 
@@ -66,44 +66,44 @@
 
 ### Frontend
 
-| Tecnología | Uso |
-|------------|-----|
-| [Next.js 15](https://nextjs.org/) | Framework React con App Router |
-| [React 18](https://react.dev/) | UI Library |
-| [TypeScript](https://www.typescriptlang.org/) | Type Safety |
-| [Tailwind CSS](https://tailwindcss.com/) | Styling |
-| [shadcn/ui](https://ui.shadcn.com/) | Component Library |
-| [Radix UI](https://www.radix-ui.com/) | Primitives accesibles |
-| [Framer Motion](https://www.framer.com/motion/) | Animaciones |
-| [Zustand](https://zustand-demo.pmnd.rs/) | State Management |
-| [Zod](https://zod.dev/) | Schema Validation |
+| Tecnología                                      | Uso                            |
+| ----------------------------------------------- | ------------------------------ |
+| [Next.js 15](https://nextjs.org/)               | Framework React con App Router |
+| [React 18](https://react.dev/)                  | UI Library                     |
+| [TypeScript](https://www.typescriptlang.org/)   | Type Safety                    |
+| [Tailwind CSS](https://tailwindcss.com/)        | Styling                        |
+| [shadcn/ui](https://ui.shadcn.com/)             | Component Library              |
+| [Radix UI](https://www.radix-ui.com/)           | Primitives accesibles          |
+| [Framer Motion](https://www.framer.com/motion/) | Animaciones                    |
+| [Zustand](https://zustand-demo.pmnd.rs/)        | State Management               |
+| [Zod](https://zod.dev/)                         | Schema Validation              |
 
 ### Backend / Cloud
 
-| Tecnología | Uso |
-|------------|-----|
-| [Google Cloud Platform](https://cloud.google.com/) | Infraestructura Cloud |
-| [Google Identity Platform](https://cloud.google.com/identity-platform) | Autenticación |
-| [AlloyDB](https://cloud.google.com/alloydb) | Base de datos PostgreSQL |
-| [Cloud Firestore](https://firebase.google.com/docs/firestore) | Configuraciones y settings |
-| [Cloud Storage](https://cloud.google.com/storage) | Almacenamiento de archivos |
-| [Cloud Run](https://cloud.google.com/run) | Deployment serverless |
+| Tecnología                                                             | Uso                        |
+| ---------------------------------------------------------------------- | -------------------------- |
+| [Google Cloud Platform](https://cloud.google.com/)                     | Infraestructura Cloud      |
+| [Google Identity Platform](https://cloud.google.com/identity-platform) | Autenticación              |
+| [AlloyDB](https://cloud.google.com/alloydb)                            | Base de datos PostgreSQL   |
+| [Cloud Firestore](https://firebase.google.com/docs/firestore)          | Configuraciones y settings |
+| [Cloud Storage](https://cloud.google.com/storage)                      | Almacenamiento de archivos |
+| [Cloud Run](https://cloud.google.com/run)                              | Deployment serverless      |
 
 ### IA / ML
 
-| Tecnología | Uso |
-|------------|-----|
-| [Gemini API](https://ai.google.dev/) | Modelo de IA generativa |
+| Tecnología                                                 | Uso                     |
+| ---------------------------------------------------------- | ----------------------- |
+| [Gemini API](https://ai.google.dev/)                       | Modelo de IA generativa |
 | [Firebase Genkit](https://firebase.google.com/docs/genkit) | Framework de agentes IA |
-| [Mammoth.js](https://github.com/mwilliamson/mammoth.js) | Procesamiento de Word |
-| [PDF.js](https://mozilla.github.io/pdf.js/) | Procesamiento de PDFs |
+| [Mammoth.js](https://github.com/mwilliamson/mammoth.js)    | Procesamiento de Word   |
+| [PDF.js](https://mozilla.github.io/pdf.js/)                | Procesamiento de PDFs   |
 
 ### DevOps
 
-| Tecnología | Uso |
-|------------|-----|
-| [GitHub Actions](https://github.com/features/actions) | CI/CD |
-| [Pino](https://getpino.io/) | Logging |
+| Tecnología                                            | Uso     |
+| ----------------------------------------------------- | ------- |
+| [GitHub Actions](https://github.com/features/actions) | CI/CD   |
+| [Pino](https://getpino.io/)                           | Logging |
 
 ---
 
@@ -111,7 +111,7 @@
 
 ### Prerrequisitos
 
-- Node.js 18+ 
+- Node.js 18+
 - npm o yarn
 - Cuenta de Google Cloud Platform
 - Firebase project configurado
@@ -167,12 +167,32 @@ Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
 ## 📜 Scripts Disponibles
 
-| Script | Descripción |
-|--------|-------------|
-| `npm run dev` | Inicia servidor de desarrollo |
-| `npm run build` | Compila para producción |
-| `npm run lint` | Ejecuta linter |
-| `npm run genkit:dev` | Inicia Genkit para desarrollo de IA |
+| Script                 | Descripción                              |
+| ---------------------- | ---------------------------------------- |
+| `npm run dev`          | Inicia servidor de desarrollo            |
+| `npm run build`        | Compila para producción                  |
+| `npm run lint`         | Ejecuta ESLint en todo el proyecto       |
+| `npm run lint:fix`     | Ejecuta ESLint y corrige automáticamente |
+| `npm run format`       | Formatea código con Prettier             |
+| `npm run format:check` | Verifica formato sin modificar           |
+| `npm run typecheck`    | Verifica tipos de TypeScript             |
+| `npm run genkit:dev`   | Inicia Genkit para desarrollo de IA      |
+
+---
+
+## 🛡️ Calidad de Código
+
+Este proyecto usa **ESLint + Prettier** para mantener código de alta calidad y formato consistente.
+
+| Herramienta | Propósito                       | Config                 |
+| ----------- | ------------------------------- | ---------------------- |
+| ESLint      | Calidad de código, bugs, reglas | `eslint.config.mjs`    |
+| Prettier    | Formateo consistente            | `.prettierrc`          |
+| Husky       | Git hooks automáticos           | `.husky/`              |
+| lint-staged | Lint solo en archivos staged    | `package.json`         |
+| commitlint  | Validar mensajes de commit      | `commitlint.config.js` |
+
+> ⚡ **Pre-commit hooks:** Al hacer commit, automáticamente se ejecuta ESLint + Prettier en todo el proyecto.
 
 ---
 
@@ -190,18 +210,18 @@ Este proyecto sigue [Conventional Commits](https://www.conventionalcommits.org/)
 
 ### Tipos de Commit
 
-| Tipo | Descripción | Ejemplo |
-|------|-------------|---------|
-| `feat` | Nueva funcionalidad | `feat: add drag and drop file upload` |
-| `fix` | Corrección de bug | `fix: resolve token expiration issue` |
-| `docs` | Cambios en documentación | `docs: update installation steps` |
-| `style` | Formato, espacios (sin cambios de lógica) | `style: fix button indentation` |
-| `refactor` | Refactorización sin cambiar funcionalidad | `refactor: simplify error handling` |
-| `perf` | Mejoras de rendimiento | `perf: optimize search query with index` |
-| `test` | Agregar o corregir tests | `test: add task filter tests` |
-| `build` | Cambios en build o dependencias | `build: upgrade next.js to 15.1` |
-| `ci` | Configuración de CI/CD | `ci: add deploy workflow` |
-| `chore` | Mantenimiento general | `chore: update seed data script` |
+| Tipo       | Descripción                               | Ejemplo                                  |
+| ---------- | ----------------------------------------- | ---------------------------------------- |
+| `feat`     | Nueva funcionalidad                       | `feat: add drag and drop file upload`    |
+| `fix`      | Corrección de bug                         | `fix: resolve token expiration issue`    |
+| `docs`     | Cambios en documentación                  | `docs: update installation steps`        |
+| `style`    | Formato, espacios (sin cambios de lógica) | `style: fix button indentation`          |
+| `refactor` | Refactorización sin cambiar funcionalidad | `refactor: simplify error handling`      |
+| `perf`     | Mejoras de rendimiento                    | `perf: optimize search query with index` |
+| `test`     | Agregar o corregir tests                  | `test: add task filter tests`            |
+| `build`    | Cambios en build o dependencias           | `build: upgrade next.js to 15.1`         |
+| `ci`       | Configuración de CI/CD                    | `ci: add deploy workflow`                |
+| `chore`    | Mantenimiento general                     | `chore: update seed data script`         |
 
 ### Ejemplos
 
@@ -232,13 +252,13 @@ BREAKING CHANGE: /api/auth/login now returns different structure
 
 ## 👥 Roles de Usuario
 
-| Rol | Permisos |
-|-----|----------|
-| **Super Admin** | Acceso global a todo el sistema, gestión de clientes y workspaces |
-| **Admin de Cliente** | Gestión de su cliente específico y workspaces asociados |
+| Rol                     | Permisos                                                                 |
+| ----------------------- | ------------------------------------------------------------------------ |
+| **Super Admin**         | Acceso global a todo el sistema, gestión de clientes y workspaces        |
+| **Admin de Cliente**    | Gestión de su cliente específico y workspaces asociados                  |
 | **Product Design Lead** | Aprobación de tareas, generación de invitaciones, supervisión de calidad |
-| **Product Designer** | Uso completo de módulos de diseño y generación con IA |
-| **UX/UI Designer** | Uso de herramientas de diseño y recursos del sistema |
+| **Product Designer**    | Uso completo de módulos de diseño y generación con IA                    |
+| **UX/UI Designer**      | Uso de herramientas de diseño y recursos del sistema                     |
 
 ---
 

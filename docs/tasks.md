@@ -12,6 +12,7 @@ Implementar la infraestructura base del sistema incluyendo autenticación, roles
 ### Subtareas:
 
 #### [TASK-001] Implementar autenticación con Google Identity Platform
+
 - Módulo de creación de cuenta
 - Módulo de recuperación de contraseña
 - Flujo de login/registro directo
@@ -22,6 +23,7 @@ Implementar la infraestructura base del sistema incluyendo autenticación, roles
 - **Prioridad:** Alta
 
 #### [TASK-002] Implementar sistema de roles y permisos
+
 - Configurar roles: Super Admin, Admin de Cliente, Product Design Lead, Product Designer, UX/UI Designer
 - Un rol por workspace, múltiples workspaces por usuario
 - Validación de permisos en frontend y backend
@@ -32,6 +34,7 @@ Implementar la infraestructura base del sistema incluyendo autenticación, roles
 - **Prioridad:** Alta
 
 #### [TASK-003] Implementar arquitectura de clientes y workspaces
+
 - Jerarquía: Cliente > Workspace
 - Aislamiento total de datos por workspace
 - Selector de workspace con cambio de contexto
@@ -41,6 +44,7 @@ Implementar la infraestructura base del sistema incluyendo autenticación, roles
 - **Prioridad:** Alta
 
 #### [TASK-004] Implementar navegación global
+
 - Sidebar con acceso a todos los módulos
 - Selector de workspace funcional
 - Indicadores visuales de módulo activo y workspace actual
@@ -62,6 +66,7 @@ Panel administrativo para gestión de clientes, workspaces, usuarios y sistema d
 ### Subtareas:
 
 #### [TASK-005] Implementar gestión de clientes
+
 - CRUD de clientes (solo Super Admin)
 - Listado de todos los clientes
 - Asignación de Admins de Cliente
@@ -70,6 +75,7 @@ Panel administrativo para gestión de clientes, workspaces, usuarios y sistema d
 - **Prioridad:** Alta
 
 #### [TASK-006] Implementar gestión de workspaces
+
 - CRUD de workspaces
 - Super Admin: todos los clientes
 - Admin de Cliente: solo su cliente
@@ -79,6 +85,7 @@ Panel administrativo para gestión de clientes, workspaces, usuarios y sistema d
 - **Prioridad:** Alta
 
 #### [TASK-007] Implementar gestión de usuarios
+
 - Visualización de usuarios del sistema
 - Búsqueda por nombre, email, rol
 - Edición de información básica
@@ -89,6 +96,7 @@ Panel administrativo para gestión de clientes, workspaces, usuarios y sistema d
 - **Prioridad:** Alta
 
 #### [TASK-008] Implementar asignación de roles por workspace
+
 - Asignar un rol a usuario en workspace
 - Modificar rol existente (reemplaza anterior)
 - Remover acceso a workspace
@@ -98,6 +106,7 @@ Panel administrativo para gestión de clientes, workspaces, usuarios y sistema d
 - **Prioridad:** Alta
 
 #### [TASK-009] Implementar sistema de links de invitación
+
 - Generación de links con token encriptado
 - Configuración: cliente, workspace, rol, expiración, max_uses
 - Listado de links generados con estados
@@ -120,6 +129,7 @@ Sistema de gestión de recursos de diseño con categorías, documentos, URLs y b
 ### Subtareas:
 
 #### [TASK-010] Implementar gestión de categorías
+
 - Crear categorías con título y descripción
 - Asociación automática a workspace
 - Listado de categorías
@@ -128,6 +138,7 @@ Sistema de gestión de recursos de diseño con categorías, documentos, URLs y b
 - **Prioridad:** Alta
 
 #### [TASK-011] Implementar subida de documentos
+
 - Formatos: Word (.doc, .docx), PDF, Texto (.txt, .md)
 - Subida a Google Cloud Storage
 - Progress bar durante subida
@@ -137,6 +148,7 @@ Sistema de gestión de recursos de diseño con categorías, documentos, URLs y b
 - **Prioridad:** Alta
 
 #### [TASK-012] Implementar gestión de URLs
+
 - Agregar enlaces externos
 - Validación de formato URL
 - Almacenamiento en kit_resources
@@ -145,6 +157,7 @@ Sistema de gestión de recursos de diseño con categorías, documentos, URLs y b
 - **Prioridad:** Media
 
 #### [TASK-013] Implementar navegador de archivos por categoría
+
 - Vista de recursos por categoría
 - Ordenamiento: fecha, nombre, tipo
 - Íconos según tipo de recurso
@@ -153,6 +166,7 @@ Sistema de gestión de recursos de diseño con categorías, documentos, URLs y b
 - **Prioridad:** Alta
 
 #### [TASK-014] Implementar buscador de recursos
+
 - Búsqueda en tiempo real
 - Buscar en: título categoría, título recurso, descripción
 - Case-insensitive
@@ -161,6 +175,7 @@ Sistema de gestión de recursos de diseño con categorías, documentos, URLs y b
 - **Prioridad:** Media
 
 #### [TASK-015] Implementar eliminación de recursos
+
 - Botón eliminar con confirmación
 - Eliminar de Cloud Storage y base de datos
 - Actualización inmediata de vista
@@ -180,6 +195,7 @@ Módulo de generación de copy y microcopy con IA, conexión a recursos de Kit e
 ### Subtareas:
 
 #### [TASK-016] Implementar generación de copy con Gemini API
+
 - Input de prompt descriptivo
 - Parámetros: ciudad, audiencia, tono, longitud
 - Construcción de prompt enriquecido
@@ -192,6 +208,7 @@ Módulo de generación de copy y microcopy con IA, conexión a recursos de Kit e
 - **Prioridad:** Alta
 
 #### [TASK-017] Implementar conexión con recursos de Kit
+
 - Dialog de selección de recursos
 - Navegador de archivos de Kit
 - Selección múltiple con chips/badges
@@ -203,6 +220,7 @@ Módulo de generación de copy y microcopy con IA, conexión a recursos de Kit e
 - **Prioridad:** Alta
 
 #### [TASK-018] Implementar generación de insights automáticos
+
 - Generación simultánea con copy
 - Análisis de tono
 - Sugerencias de mejora
@@ -213,6 +231,7 @@ Módulo de generación de copy y microcopy con IA, conexión a recursos de Kit e
 - **Prioridad:** Media
 
 #### [TASK-019] Implementar historial de sesiones
+
 - Vista de historial en sidebar
 - Mini-título generado automáticamente (máx 50 chars)
 - Lista con: título, fecha, snippet
@@ -235,6 +254,7 @@ Módulo de generación de flujos de usuario en formato JSON compatible con Figma
 ### Subtareas:
 
 #### [TASK-020] Implementar generación de flujos con IA
+
 - Input de descripción de flujo
 - Parámetros: objetivo, puntos de decisión, estados
 - Generación de JSON compatible con Figma
@@ -245,6 +265,7 @@ Módulo de generación de flujos de usuario en formato JSON compatible con Figma
 - **Prioridad:** Alta
 
 #### [TASK-021] Implementar generación de microcopy para flujos
+
 - Microcopy como parte del flujo
 - Textos por nodo: títulos, descripciones, CTAs
 - Consistencia con tone of voice
@@ -253,6 +274,7 @@ Módulo de generación de flujos de usuario en formato JSON compatible con Figma
 - **Prioridad:** Media
 
 #### [TASK-022] Implementar función copiar JSON
+
 - Botón "Copiar JSON"
 - Copiar al portapapeles
 - Feedback visual de éxito
@@ -261,6 +283,7 @@ Módulo de generación de flujos de usuario en formato JSON compatible con Figma
 - **Prioridad:** Alta
 
 #### [TASK-023] Implementar conexión con recursos de Kit
+
 - Reutilizar dialog de selección de AI Writing
 - Enriquecimiento de contexto
 - Guidelines y ejemplos de flujos previos
@@ -268,6 +291,7 @@ Módulo de generación de flujos de usuario en formato JSON compatible con Figma
 - **Prioridad:** Media
 
 #### [TASK-024] Implementar historial de sesiones de flujos
+
 - Vista consistente con AI Writing (sidebar)
 - Lista: mini-título, fecha, snippet/thumbnail
 - Click para cargar flujo completo
@@ -288,6 +312,7 @@ Sistema de solicitudes de tareas, aprobaciones, backlog y gestión manual sin in
 ### Subtareas:
 
 #### [TASK-025] Implementar solicitudes de tareas
+
 - Formulario: título, descripción breve, prioridad
 - Estado inicial: "Solicitud"
 - Todos los roles pueden crear
@@ -297,6 +322,7 @@ Sistema de solicitudes de tareas, aprobaciones, backlog y gestión manual sin in
 - **Prioridad:** Alta
 
 #### [TASK-026] Implementar aprobación a Backlog
+
 - Solo Product Design Lead puede aprobar
 - Botón "Aprobar" visible según rol
 - Cambio de estado a "Backlog"
@@ -306,6 +332,7 @@ Sistema de solicitudes de tareas, aprobaciones, backlog y gestión manual sin in
 - **Prioridad:** Alta
 
 #### [TASK-027] Implementar asignación de usuarios a tareas
+
 - Campo "Asignado a" con lista de usuarios del workspace
 - Búsqueda de usuarios por nombre
 - Tarea puede estar sin asignar
@@ -314,6 +341,7 @@ Sistema de solicitudes de tareas, aprobaciones, backlog y gestión manual sin in
 - **Prioridad:** Alta
 
 #### [TASK-028] Implementar descripción detallada con formato
+
 - Editor de texto rico
 - Soporte: negritas, cursivas, bullets, listas
 - Guardado en HTML o Markdown
@@ -322,6 +350,7 @@ Sistema de solicitudes de tareas, aprobaciones, backlog y gestión manual sin in
 - **Prioridad:** Media
 
 #### [TASK-029] Implementar campos adicionales de tarea
+
 - Link JIRA (URL)
 - Fecha límite (date picker)
 - Dificultad (selector: Baja/Media/Alta)
@@ -331,6 +360,7 @@ Sistema de solicitudes de tareas, aprobaciones, backlog y gestión manual sin in
 - **Prioridad:** Media
 
 #### [TASK-030] Implementar edición rápida de datos
+
 - Click en campo lo hace editable
 - Guardado automático al blur
 - Feedback visual durante guardado
@@ -340,6 +370,7 @@ Sistema de solicitudes de tareas, aprobaciones, backlog y gestión manual sin in
 - **Prioridad:** Alta
 
 #### [TASK-031] Implementar filtros y ordenamiento
+
 - Filtro "Asignados a mí"
 - Filtro "Prioridad" (Alta/Media/Baja)
 - Filtro "Mostrar terminadas" (checkbox)
@@ -351,6 +382,7 @@ Sistema de solicitudes de tareas, aprobaciones, backlog y gestión manual sin in
 - **Prioridad:** Alta
 
 #### [TASK-032] Implementar cierre de tareas
+
 - Checkbox/botón "Cerrar"
 - Estado "Cerrada"
 - Ocultar por defecto (visible con filtro)
@@ -370,6 +402,7 @@ Módulo de generación de estrategias de diseño con formularios estructurados e
 ### Subtareas:
 
 #### [TASK-033] Implementar formulario de información básica
+
 - Sección "1. Información Básica"
 - Campos: nombre sistema, descripción, objetivos, público objetivo
 - Validación básica
@@ -379,6 +412,7 @@ Módulo de generación de estrategias de diseño con formularios estructurados e
 - **Prioridad:** Alta
 
 #### [TASK-034] Implementar generación de estrategia con IA
+
 - Botón "Generar Estrategia"
 - Construcción de metaprompt con todos los inputs
 - Integración con Gemini API
@@ -389,6 +423,7 @@ Módulo de generación de estrategias de diseño con formularios estructurados e
 - **Prioridad:** Alta
 
 #### [TASK-035] Implementar guardado y historial de estrategias
+
 - Guardado automático en strategy_sessions
 - Inputs del formulario, estrategia generada, fecha, autor
 - Mini-título descriptivo automático
@@ -400,6 +435,7 @@ Módulo de generación de estrategias de diseño con formularios estructurados e
 - **Prioridad:** Alta
 
 #### [TASK-036] Reparar funcionalidad de backend existente
+
 - Identificar y corregir errores en conexión con APIs
 - Estabilizar guardado en AlloyDB
 - Validar formularios end-to-end
@@ -419,6 +455,7 @@ Configuración de infraestructura GCP, CI/CD, base de datos y servicios cloud.
 ### Subtareas:
 
 #### [TASK-037] Configurar proyecto GCP
+
 - Google Cloud Platform setup
 - Google Identity Platform para auth
 - AlloyDB para PostgreSQL (base de datos principal)
@@ -430,6 +467,7 @@ Configuración de infraestructura GCP, CI/CD, base de datos y servicios cloud.
 - **Prioridad:** Alta
 
 #### [TASK-038] Implementar esquema de base de datos AlloyDB
+
 - Crear 18 tablas según diagrama ER
 - Configurar relaciones y foreign keys
 - Implementar constraints (UNIQUE, etc.)
@@ -441,6 +479,7 @@ Configuración de infraestructura GCP, CI/CD, base de datos y servicios cloud.
 - **Prioridad:** Alta
 
 #### [TASK-039] Configurar CI/CD con GitHub Actions
+
 - Pipeline de testing
 - Pipeline de build
 - Pipeline de deployment a Cloud Run
@@ -450,6 +489,7 @@ Configuración de infraestructura GCP, CI/CD, base de datos y servicios cloud.
 - **Prioridad:** Alta
 
 #### [TASK-040] Configurar monitoreo y logging
+
 - Google Cloud Logging
 - Google Cloud Monitoring + Grafana
 - Google Cloud Trace
@@ -470,6 +510,7 @@ Implementación de la interfaz de usuario con Next.js, React, Tailwind y shadcn/
 ### Subtareas:
 
 #### [TASK-041] Setup del proyecto Next.js
+
 - Configurar Next.js
 - Configurar TypeScript
 - Configurar Tailwind CSS
@@ -480,6 +521,7 @@ Implementación de la interfaz de usuario con Next.js, React, Tailwind y shadcn/
 - **Prioridad:** Alta
 
 #### [TASK-042] Implementar design system base
+
 - Componentes compartidos con shadcn/ui
 - Paleta de colores
 - Tipografía (Inter)
@@ -490,6 +532,7 @@ Implementación de la interfaz de usuario con Next.js, React, Tailwind y shadcn/
 - **Prioridad:** Alta
 
 #### [TASK-043] Implementar responsiveness desktop
+
 - Layout responsive para desktop
 - Sidebar adaptable
 - Vistas de módulos responsive
@@ -499,6 +542,7 @@ Implementación de la interfaz de usuario con Next.js, React, Tailwind y shadcn/
 - **Prioridad:** Media
 
 #### [TASK-044] Implementar accesibilidad WCAG 2.1 AA
+
 - Navegación por teclado
 - ARIA labels
 - Contraste de colores
@@ -519,6 +563,7 @@ Implementación de testing unitario, de integración y validación de calidad.
 ### Subtareas:
 
 #### [TASK-045] Implementar testing unitario
+
 - Setup de framework de testing
 - Tests de componentes React
 - Tests de funciones de utilidad
@@ -528,6 +573,7 @@ Implementación de testing unitario, de integración y validación de calidad.
 - **Prioridad:** Alta
 
 #### [TASK-046] Implementar testing de integración
+
 - Tests de flujos completos por módulo
 - Tests de autenticación e2e
 - Tests de permisos y roles
@@ -539,42 +585,47 @@ Implementación de testing unitario, de integración y validación de calidad.
 
 ## Resumen de Story Points por Epic
 
-| Epic | Story Points | Prioridad |
-|------|--------------|-----------|
-| Sistema General y Autenticación | 34 | Alta |
-| Admin Panel | 34 | Alta |
-| Kit | 21 | Alta |
-| AI Writing | 29 | Alta |
-| AI Flow | 21 | Alta |
-| Workbench | 29 | Alta |
-| Strategy | 18 | Alta |
-| Infraestructura y DevOps | 34 | Alta |
-| Frontend y UI | 21 | Alta |
-| Testing y Calidad | 13 | Alta |
-| **TOTAL FASE 1** | **254** | - |
+| Epic                            | Story Points | Prioridad |
+| ------------------------------- | ------------ | --------- |
+| Sistema General y Autenticación | 34           | Alta      |
+| Admin Panel                     | 34           | Alta      |
+| Kit                             | 21           | Alta      |
+| AI Writing                      | 29           | Alta      |
+| AI Flow                         | 21           | Alta      |
+| Workbench                       | 29           | Alta      |
+| Strategy                        | 18           | Alta      |
+| Infraestructura y DevOps        | 34           | Alta      |
+| Frontend y UI                   | 21           | Alta      |
+| Testing y Calidad               | 13           | Alta      |
+| **TOTAL FASE 1**                | **254**      | -         |
 
 ---
 
 ## Orden de Implementación Sugerido
 
 ### Sprint 1-2: Fundación (Semanas 1-4)
+
 - Infraestructura y DevOps (TASK-037, TASK-038, TASK-039)
 - Frontend Setup (TASK-041, TASK-042)
 - Sistema General y Autenticación (TASK-001, TASK-002, TASK-003, TASK-004)
 
 ### Sprint 3-4: Admin y Gestión (Semanas 5-8)
+
 - Admin Panel completo (TASK-005 a TASK-009)
 - Testing de infraestructura base (TASK-045)
 
 ### Sprint 5-6: Módulos Core (Semanas 9-12)
+
 - Kit (TASK-010 a TASK-015)
 - Workbench (TASK-025 a TASK-032)
 
 ### Sprint 7-8: Módulos IA (Semanas 13-16)
+
 - AI Writing (TASK-016 a TASK-019)
 - AI Flow (TASK-020 a TASK-024)
 
 ### Sprint 9-10: Finalización (Semanas 17-20)
+
 - Strategy (TASK-033 a TASK-036)
 - UI/Accesibilidad (TASK-043, TASK-044)
 - Testing completo (TASK-046)
@@ -610,5 +661,3 @@ graph TD
 4. **Duración estimada**: 8-10 sprints (16-20 semanas)
 5. **Testing**: Integrado en cada sprint, no solo al final
 6. **Revisiones**: Demos al final de cada sprint con stakeholders
-
-

@@ -1,13 +1,13 @@
-import type { Timestamp } from 'firebase/firestore';
+import type { Timestamp } from "firebase/firestore";
 
 export const abTestTypes = ["screen", "component"] as const;
-export type ABTestType = typeof abTestTypes[number];
+export type ABTestType = (typeof abTestTypes)[number];
 
 export const kpiTypes = ["click-thru", "task-success", "time-on-task"] as const;
-export type KpiType = typeof kpiTypes[number];
+export type KpiType = (typeof kpiTypes)[number];
 
 export const abTestStatuses = ["running", "finished"] as const;
-export type ABTestStatus = typeof abTestStatuses[number];
+export type ABTestStatus = (typeof abTestStatuses)[number];
 
 export interface ABTest {
   id: string;

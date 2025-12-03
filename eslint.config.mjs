@@ -2,6 +2,7 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import reactPlugin from "eslint-plugin-react";
 import nextPlugin from "@next/eslint-plugin-next";
+import prettierConfig from "eslint-config-prettier";
 
 export default [
   js.configs.recommended,
@@ -15,11 +16,17 @@ export default [
     rules: {
       ...reactPlugin.configs.recommended.rules,
       ...nextPlugin.configs.recommended.rules,
-      // React
+
+      // ═══════════════════════════════════════════════════════════════
+      // REACT - Reglas de React
+      // ═══════════════════════════════════════════════════════════════
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
       "react/no-unescaped-entities": "warn",
-      // TypeScript - warnings (no bloquean)
+
+      // ═══════════════════════════════════════════════════════════════
+      // TYPESCRIPT - Reglas de TypeScript
+      // ═══════════════════════════════════════════════════════════════
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-empty-object-type": "warn",
@@ -32,6 +39,9 @@ export default [
       },
     },
   },
+  // Prettier config - desactiva reglas de ESLint que conflictúan con Prettier
+  // (NO ejecuta Prettier, solo evita conflictos)
+  prettierConfig,
   {
     ignores: [
       ".next/**",

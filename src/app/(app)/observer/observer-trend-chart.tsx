@@ -1,18 +1,7 @@
-
 "use client";
 
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-} from "recharts";
-import {
-  ChartContainer,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
+import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 
 const chartData = [
   { month: "Ene", adoption: 120 },
@@ -26,14 +15,13 @@ const chartData = [
 export function ObserverTrendChart() {
   return (
     <ChartContainer config={{}} className="h-[250px] w-full">
-      <AreaChart data={chartData} accessibilityLayer margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+      <AreaChart
+        data={chartData}
+        accessibilityLayer
+        margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+      >
         <CartesianGrid vertical={false} />
-        <XAxis
-          dataKey="month"
-          tickLine={false}
-          tickMargin={10}
-          axisLine={false}
-        />
+        <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} />
         <YAxis tickLine={false} axisLine={false} />
         <Tooltip cursor={false} content={<ChartTooltipContent />} />
         <defs>

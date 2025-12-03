@@ -1,4 +1,4 @@
-'use server';
+"use server";
 /**
  * @fileOverview AI-powered Design Debt & Governance agent.
  * - agentDesignDebt - Analyzes design debt from various sources.
@@ -6,35 +6,44 @@
  * - AgentDesignDebtOutput - The return type for the agentDesignDebt function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { ai } from "@/ai/genkit";
+import { z } from "genkit";
 
 const AgentDesignDebtInputSchema = z.object({
   designDebtInput: z
     .string()
-    .describe('JSON data representing an inventory of Figma components, code references, and issues tagged with "ds-debt".'),
+    .describe(
+      'JSON data representing an inventory of Figma components, code references, and issues tagged with "ds-debt".'
+    ),
 });
 export type AgentDesignDebtInput = z.infer<typeof AgentDesignDebtInputSchema>;
 
 const AgentDesignDebtOutputSchema = z.object({
-  debtScore: z.number().describe('A calculated Design Debt Score, where a higher score means more debt.'),
-  divergentComponents: z.array(z.string()).describe('A list of components that have diverged from the design system.'),
-  lostRoi: z.string().describe('An estimate of the lost ROI due to design debt.'),
-  migrationPRPrompt: z.string().describe('A prompt to generate a pull request for migrating a component.'),
+  debtScore: z
+    .number()
+    .describe("A calculated Design Debt Score, where a higher score means more debt."),
+  divergentComponents: z
+    .array(z.string())
+    .describe("A list of components that have diverged from the design system."),
+  lostRoi: z.string().describe("An estimate of the lost ROI due to design debt."),
+  migrationPRPrompt: z
+    .string()
+    .describe("A prompt to generate a pull request for migrating a component."),
 });
 export type AgentDesignDebtOutput = z.infer<typeof AgentDesignDebtOutputSchema>;
 
-
-const agentDesignDebtFlow = ai.defineFlow({
-    name: 'agentDesignDebtFlow',
+const agentDesignDebtFlow = ai.defineFlow(
+  {
+    name: "agentDesignDebtFlow",
     inputSchema: AgentDesignDebtInputSchema,
     outputSchema: AgentDesignDebtOutputSchema,
-}, async (input) => {
-     const prompt = ai.definePrompt({
-        name: 'agentDesignDebtPrompt',
-        input: {schema: AgentDesignDebtInputSchema},
-        output: {schema: AgentDesignDebtOutputSchema},
-        prompt: `You are a Design System Governance AI agent. Analyze the provided data about design debt.
+  },
+  async (input) => {
+    const prompt = ai.definePrompt({
+      name: "agentDesignDebtPrompt",
+      input: { schema: AgentDesignDebtInputSchema },
+      output: { schema: AgentDesignDebtOutputSchema },
+      prompt: `You are a Design System Governance AI agent. Analyze the provided data about design debt.
 
         Design Debt Data:
         \`\`\`json
@@ -50,14 +59,15 @@ const agentDesignDebtFlow = ai.defineFlow({
         Provide the output in the specified JSON format.`,
     });
 
-    const {output} = await prompt(input);
+    const { output } = await prompt(input);
     if (!output) {
       throw new Error("Agent did not produce an output.");
     }
-    
+
     return output;
-});
+  }
+);
 
 export async function agentDesignDebt(input: AgentDesignDebtInput): Promise<AgentDesignDebtOutput> {
-    return agentDesignDebtFlow(input);
+  return agentDesignDebtFlow(input);
 }

@@ -1,5 +1,4 @@
-
-'use client';
+"use client";
 
 import { PageHeader } from "@/components/page-header";
 import { UXDraftAgentCard } from "../ai-toolkit/ux-draft-agent-card";

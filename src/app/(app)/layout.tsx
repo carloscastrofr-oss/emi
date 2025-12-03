@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -45,33 +44,98 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { AuthProvider, useAuth, UserRole } from "@/hooks/use-auth";
 import { RequireRole } from "@/components/auth/require-role";
 import { Badge } from "@/components/ui/badge";
 import { ONBOARDING_STEPS } from "@/lib/onboarding-data";
 import { useMemo, useState, useEffect } from "react";
 
-const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Panel", roles: ["viewer", "producer", "core", "admin"], className: "dashboard-page-link" },
-  { href: "/kit", icon: Package, label: "Kit", roles: ["viewer", "producer", "core", "admin"], className: "kit-page-link" },
-  { href: "/ai-writing", icon: PenSquare, label: "AI Writing", roles: ["producer", "core", "admin"], className: "content-page-link" },
-  { href: "/ai-flow", icon: Workflow, label: "AI Flow", roles: ["producer", "core", "admin"], className: "ai-flow-page-link" },
-  { href: "/workbench", icon: KanbanSquare, label: "Workbench", roles: ["producer", "core", "admin"], className: "workbench-page-link" },
-  { href: "/observer", icon: View, label: "Observer", roles: ["core", "admin"], className: "observer-page-link" },
-  { href: "/risk", icon: ShieldAlert, label: "Riesgos", roles: ["core", "admin"], className: "risk-page-link" },
-  { href: "/synthetic-users", icon: Users, label: "SynthUsers", roles: ["core", "admin"], className: "synthetic-users-page-link" },
-  { href: "/strategy", icon: Target, label: "Strategy", roles: ["producer", "core", "admin"], className: "strategy-page-link" },
-  { href: "/changelog", icon: ClipboardList, label: "Changelog", roles: ["viewer", "producer", "core", "admin"], className: "changelog-page-link" },
+const navItems: {
+  href: string;
+  icon: typeof LayoutDashboard;
+  label: string;
+  roles: UserRole[];
+  className: string;
+}[] = [
+  {
+    href: "/dashboard",
+    icon: LayoutDashboard,
+    label: "Panel",
+    roles: ["viewer", "producer", "core", "admin"],
+    className: "dashboard-page-link",
+  },
+  {
+    href: "/kit",
+    icon: Package,
+    label: "Kit",
+    roles: ["viewer", "producer", "core", "admin"],
+    className: "kit-page-link",
+  },
+  {
+    href: "/ai-writing",
+    icon: PenSquare,
+    label: "AI Writing",
+    roles: ["producer", "core", "admin"],
+    className: "content-page-link",
+  },
+  {
+    href: "/ai-flow",
+    icon: Workflow,
+    label: "AI Flow",
+    roles: ["producer", "core", "admin"],
+    className: "ai-flow-page-link",
+  },
+  {
+    href: "/workbench",
+    icon: KanbanSquare,
+    label: "Workbench",
+    roles: ["producer", "core", "admin"],
+    className: "workbench-page-link",
+  },
+  {
+    href: "/observer",
+    icon: View,
+    label: "Observer",
+    roles: ["core", "admin"],
+    className: "observer-page-link",
+  },
+  {
+    href: "/risk",
+    icon: ShieldAlert,
+    label: "Riesgos",
+    roles: ["core", "admin"],
+    className: "risk-page-link",
+  },
+  {
+    href: "/synthetic-users",
+    icon: Users,
+    label: "SynthUsers",
+    roles: ["core", "admin"],
+    className: "synthetic-users-page-link",
+  },
+  {
+    href: "/strategy",
+    icon: Target,
+    label: "Strategy",
+    roles: ["producer", "core", "admin"],
+    className: "strategy-page-link",
+  },
+  {
+    href: "/changelog",
+    icon: ClipboardList,
+    label: "Changelog",
+    roles: ["viewer", "producer", "core", "admin"],
+    className: "changelog-page-link",
+  },
 ];
-
 
 function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { userProfile } = useAuth();
-  
+
   const relevantSteps = useMemo(() => {
     if (!userProfile?.role) return [];
-    return ONBOARDING_STEPS.filter(step => step.roles.includes(userProfile.role));
+    return ONBOARDING_STEPS.filter((step) => step.roles.includes(userProfile.role));
   }, [userProfile?.role]);
 
   const completedStepsCount = useMemo(() => {
@@ -109,25 +173,28 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
           </SidebarContent>
           <SidebarFooter>
             <SidebarMenu>
-               <SidebarMenuItem>
-                  <SidebarMenuButton asChild className="w-full justify-start" href="/onboarding">
-                    <Link href="/onboarding" className="relative">
-                      <BookUser className="mr-2 h-5 w-5" />
-                      <span>Inducción</span>
-                      {remainingSteps > 0 && (
-                        <Badge variant="destructive" className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 p-0 flex items-center justify-center">
-                            {remainingSteps}
-                        </Badge>
-                      )}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton className="w-full justify-start">
-                    <Settings className="mr-2 h-5 w-5" />
-                    <span>Configuración</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className="w-full justify-start">
+                  <Link href="/onboarding" className="relative">
+                    <BookUser className="mr-2 h-5 w-5" />
+                    <span>Inducción</span>
+                    {remainingSteps > 0 && (
+                      <Badge
+                        variant="destructive"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 p-0 flex items-center justify-center"
+                      >
+                        {remainingSteps}
+                      </Badge>
+                    )}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton className="w-full justify-start">
+                  <Settings className="mr-2 h-5 w-5" />
+                  <span>Configuración</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
@@ -141,32 +208,39 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
                 </Button>
               </SidebarTrigger>
             </div>
-            <div className="flex-1">
-              {/* Header content like search can go here */}
-            </div>
+            <div className="flex-1">{/* Header content like search can go here */}</div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-8 w-8 rounded-full"
-                >
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="https://placehold.co/40x40.png" alt="@shadcn" data-ai-hint="person avatar" />
-                    <AvatarFallback>{userProfile?.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                    <AvatarImage
+                      src="https://placehold.co/40x40.png"
+                      alt="@shadcn"
+                      data-ai-hint="person avatar"
+                    />
+                    <AvatarFallback>
+                      {userProfile?.email?.charAt(0).toUpperCase() || "U"}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{userProfile?.displayName || "Usuario"}</p>
+                    <p className="text-sm font-medium leading-none">
+                      {userProfile?.displayName || "Usuario"}
+                    </p>
                     <p className="text-xs leading-none text-muted-foreground">
                       {userProfile?.email || "usuario@example.com"}
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {userProfile && <Badge variant="secondary" className="w-fit m-2 capitalize">{userProfile.role}</Badge>}
+                {userProfile && (
+                  <Badge variant="secondary" className="w-fit m-2 capitalize">
+                    {userProfile.role}
+                  </Badge>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Perfil</DropdownMenuItem>
                 <DropdownMenuItem>Configuración</DropdownMenuItem>
@@ -179,29 +253,28 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
         </div>
       </div>
     </SidebarProvider>
-  )
+  );
 }
 
 function ClientOnly({ children }: { children: React.ReactNode }) {
-    const [hasMounted, setHasMounted] = useState(false);
-    useEffect(() => {
-        setHasMounted(true);
-    }, []);
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
-    if (!hasMounted) {
-        return null;
-    }
+  if (!hasMounted) {
+    return null;
+  }
 
-    return <>{children}</>;
+  return <>{children}</>;
 }
-
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClientOnly>
-        <AuthProvider>
-            <AppLayoutContent>{children}</AppLayoutContent>
-        </AuthProvider>
+      <AuthProvider>
+        <AppLayoutContent>{children}</AppLayoutContent>
+      </AuthProvider>
     </ClientOnly>
-  )
+  );
 }
