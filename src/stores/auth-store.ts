@@ -5,6 +5,7 @@
 
 import { create } from "zustand";
 import type { Role, SessionUser, Client } from "@/types/auth";
+import { setRoleCookie, clearRoleCookie } from "@/lib/auth-cookies";
 
 // =============================================================================
 // TIPOS DEL STORE
@@ -120,6 +121,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       // Fetch del perfil (mock por ahora)
       const user = await fetchMockUserProfile();
 
+      // Guardar rol en cookie para el middleware
+      setRoleCookie(user.role);
+
       set({
         user,
         isAuthenticated: true,
@@ -151,6 +155,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   setRole: (role) => {
     const currentUser = get().user;
     if (currentUser) {
+      // Actualizar cookie
+      setRoleCookie(role);
       set({
         user: { ...currentUser, role },
       });
@@ -159,6 +165,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   // Logout
   logout: () => {
+    // Limpiar cookie
+    clearRoleCookie();
     set({
       user: null,
       isAuthenticated: false,
