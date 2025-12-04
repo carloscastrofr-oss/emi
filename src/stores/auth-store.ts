@@ -6,6 +6,30 @@
 import { create } from "zustand";
 import type { Role, SessionUser, Client } from "@/types/auth";
 import { setRoleCookie, clearRoleCookie } from "@/lib/auth-cookies";
+import { roleLabels } from "@/config/auth";
+
+// =============================================================================
+// HELPERS
+// =============================================================================
+
+/**
+ * Obtiene el rol seleccionado del debug store (desde localStorage)
+ * Esto evita dependencia circular entre stores
+ */
+function getDebugRole(): Role | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const stored = localStorage.getItem("emi-debug-storage");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return parsed.state?.selectedRole ?? null;
+    }
+  } catch {
+    // Ignorar errores de parsing
+  }
+  return null;
+}
 
 // =============================================================================
 // TIPOS DEL STORE
@@ -52,37 +76,32 @@ type AuthStore = AuthState & AuthActions;
 
 /**
  * Simula obtener el perfil del usuario desde Google Auth
+ * Usa el rol del debug store si está disponible
  * TODO: Reemplazar con llamada real a Google Auth cuando esté implementado
  */
 async function fetchMockUserProfile(): Promise<SessionUser> {
-  // Simular delay de red (200-500ms)
+  // Simular delay de red
   await new Promise((resolve) => setTimeout(resolve, 300));
 
-  // Datos mock - cambiar el rol aquí para probar diferentes permisos
+  // Obtener rol del debug store (si existe) o usar default
+  const debugRole = getDebugRole();
+  const role: Role = debugRole ?? "product_designer";
+
+  // Datos mock basados en el rol seleccionado
   const mockUser: SessionUser = {
     uid: "mock-uid-12345",
     email: "designer@example.com",
-    displayName: "Product Designer",
+    displayName: roleLabels[role],
     photoUrl: null,
-
-    // ROL HARDCODED PARA PRUEBAS - cambiar según necesidad
-    role: "product_designer",
-
-    // Sin permisos adicionales por ahora
+    role,
     permissions: [],
-
-    // Metadata
     emailVerified: true,
     lastLoginAt: new Date(),
     createdAt: new Date("2024-01-01"),
-
-    // Onboarding
     onboarding: {
       completed: [],
       currentStep: undefined,
     },
-
-    // Preferencias default
     preferences: {
       theme: "system",
       language: "es",

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PanelLeft, Settings, BookUser } from "lucide-react";
+import { PanelLeft, Settings, BookUser, Bug } from "lucide-react";
 import { useState, useEffect } from "react";
 
 import {
@@ -33,16 +33,22 @@ import { useAuthStore } from "@/stores/auth-store";
 import { getAllowedTabsConfig } from "@/lib/auth";
 import { roleLabels } from "@/config/auth";
 import { getIcon } from "@/config/sidebar-icons";
+import { DebugDialog } from "@/components/debug";
+import { useDebugStore } from "@/stores/debug-store";
 
 function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
+  const { openDialog: openDebugDialog } = useDebugStore();
 
   // Obtener las tabs permitidas para el rol del usuario
   const allowedTabs = user?.role ? getAllowedTabsConfig(user.role) : [];
 
   return (
     <SidebarProvider>
+      {/* Debug dialog */}
+      <DebugDialog />
+
       <div className="flex min-h-screen">
         <Sidebar>
           <SidebarHeader>
@@ -83,6 +89,15 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
                 <SidebarMenuButton className="w-full justify-start">
                   <Settings className="mr-2 h-5 w-5" />
                   <span>Configuración</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  className="w-full justify-start text-muted-foreground hover:text-foreground"
+                  onClick={openDebugDialog}
+                >
+                  <Bug className="mr-2 h-5 w-5" />
+                  <span>Debugging Tools</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
