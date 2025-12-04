@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { assignRisk } from "./actions";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuthStore } from "@/stores/auth-store";
 import type { Risk } from "@/types/risk";
 import { ASSIGNEE_OPTIONS } from "@/config/risk-options";
 import { Loader2 } from "lucide-react";
@@ -39,14 +39,14 @@ function getMockUserFromLabel(label: string): { uid: string; name: string } {
 
 export function AssignRiskModal({ risk, open, onClose, onAssign }: AssignRiskModalProps) {
   const { toast } = useToast();
-  const { userProfile } = useAuth();
+  const user = useAuthStore((state) => state.user);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedAssignee, setSelectedAssignee] = useState("");
 
   const assigneeOptions = ASSIGNEE_OPTIONS[risk.category] ?? ["DS Core"];
 
   const handleSave = async () => {
-    if (!selectedAssignee || !userProfile) {
+    if (!selectedAssignee || !user) {
       toast({
         title: "Error",
         description: "Selecciona un responsable e inicia sesión.",
@@ -62,12 +62,7 @@ export function AssignRiskModal({ risk, open, onClose, onAssign }: AssignRiskMod
     if (!isFirebaseConfigValid) {
       onAssign(assigneeUser);
     } else {
-      const result = await assignRisk(
-        risk.id,
-        assigneeUser.uid,
-        assigneeUser.name,
-        userProfile.uid
-      );
+      const result = await assignRisk(risk.id, assigneeUser.uid, assigneeUser.name, user.uid);
       if (!result.success) {
         toast({ title: "Error", description: result.message, variant: "destructive" });
       }

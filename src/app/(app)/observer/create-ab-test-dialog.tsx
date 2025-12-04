@@ -32,8 +32,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, PlusCircle } from "lucide-react";
 import { createABTest } from "./actions";
-import { useAuth } from "@/hooks/use-auth";
-import { KpiType, abTestTypes, kpiTypes } from "@/types/ab-test";
+import { useAuthStore } from "@/stores/auth-store";
+import { abTestTypes, kpiTypes } from "@/types/ab-test";
 
 const formSchema = z.object({
   name: z.string().min(5, "El nombre debe tener al menos 5 caracteres."),
@@ -52,7 +52,7 @@ export function CreateABTestDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const { toast } = useToast();
-  const { userProfile } = useAuth();
+  const user = useAuthStore((state) => state.user);
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -67,7 +67,7 @@ export function CreateABTestDialog({
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!userProfile) {
+    if (!user) {
       toast({
         title: "Error",
         description: "Debes iniciar sesión para crear un experimento.",
@@ -76,7 +76,7 @@ export function CreateABTestDialog({
       return;
     }
     setIsLoading(true);
-    const result = await createABTest({ ...values, ownerUid: userProfile.uid });
+    const result = await createABTest({ ...values, ownerUid: user.uid });
     setIsLoading(false);
 
     if (result.success) {

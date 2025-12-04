@@ -2,25 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  BookUser,
-  KanbanSquare,
-  LayoutDashboard,
-  Package,
-  PanelLeft,
-  Settings,
-  Bot,
-  View,
-  Beaker,
-  ClipboardList,
-  FileText,
-  Target,
-  Users,
-  ShieldAlert,
-  Sparkles,
-  PenSquare,
-  Workflow,
-} from "lucide-react";
+import { PanelLeft, Settings, BookUser } from "lucide-react";
+import { useState, useEffect } from "react";
 
 import {
   Sidebar,
@@ -44,105 +27,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { AuthProvider, useAuth, UserRole } from "@/hooks/use-auth";
-import { RequireRole } from "@/components/auth/require-role";
 import { Badge } from "@/components/ui/badge";
-import { ONBOARDING_STEPS } from "@/lib/onboarding-data";
-import { useMemo, useState, useEffect } from "react";
-
-const navItems: {
-  href: string;
-  icon: typeof LayoutDashboard;
-  label: string;
-  roles: UserRole[];
-  className: string;
-}[] = [
-  {
-    href: "/dashboard",
-    icon: LayoutDashboard,
-    label: "Panel",
-    roles: ["viewer", "producer", "core", "admin"],
-    className: "dashboard-page-link",
-  },
-  {
-    href: "/kit",
-    icon: Package,
-    label: "Kit",
-    roles: ["viewer", "producer", "core", "admin"],
-    className: "kit-page-link",
-  },
-  {
-    href: "/ai-writing",
-    icon: PenSquare,
-    label: "AI Writing",
-    roles: ["producer", "core", "admin"],
-    className: "content-page-link",
-  },
-  {
-    href: "/ai-flow",
-    icon: Workflow,
-    label: "AI Flow",
-    roles: ["producer", "core", "admin"],
-    className: "ai-flow-page-link",
-  },
-  {
-    href: "/workbench",
-    icon: KanbanSquare,
-    label: "Workbench",
-    roles: ["producer", "core", "admin"],
-    className: "workbench-page-link",
-  },
-  {
-    href: "/observer",
-    icon: View,
-    label: "Observer",
-    roles: ["core", "admin"],
-    className: "observer-page-link",
-  },
-  {
-    href: "/risk",
-    icon: ShieldAlert,
-    label: "Riesgos",
-    roles: ["core", "admin"],
-    className: "risk-page-link",
-  },
-  {
-    href: "/synthetic-users",
-    icon: Users,
-    label: "SynthUsers",
-    roles: ["core", "admin"],
-    className: "synthetic-users-page-link",
-  },
-  {
-    href: "/strategy",
-    icon: Target,
-    label: "Strategy",
-    roles: ["producer", "core", "admin"],
-    className: "strategy-page-link",
-  },
-  {
-    href: "/changelog",
-    icon: ClipboardList,
-    label: "Changelog",
-    roles: ["viewer", "producer", "core", "admin"],
-    className: "changelog-page-link",
-  },
-];
+import { AuthInitializer } from "@/components/auth/auth-initializer";
+import { useAuthStore } from "@/stores/auth-store";
+import { getAllowedTabsConfig } from "@/lib/auth";
+import { roleLabels } from "@/config/auth";
+import { getIcon } from "@/config/sidebar-icons";
 
 function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { userProfile } = useAuth();
+  const { user, logout } = useAuthStore();
 
-  const relevantSteps = useMemo(() => {
-    if (!userProfile?.role) return [];
-    return ONBOARDING_STEPS.filter((step) => step.roles.includes(userProfile.role));
-  }, [userProfile?.role]);
-
-  const completedStepsCount = useMemo(() => {
-    return userProfile?.onboarding?.completed?.length || 0;
-  }, [userProfile?.onboarding]);
-
-  const remainingSteps = relevantSteps.length - completedStepsCount;
+  // Obtener las tabs permitidas para el rol del usuario
+  const allowedTabs = user?.role ? getAllowedTabsConfig(user.role) : [];
 
   return (
     <SidebarProvider>
@@ -153,39 +50,32 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
           </SidebarHeader>
           <SidebarContent className="p-2">
             <SidebarMenu>
-              {navItems.map((item) => (
-                <RequireRole key={item.href} roles={item.roles}>
-                  <SidebarMenuItem>
+              {allowedTabs.map((tab) => {
+                const Icon = getIcon(tab.icon);
+                return (
+                  <SidebarMenuItem key={tab.id}>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname.startsWith(item.href)}
-                      className={`w-full justify-start ${item.className}`}
+                      isActive={pathname.startsWith(tab.href)}
+                      className={`w-full justify-start ${tab.className ?? ""}`}
                     >
-                      <Link href={item.href}>
-                        <item.icon className="mr-2 h-5 w-5" />
-                        <span>{item.label}</span>
+                      <Link href={tab.href}>
+                        <Icon className="mr-2 h-5 w-5" />
+                        <span>{tab.label}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                </RequireRole>
-              ))}
+                );
+              })}
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild className="w-full justify-start">
-                  <Link href="/onboarding" className="relative">
+                  <Link href="/onboarding">
                     <BookUser className="mr-2 h-5 w-5" />
                     <span>Inducción</span>
-                    {remainingSteps > 0 && (
-                      <Badge
-                        variant="destructive"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 p-0 flex items-center justify-center"
-                      >
-                        {remainingSteps}
-                      </Badge>
-                    )}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -208,19 +98,16 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
                 </Button>
               </SidebarTrigger>
             </div>
-            <div className="flex-1">{/* Header content like search can go here */}</div>
+            <div className="flex-1" />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
                     <AvatarImage
-                      src="https://placehold.co/40x40.png"
-                      alt="@shadcn"
-                      data-ai-hint="person avatar"
+                      src={user?.photoUrl ?? "https://placehold.co/40x40.png"}
+                      alt={user?.displayName ?? "Usuario"}
                     />
-                    <AvatarFallback>
-                      {userProfile?.email?.charAt(0).toUpperCase() || "U"}
-                    </AvatarFallback>
+                    <AvatarFallback>{user?.email?.charAt(0).toUpperCase() ?? "U"}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -228,24 +115,28 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {userProfile?.displayName || "Usuario"}
+                      {user?.displayName ?? "Usuario"}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {userProfile?.email || "usuario@example.com"}
+                      {user?.email ?? "usuario@example.com"}
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {userProfile && (
-                  <Badge variant="secondary" className="w-fit m-2 capitalize">
-                    {userProfile.role}
-                  </Badge>
+                {user?.role && (
+                  <>
+                    <div className="px-2 py-1.5">
+                      <Badge variant="secondary" className="w-fit">
+                        {roleLabels[user.role]}
+                      </Badge>
+                    </div>
+                    <DropdownMenuSeparator />
+                  </>
                 )}
-                <DropdownMenuSeparator />
                 <DropdownMenuItem>Perfil</DropdownMenuItem>
                 <DropdownMenuItem>Configuración</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Cerrar sesión</DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>Cerrar sesión</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </header>
@@ -272,9 +163,9 @@ function ClientOnly({ children }: { children: React.ReactNode }) {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClientOnly>
-      <AuthProvider>
+      <AuthInitializer>
         <AppLayoutContent>{children}</AppLayoutContent>
-      </AuthProvider>
+      </AuthInitializer>
     </ClientOnly>
   );
 }

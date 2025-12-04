@@ -91,7 +91,7 @@ export function ABTestControls({ analysis, onAnalysisChange }: ABTestControlsPro
                 </CardDescription>
               </div>
               <div className="flex items-center gap-2">
-                <RequireRole roles={["core", "admin"]}>
+                <RequireRole minRole="product_design_lead">
                   <Button onClick={() => setDialogOpen(true)} variant="outline">
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Nuevo A/B Test

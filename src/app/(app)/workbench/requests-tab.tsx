@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { db, isFirebaseConfigValid } from "@/lib/firebase";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuthStore } from "@/stores/auth-store";
 import { useToast } from "@/hooks/use-toast";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -73,7 +73,7 @@ function NewRequestDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const { toast } = useToast();
-  const { userProfile } = useAuth();
+  const user = useAuthStore((state) => state.user);
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof newRequestSchema>>({
@@ -88,7 +88,7 @@ function NewRequestDialog({
   });
 
   async function onSubmit(values: z.infer<typeof newRequestSchema>) {
-    if (!userProfile) {
+    if (!user) {
       toast({
         title: "Error",
         description: "Debes iniciar sesión para crear una solicitud.",
@@ -102,7 +102,7 @@ function NewRequestDialog({
     const result = await submitComponentRequest({
       ...restPayload,
       figmaFileUrl: figmaFileUrl || null,
-      requesterUid: userProfile.uid,
+      requesterUid: user.uid,
     });
     setIsLoading(false);
 

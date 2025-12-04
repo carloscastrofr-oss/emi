@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect } from "react";
-import Joyride, { CallBackProps, EVENTS, Step } from "react-joyride";
-import { useAuth } from "@/hooks/use-auth";
+import React from "react";
+import Joyride, { CallBackProps, EVENTS } from "react-joyride";
+import { useAuthStore } from "@/stores/auth-store";
 import { ONBOARDING_TOURS, ONBOARDING_STEPS } from "@/lib/onboarding-data";
 import { completeOnboardingStep } from "./actions";
 
@@ -12,15 +12,13 @@ interface OnboardingTourProps {
 }
 
 export function OnboardingTour({ run, setRun }: OnboardingTourProps) {
-  const { userProfile } = useAuth();
+  const user = useAuthStore((state) => state.user);
 
   const tourSteps = React.useMemo(() => {
-    const role = userProfile?.role || "viewer";
-    const tourConfig =
-      ONBOARDING_TOURS.find((t) => t.role === role) ??
-      ONBOARDING_TOURS[ONBOARDING_TOURS.length - 1];
+    // Usar el último tour config como default (más completo)
+    const tourConfig = ONBOARDING_TOURS[ONBOARDING_TOURS.length - 1];
     return tourConfig?.steps.map((s) => ({ ...s, disableBeacon: true })) ?? [];
-  }, [userProfile?.role]);
+  }, []);
 
   const handleJoyrideCallback = async (data: CallBackProps) => {
     const { action, step, type } = data;
@@ -28,9 +26,8 @@ export function OnboardingTour({ run, setRun }: OnboardingTourProps) {
     if (([EVENTS.STEP_AFTER, EVENTS.TOUR_END] as string[]).includes(type)) {
       const stepId = ONBOARDING_STEPS.find((s) => s.tourStepSelector === step.target)?.id;
 
-      if (stepId && userProfile && !userProfile.onboarding?.completed.includes(stepId)) {
-        // Pasamos el UID del usuario a la acción del servidor
-        await completeOnboardingStep(userProfile.uid, stepId);
+      if (stepId && user && !user.onboarding?.completed.includes(stepId)) {
+        await completeOnboardingStep(user.uid, stepId);
       }
     }
 

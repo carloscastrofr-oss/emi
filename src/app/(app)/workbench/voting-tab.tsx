@@ -62,12 +62,12 @@ export function VotingTab() {
                 <div className="ml-2 text-muted-foreground">Votos</div>
               </CardContent>
               <CardFooter className="gap-2">
-                <RequireRole roles={["producer", "core", "admin"]} showIsBlocked>
+                <RequireRole minRole="product_designer" showDisabled>
                   <Button variant="outline" className="w-full">
                     <ThumbsUp className="mr-2 h-4 w-4" /> Votar a favor
                   </Button>
                 </RequireRole>
-                <RequireRole roles={["producer", "core", "admin"]} showIsBlocked>
+                <RequireRole minRole="product_designer" showDisabled>
                   <Button variant="outline" className="w-full">
                     <ThumbsDown className="mr-2 h-4 w-4" /> Votar en contra
                   </Button>

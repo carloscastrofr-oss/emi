@@ -13,7 +13,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Circle, PlayCircle } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuthStore } from "@/stores/auth-store";
 import { ONBOARDING_STEPS } from "@/lib/onboarding-data";
 import { OnboardingTour } from "./onboarding-tour";
 import { cn } from "@/lib/utils";
@@ -21,16 +21,14 @@ import { motion } from "framer-motion";
 
 function OnboardingClientContent() {
   const [isTourRunning, setTourRunning] = useState(false);
-  const { userProfile } = useAuth();
+  const user = useAuthStore((state) => state.user);
 
-  const userRole = userProfile?.role || "viewer";
-  const completedSteps = userProfile?.onboarding?.completed || [];
+  const completedSteps = user?.onboarding?.completed || [];
 
+  // Por ahora mostrar todos los pasos de onboarding
   const relevantSteps = useMemo(() => {
-    return ONBOARDING_STEPS.filter((step) => step.roles.includes(userRole)).sort(
-      (a, b) => a.order - b.order
-    );
-  }, [userRole]);
+    return ONBOARDING_STEPS.sort((a, b) => a.order - b.order);
+  }, []);
 
   const completedCount = useMemo(() => {
     return relevantSteps.filter((step) => completedSteps.includes(step.id)).length;

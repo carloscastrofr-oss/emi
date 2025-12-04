@@ -88,7 +88,7 @@ export default function KitPage({ params, searchParams }: { params: {}; searchPa
               </CardHeader>
               <CardContent className="flex-grow"></CardContent>
               <CardFooter>
-                <RequireRole roles={["producer", "core", "admin"]} showIsBlocked>
+                <RequireRole minRole="product_designer" showDisabled>
                   <Button className="w-full">
                     <ArrowRight className="mr-2 h-4 w-4" />
                     Consultar
