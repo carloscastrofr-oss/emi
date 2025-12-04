@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PanelLeft, Settings, BookUser, Bug } from "lucide-react";
+import { Settings, BookUser, Bug } from "lucide-react";
 import { useState, useEffect } from "react";
 
 import {
@@ -13,32 +13,20 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarProvider,
-  SidebarTrigger,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { AuthInitializer } from "@/components/auth/auth-initializer";
-import { useAuthStore } from "@/stores/auth-store";
-import { getAllowedTabsConfig } from "@/lib/auth";
-import { roleLabels } from "@/config/auth";
-import { getIcon } from "@/config/sidebar-icons";
+import { AppHeader } from "@/components/layout";
 import { DebugDialog } from "@/components/debug";
+import { useAuthStore } from "@/stores/auth-store";
 import { useDebugStore } from "@/stores/debug-store";
+import { getAllowedTabsConfig } from "@/lib/auth";
+import { getIcon } from "@/config/sidebar-icons";
 
 function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const { openDialog: openDebugDialog } = useDebugStore();
 
   // Obtener las tabs permitidas para el rol del usuario
@@ -49,7 +37,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
       {/* Debug dialog */}
       <DebugDialog />
 
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen w-full">
         <Sidebar>
           <SidebarHeader>
             <Logo />
@@ -103,59 +91,11 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <div className="flex-1">
-          <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
-            <div className="md:hidden">
-              <SidebarTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <PanelLeft className="h-6 w-6" />
-                  <span className="sr-only">Toggle Sidebar</span>
-                </Button>
-              </SidebarTrigger>
-            </div>
-            <div className="flex-1" />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage
-                      src={user?.photoUrl ?? "https://placehold.co/40x40.png"}
-                      alt={user?.displayName ?? "Usuario"}
-                    />
-                    <AvatarFallback>{user?.email?.charAt(0).toUpperCase() ?? "U"}</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {user?.displayName ?? "Usuario"}
-                    </p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {user?.email ?? "usuario@example.com"}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {user?.role && (
-                  <>
-                    <div className="px-2 py-1.5">
-                      <Badge variant="secondary" className="w-fit">
-                        {roleLabels[user.role]}
-                      </Badge>
-                    </div>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
-                <DropdownMenuItem>Perfil</DropdownMenuItem>
-                <DropdownMenuItem>Configuración</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout}>Cerrar sesión</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </header>
-          <main className="p-4 sm:p-6">{children}</main>
+
+        {/* Main content area */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <AppHeader />
+          <main className="flex-1 overflow-auto p-4 sm:p-6">{children}</main>
         </div>
       </div>
     </SidebarProvider>
