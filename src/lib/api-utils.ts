@@ -11,23 +11,11 @@ import { NextResponse } from "next/server";
 export const DEV_API_DELAY = 2000;
 
 /**
- * Obtiene si estamos en modo dev API desde las cookies
+ * Verifica si la petición viene en modo dev API
+ * Lee el header X-Dev-Mode enviado por el cliente
  */
 export function isDevApiMode(request: Request): boolean {
-  const cookie = request.headers.get("cookie") ?? "";
-  const match = cookie.match(/emi-debug-storage=([^;]+)/);
-
-  if (match && match[1]) {
-    try {
-      const decoded = decodeURIComponent(match[1]);
-      const parsed = JSON.parse(decoded);
-      return parsed.state?.devApi === true;
-    } catch {
-      // Ignorar errores de parsing
-    }
-  }
-
-  return false;
+  return request.headers.get("X-Dev-Mode") === "true";
 }
 
 /**
@@ -68,6 +56,13 @@ export function errorResponse(message: string, status = 500, details?: unknown) 
     },
     { status }
   );
+}
+
+/**
+ * Respuesta para cuando no hay backend conectado
+ */
+export function noBackendResponse() {
+  return errorResponse("Error de conexión con el servidor. Intenta de nuevo más tarde.", 503);
 }
 
 /**

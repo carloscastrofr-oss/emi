@@ -124,10 +124,24 @@
 
 import { NextRequest } from "next/server";
 import { kitsMock, type Kit } from "@/mocks/kit";
-import { successResponse, errorResponse, applyDevDelay } from "@/lib/api-utils";
+import {
+  successResponse,
+  errorResponse,
+  applyDevDelay,
+  isDevApiMode,
+  noBackendResponse,
+} from "@/lib/api-utils";
 
 export async function GET(request: NextRequest) {
   try {
+    // Verificar si estamos en modo dev (mocks)
+    const isDevMode = isDevApiMode(request);
+
+    // Si no está en modo dev, no hay backend real conectado aún
+    if (!isDevMode) {
+      return noBackendResponse();
+    }
+
     // Aplicar delay en modo dev
     await applyDevDelay(request);
 
@@ -136,7 +150,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category");
     const search = searchParams.get("search")?.toLowerCase();
 
-    // Filtrar kits
+    // Filtrar kits (usando mocks)
     let filteredKits: Kit[] = [...kitsMock];
 
     if (category) {

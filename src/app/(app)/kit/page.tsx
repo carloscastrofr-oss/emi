@@ -28,6 +28,7 @@ import {
 import { RequireRole } from "@/components/auth/require-role";
 import type { Kit } from "@/mocks/kit";
 import type { ApiResponse } from "@/lib/api-utils";
+import { apiFetch } from "@/lib/api-client";
 
 // Mapeo de nombres de iconos a componentes
 const iconMap: Record<string, LucideIcon> = {
@@ -74,7 +75,7 @@ export default function KitPage() {
       setError(null);
 
       try {
-        const response = await fetch("/api/kit");
+        const response = await apiFetch("/api/kit");
         const data: ApiResponse<Kit[]> = await response.json();
 
         if (data.success && data.data) {
