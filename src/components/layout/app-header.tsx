@@ -28,8 +28,8 @@ export function AppHeader() {
       {/* Mobile sidebar trigger */}
       <div className="md:hidden">
         <SidebarTrigger>
-            <PanelLeft className="h-6 w-6" />
-            <span className="sr-only">Toggle Sidebar</span>
+          <PanelLeft className="h-6 w-6" />
+          <span className="sr-only">Toggle Sidebar</span>
         </SidebarTrigger>
       </div>
 

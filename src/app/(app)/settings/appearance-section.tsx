@@ -37,9 +37,7 @@ export function AppearanceSection() {
           <Palette className="h-5 w-5 text-muted-foreground" />
           <CardTitle>Apariencia</CardTitle>
         </div>
-        <CardDescription>
-          Personaliza el tema y la apariencia de la aplicación.
-        </CardDescription>
+        <CardDescription>Personaliza el tema y la apariencia de la aplicación.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
@@ -142,4 +140,3 @@ export function AppearanceSection() {
     </Card>
   );
 }
-

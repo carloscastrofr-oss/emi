@@ -55,7 +55,7 @@ export default function AIWritingPage() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(_values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setGeneratedContent("");
     try {

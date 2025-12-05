@@ -2,18 +2,7 @@
 
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import {
-  Palette,
-  Bell,
-  Shield,
-  Globe,
-  Database,
-  Keyboard,
-  Monitor,
-  Moon,
-  Sun,
-} from "lucide-react";
+import { Bell, Shield, Globe, Database, Keyboard } from "lucide-react";
 import { AppearanceSection } from "./appearance-section";
 
 export default function SettingsPage() {
@@ -35,9 +24,7 @@ export default function SettingsPage() {
               <Bell className="h-5 w-5 text-muted-foreground" />
               <CardTitle>Notificaciones</CardTitle>
             </div>
-            <CardDescription>
-              Configura cómo y cuándo recibes notificaciones.
-            </CardDescription>
+            <CardDescription>Configura cómo y cuándo recibes notificaciones.</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
@@ -53,9 +40,7 @@ export default function SettingsPage() {
               <Shield className="h-5 w-5 text-muted-foreground" />
               <CardTitle>Privacidad y Seguridad</CardTitle>
             </div>
-            <CardDescription>
-              Gestiona tu privacidad y configuración de seguridad.
-            </CardDescription>
+            <CardDescription>Gestiona tu privacidad y configuración de seguridad.</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
@@ -89,9 +74,7 @@ export default function SettingsPage() {
               <Database className="h-5 w-5 text-muted-foreground" />
               <CardTitle>Datos y Almacenamiento</CardTitle>
             </div>
-            <CardDescription>
-              Gestiona tus datos locales y configuración de caché.
-            </CardDescription>
+            <CardDescription>Gestiona tus datos locales y configuración de caché.</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
@@ -107,9 +90,7 @@ export default function SettingsPage() {
               <Keyboard className="h-5 w-5 text-muted-foreground" />
               <CardTitle>Atajos de Teclado</CardTitle>
             </div>
-            <CardDescription>
-              Personaliza los atajos de teclado de la aplicación.
-            </CardDescription>
+            <CardDescription>Personaliza los atajos de teclado de la aplicación.</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
@@ -121,4 +102,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-

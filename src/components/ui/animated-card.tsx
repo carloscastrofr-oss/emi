@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { motion, type Variants } from "framer-motion"
+import * as React from "react";
+import { motion, type Variants } from "framer-motion";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import {
   Card,
   CardHeader,
@@ -11,7 +11,7 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 
 // ============================================================================
 // ANIMATED CARD VARIANTS
@@ -37,7 +37,7 @@ const cardVariants: Variants = {
       ease: "easeIn",
     },
   },
-}
+};
 
 const hoverVariants: Variants = {
   rest: {
@@ -58,16 +58,16 @@ const hoverVariants: Variants = {
   tap: {
     scale: 0.98,
   },
-}
+};
 
 // ============================================================================
 // ANIMATED CARD COMPONENTS
 // ============================================================================
 
 interface AnimatedCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  delay?: number
-  hover?: boolean
-  clickable?: boolean
+  delay?: number;
+  hover?: boolean;
+  clickable?: boolean;
 }
 
 const AnimatedCard = React.forwardRef<HTMLDivElement, AnimatedCardProps>(
@@ -83,25 +83,19 @@ const AnimatedCard = React.forwardRef<HTMLDivElement, AnimatedCardProps>(
         whileTap={clickable ? "tap" : undefined}
         transition={{ delay }}
       >
-        <Card
-          className={cn(
-            clickable && "cursor-pointer",
-            className
-          )}
-          {...props}
-        >
+        <Card className={cn(clickable && "cursor-pointer", className)} {...props}>
           {children}
         </Card>
       </motion.div>
-    )
+    );
   }
-)
-AnimatedCard.displayName = "AnimatedCard"
+);
+AnimatedCard.displayName = "AnimatedCard";
 
 // Fade-in card without hover effects
 interface FadeInCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  delay?: number
-  direction?: "up" | "down" | "left" | "right"
+  delay?: number;
+  direction?: "up" | "down" | "left" | "right";
 }
 
 const FadeInCard = React.forwardRef<HTMLDivElement, FadeInCardProps>(
@@ -109,15 +103,15 @@ const FadeInCard = React.forwardRef<HTMLDivElement, FadeInCardProps>(
     const getInitial = () => {
       switch (direction) {
         case "down":
-          return { opacity: 0, y: -20 }
+          return { opacity: 0, y: -20 };
         case "left":
-          return { opacity: 0, x: 20 }
+          return { opacity: 0, x: 20 };
         case "right":
-          return { opacity: 0, x: -20 }
+          return { opacity: 0, x: -20 };
         default:
-          return { opacity: 0, y: 20 }
+          return { opacity: 0, y: 20 };
       }
-    }
+    };
 
     return (
       <motion.div
@@ -135,73 +129,72 @@ const FadeInCard = React.forwardRef<HTMLDivElement, FadeInCardProps>(
           {children}
         </Card>
       </motion.div>
-    )
+    );
   }
-)
-FadeInCard.displayName = "FadeInCard"
+);
+FadeInCard.displayName = "FadeInCard";
 
 // Stagger card container for lists
 interface CardContainerProps extends React.HTMLAttributes<HTMLDivElement> {
-  stagger?: number
-  delayChildren?: number
+  stagger?: number;
+  delayChildren?: number;
 }
 
 const CardContainer = React.forwardRef<HTMLDivElement, CardContainerProps>(
   ({ className, stagger = 0.1, delayChildren = 0, children, ...props }, ref) => {
-    const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any
+    const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any;
     return (
-    <motion.div
-      ref={ref}
-      className={cn("grid gap-4", className)}
-      variants={{
-        hidden: { opacity: 0 },
-        visible: {
-          opacity: 1,
-          transition: {
-            staggerChildren: stagger,
-            delayChildren,
+      <motion.div
+        ref={ref}
+        className={cn("grid gap-4", className)}
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: {
+              staggerChildren: stagger,
+              delayChildren,
+            },
           },
-        },
-      }}
-      initial="hidden"
-      animate="visible"
+        }}
+        initial="hidden"
+        animate="visible"
         {...(motionProps as any)}
-    >
-      {children}
-    </motion.div>
-  )
+      >
+        {children}
+      </motion.div>
+    );
   }
-)
-CardContainer.displayName = "CardContainer"
+);
+CardContainer.displayName = "CardContainer";
 
 // Card item for staggered animations
-const CardItem = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, children, ...props }, ref) => {
-  const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any
-  return (
-  <motion.div
-    ref={ref}
-    variants={cardVariants}
-    className={cn(className)}
-      {...(motionProps as any)}
-  >
-    {children}
-  </motion.div>
-  )
-})
-CardItem.displayName = "CardItem"
+const CardItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, children, ...props }, ref) => {
+    const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any;
+    return (
+      <motion.div
+        ref={ref}
+        variants={cardVariants}
+        className={cn(className)}
+        {...(motionProps as any)}
+      >
+        {children}
+      </motion.div>
+    );
+  }
+);
+CardItem.displayName = "CardItem";
 
 // Expandable card
 interface ExpandableCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  expanded?: boolean
-  onToggle?: () => void
+  expanded?: boolean;
+  onToggle?: () => void;
 }
 
 const ExpandableCard = React.forwardRef<HTMLDivElement, ExpandableCardProps>(
   ({ className, expanded = false, onToggle, children, ...props }, ref) => {
-    const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any
+    const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any;
     return (
       <motion.div
         ref={ref}
@@ -214,16 +207,16 @@ const ExpandableCard = React.forwardRef<HTMLDivElement, ExpandableCardProps>(
           <motion.div layout="position">{children}</motion.div>
         </Card>
       </motion.div>
-    )
+    );
   }
-)
-ExpandableCard.displayName = "ExpandableCard"
+);
+ExpandableCard.displayName = "ExpandableCard";
 
 // Flip card
 interface FlipCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  front: React.ReactNode
-  back: React.ReactNode
-  flipped?: boolean
+  front: React.ReactNode;
+  back: React.ReactNode;
+  flipped?: boolean;
 }
 
 const FlipCard = React.forwardRef<HTMLDivElement, FlipCardProps>(
@@ -258,41 +251,39 @@ const FlipCard = React.forwardRef<HTMLDivElement, FlipCardProps>(
           </Card>
         </motion.div>
       </div>
-    )
+    );
   }
-)
-FlipCard.displayName = "FlipCard"
+);
+FlipCard.displayName = "FlipCard";
 
 // Animated card header with icon animation
-interface AnimatedCardHeaderProps
-  extends React.HTMLAttributes<HTMLDivElement> {
-  icon?: React.ReactNode
+interface AnimatedCardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+  icon?: React.ReactNode;
 }
 
-const AnimatedCardHeader = React.forwardRef<
-  HTMLDivElement,
-  AnimatedCardHeaderProps
->(({ className, icon, children, ...props }, ref) => (
-  <CardHeader ref={ref} className={cn("relative", className)} {...props}>
-    {icon && (
-      <motion.div
-        className="mb-2"
-        initial={{ scale: 0, rotate: -180 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{
-          type: "spring",
-          stiffness: 260,
-          damping: 20,
-          delay: 0.1,
-        }}
-      >
-        {icon}
-      </motion.div>
-    )}
-    {children}
-  </CardHeader>
-))
-AnimatedCardHeader.displayName = "AnimatedCardHeader"
+const AnimatedCardHeader = React.forwardRef<HTMLDivElement, AnimatedCardHeaderProps>(
+  ({ className, icon, children, ...props }, ref) => (
+    <CardHeader ref={ref} className={cn("relative", className)} {...props}>
+      {icon && (
+        <motion.div
+          className="mb-2"
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{
+            type: "spring",
+            stiffness: 260,
+            damping: 20,
+            delay: 0.1,
+          }}
+        >
+          {icon}
+        </motion.div>
+      )}
+      {children}
+    </CardHeader>
+  )
+);
+AnimatedCardHeader.displayName = "AnimatedCardHeader";
 
 export {
   AnimatedCard,
@@ -309,5 +300,4 @@ export {
   CardTitle,
   CardDescription,
   CardContent,
-}
-
+};

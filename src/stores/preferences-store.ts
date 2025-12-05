@@ -191,10 +191,7 @@ export function applyThemeColor(color: ThemeColor) {
   root.style.setProperty("--primary-container", colors.primaryContainer);
   root.style.setProperty("--ring", colors.primary);
   root.style.setProperty("--accent", isDark ? `${scheme.hue} 56% 15%` : `${scheme.hue} 56% 95%`);
-  root.style.setProperty(
-    "--accent-foreground",
-    isDark ? "0 0% 98%" : `${scheme.hue} 56% 15%`
-  );
+  root.style.setProperty("--accent-foreground", isDark ? "0 0% 98%" : `${scheme.hue} 56% 15%`);
 }
 
 // =============================================================================
@@ -205,4 +202,3 @@ export const useTheme = () => usePreferencesStore((state) => state.theme);
 export const useSetTheme = () => usePreferencesStore((state) => state.setTheme);
 export const useThemeColor = () => usePreferencesStore((state) => state.themeColor);
 export const useSetThemeColor = () => usePreferencesStore((state) => state.setThemeColor);
-

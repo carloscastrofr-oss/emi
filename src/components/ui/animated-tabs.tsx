@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import * as TabsPrimitive from "@radix-ui/react-tabs"
-import { motion, AnimatePresence } from "framer-motion"
+import * as React from "react";
+import * as TabsPrimitive from "@radix-ui/react-tabs";
+import { motion, AnimatePresence } from "framer-motion";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-const Tabs = TabsPrimitive.Root
+const Tabs = TabsPrimitive.Root;
 
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
@@ -20,18 +20,19 @@ const TabsList = React.forwardRef<
     )}
     {...props}
   />
-))
-TabsList.displayName = TabsPrimitive.List.displayName
+));
+TabsList.displayName = TabsPrimitive.List.displayName;
 
-interface AnimatedTabsTriggerProps
-  extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> {
-  layoutId?: string
+interface AnimatedTabsTriggerProps extends React.ComponentPropsWithoutRef<
+  typeof TabsPrimitive.Trigger
+> {
+  layoutId?: string;
 }
 
 const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
   AnimatedTabsTriggerProps
->(({ className, layoutId, children, ...props }, ref) => (
+>(({ className, layoutId: _layoutId, children, ...props }, ref) => (
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
@@ -42,8 +43,8 @@ const TabsTrigger = React.forwardRef<
   >
     {children}
   </TabsPrimitive.Trigger>
-))
-TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
+));
+TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
 
 const TabsContent = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Content>,
@@ -66,21 +67,21 @@ const TabsContent = React.forwardRef<
       {children}
     </motion.div>
   </TabsPrimitive.Content>
-))
-TabsContent.displayName = TabsPrimitive.Content.displayName
+));
+TabsContent.displayName = TabsPrimitive.Content.displayName;
 
 // ============================================================================
 // ANIMATED TABS WITH INDICATOR
 // ============================================================================
 
-export { Tabs, TabsList, TabsTrigger, TabsContent }
+export { Tabs, TabsList, TabsTrigger, TabsContent };
 
 interface AnimatedTabsProps {
-  tabs: { id: string; label: string; content: React.ReactNode }[]
-  defaultValue?: string
-  className?: string
-  listClassName?: string
-  contentClassName?: string
+  tabs: { id: string; label: string; content: React.ReactNode }[];
+  defaultValue?: string;
+  className?: string;
+  listClassName?: string;
+  contentClassName?: string;
 }
 
 function AnimatedTabs({
@@ -90,21 +91,13 @@ function AnimatedTabs({
   listClassName,
   contentClassName,
 }: AnimatedTabsProps) {
-  const [activeTab, setActiveTab] = React.useState(defaultValue || tabs[0]?.id)
+  const [activeTab, setActiveTab] = React.useState(defaultValue || tabs[0]?.id);
 
   return (
-    <Tabs
-      value={activeTab}
-      onValueChange={setActiveTab}
-      className={cn("w-full", className)}
-    >
+    <Tabs value={activeTab} onValueChange={setActiveTab} className={cn("w-full", className)}>
       <TabsList className={cn("relative", listClassName)}>
         {tabs.map((tab) => (
-          <TabsTrigger
-            key={tab.id}
-            value={tab.id}
-            className="relative z-10"
-          >
+          <TabsTrigger key={tab.id} value={tab.id} className="relative z-10">
             {activeTab === tab.id && (
               <motion.div
                 layoutId="activeTabIndicator"
@@ -139,7 +132,7 @@ function AnimatedTabs({
         )}
       </AnimatePresence>
     </Tabs>
-  )
+  );
 }
 
 // ============================================================================
@@ -147,17 +140,13 @@ function AnimatedTabs({
 // ============================================================================
 
 interface UnderlineTabsProps {
-  tabs: { id: string; label: string; content: React.ReactNode; icon?: React.ReactNode }[]
-  defaultValue?: string
-  className?: string
+  tabs: { id: string; label: string; content: React.ReactNode; icon?: React.ReactNode }[];
+  defaultValue?: string;
+  className?: string;
 }
 
-function UnderlineTabs({
-  tabs,
-  defaultValue,
-  className,
-}: UnderlineTabsProps) {
-  const [activeTab, setActiveTab] = React.useState(defaultValue || tabs[0]?.id)
+function UnderlineTabs({ tabs, defaultValue, className }: UnderlineTabsProps) {
+  const [activeTab, setActiveTab] = React.useState(defaultValue || tabs[0]?.id);
 
   return (
     <div className={cn("w-full", className)}>
@@ -170,9 +159,7 @@ function UnderlineTabs({
               className={cn(
                 "relative px-4 py-2 text-sm font-medium transition-colors",
                 "hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-t-md",
-                activeTab === tab.id
-                  ? "text-foreground"
-                  : "text-muted-foreground"
+                activeTab === tab.id ? "text-foreground" : "text-muted-foreground"
               )}
             >
               <span className="flex items-center gap-2">
@@ -213,7 +200,7 @@ function UnderlineTabs({
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -221,13 +208,13 @@ function UnderlineTabs({
 // ============================================================================
 
 interface PillTabsProps {
-  tabs: { id: string; label: string; content: React.ReactNode }[]
-  defaultValue?: string
-  className?: string
+  tabs: { id: string; label: string; content: React.ReactNode }[];
+  defaultValue?: string;
+  className?: string;
 }
 
 function PillTabs({ tabs, defaultValue, className }: PillTabsProps) {
-  const [activeTab, setActiveTab] = React.useState(defaultValue || tabs[0]?.id)
+  const [activeTab, setActiveTab] = React.useState(defaultValue || tabs[0]?.id);
 
   return (
     <div className={cn("w-full", className)}>
@@ -278,7 +265,7 @@ function PillTabs({ tabs, defaultValue, className }: PillTabsProps) {
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }
 
 // ============================================================================
@@ -286,17 +273,13 @@ function PillTabs({ tabs, defaultValue, className }: PillTabsProps) {
 // ============================================================================
 
 interface VerticalTabsProps {
-  tabs: { id: string; label: string; content: React.ReactNode; icon?: React.ReactNode }[]
-  defaultValue?: string
-  className?: string
+  tabs: { id: string; label: string; content: React.ReactNode; icon?: React.ReactNode }[];
+  defaultValue?: string;
+  className?: string;
 }
 
-function VerticalTabs({
-  tabs,
-  defaultValue,
-  className,
-}: VerticalTabsProps) {
-  const [activeTab, setActiveTab] = React.useState(defaultValue || tabs[0]?.id)
+function VerticalTabs({ tabs, defaultValue, className }: VerticalTabsProps) {
+  const [activeTab, setActiveTab] = React.useState(defaultValue || tabs[0]?.id);
 
   return (
     <div className={cn("flex gap-6", className)}>
@@ -308,9 +291,7 @@ function VerticalTabs({
             className={cn(
               "relative flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-left transition-colors rounded-md",
               "hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              activeTab === tab.id
-                ? "text-foreground"
-                : "text-muted-foreground"
+              activeTab === tab.id ? "text-foreground" : "text-muted-foreground"
             )}
           >
             {activeTab === tab.id && (
@@ -349,13 +330,7 @@ function VerticalTabs({
         </AnimatePresence>
       </div>
     </div>
-  )
+  );
 }
 
-export {
-  AnimatedTabs,
-  UnderlineTabs,
-  PillTabs,
-  VerticalTabs,
-}
-
+export { AnimatedTabs, UnderlineTabs, PillTabs, VerticalTabs };

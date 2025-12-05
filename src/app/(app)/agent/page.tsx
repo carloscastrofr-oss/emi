@@ -93,7 +93,13 @@ const agentNameTranslations: Record<Recommendation["agent"], string> = {
   "Design Debt": "Deuda Diseño",
 };
 
-export default function AgentPage({ params, searchParams }: { params: {}; searchParams: {} }) {
+export default function AgentPage({
+  params: _params,
+  searchParams: _searchParams,
+}: {
+  params: Record<string, never>;
+  searchParams: Record<string, never>;
+}) {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 

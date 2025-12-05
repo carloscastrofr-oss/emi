@@ -2,7 +2,13 @@ import { PageHeader } from "@/components/page-header";
 import { LabsForm } from "./labs-form";
 import { Lightbulb } from "lucide-react";
 
-export default function LabsPage({ params, searchParams }: { params: {}; searchParams: {} }) {
+export default function LabsPage({
+  params: _params,
+  searchParams: _searchParams,
+}: {
+  params: Record<string, never>;
+  searchParams: Record<string, never>;
+}) {
   return (
     <div>
       <PageHeader

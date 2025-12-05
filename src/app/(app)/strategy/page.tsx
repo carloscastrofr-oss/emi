@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -29,11 +28,9 @@ import {
   PlusCircle,
   XCircle,
   Lightbulb,
-  Palette,
   SlidersHorizontal,
   Users,
   DollarSign,
-  Ban,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -154,52 +151,52 @@ const ChipInput = ({ control, name, label, placeholder, limit }: ChipInputProps)
       control={control}
       name={name}
       render={() => (
-    <FormItem>
-      <FormLabel>
-        {label} ({fields.length}/{limit})
-      </FormLabel>
-      <div className="flex gap-2">
-        <Input
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder={placeholder}
-          disabled={fields.length >= limit}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleAdd}
-          disabled={fields.length >= limit || !inputValue.trim()}
-        >
-          <PlusCircle className="mr-2 h-4 w-4" /> Añadir
-        </Button>
-      </div>
-      <div className="flex flex-wrap gap-2 pt-2 min-h-[34px]">
-        {fields.map((field, index) => (
-          <motion.div
-            key={field.id}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          >
-            <Badge
-              variant="secondary"
-              className="text-sm py-1 pl-3 pr-2 bg-primary-container text-on-primary-container hover:bg-primary-container/80"
+        <FormItem>
+          <FormLabel>
+            {label} ({fields.length}/{limit})
+          </FormLabel>
+          <div className="flex gap-2">
+            <Input
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder={placeholder}
+              disabled={fields.length >= limit}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleAdd}
+              disabled={fields.length >= limit || !inputValue.trim()}
             >
-              {(field as unknown as { value: string }).value}
-              <button
-                type="button"
-                onClick={() => remove(index)}
-                className="ml-2 rounded-full hover:bg-black/10"
+              <PlusCircle className="mr-2 h-4 w-4" /> Añadir
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-2 pt-2 min-h-[34px]">
+            {fields.map((field, index) => (
+              <motion.div
+                key={field.id}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
-                <XCircle className="h-4 w-4" />
-              </button>
-            </Badge>
-          </motion.div>
-        ))}
-      </div>
-      {arrayError && typeof arrayError === "object" && "message" in arrayError && (
+                <Badge
+                  variant="secondary"
+                  className="text-sm py-1 pl-3 pr-2 bg-primary-container text-on-primary-container hover:bg-primary-container/80"
+                >
+                  {(field as unknown as { value: string }).value}
+                  <button
+                    type="button"
+                    onClick={() => remove(index)}
+                    className="ml-2 rounded-full hover:bg-black/10"
+                  >
+                    <XCircle className="h-4 w-4" />
+                  </button>
+                </Badge>
+              </motion.div>
+            ))}
+          </div>
+          {arrayError && typeof arrayError === "object" && "message" in arrayError && (
             <FormMessage>{arrayError.message as string}</FormMessage>
           )}
         </FormItem>

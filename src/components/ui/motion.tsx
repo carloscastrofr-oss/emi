@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { motion, AnimatePresence, type Variants } from "framer-motion"
+import * as React from "react";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // ANIMATION VARIANTS
@@ -13,31 +13,31 @@ export const fadeIn: Variants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { duration: 0.3, ease: "easeOut" } },
   exit: { opacity: 0, transition: { duration: 0.2, ease: "easeIn" } },
-}
+};
 
 export const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
   exit: { opacity: 0, y: 20, transition: { duration: 0.2, ease: "easeIn" } },
-}
+};
 
 export const fadeInDown: Variants = {
   hidden: { opacity: 0, y: -20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
   exit: { opacity: 0, y: -20, transition: { duration: 0.2, ease: "easeIn" } },
-}
+};
 
 export const fadeInLeft: Variants = {
   hidden: { opacity: 0, x: -20 },
   visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: "easeOut" } },
   exit: { opacity: 0, x: -20, transition: { duration: 0.2, ease: "easeIn" } },
-}
+};
 
 export const fadeInRight: Variants = {
   hidden: { opacity: 0, x: 20 },
   visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: "easeOut" } },
   exit: { opacity: 0, x: 20, transition: { duration: 0.2, ease: "easeIn" } },
-}
+};
 
 export const scaleIn: Variants = {
   hidden: { opacity: 0, scale: 0.9 },
@@ -51,7 +51,7 @@ export const scaleIn: Variants = {
     scale: 0.9,
     transition: { duration: 0.2, ease: "easeIn" },
   },
-}
+};
 
 export const slideInFromBottom: Variants = {
   hidden: { y: "100%" },
@@ -60,7 +60,7 @@ export const slideInFromBottom: Variants = {
     transition: { type: "spring", damping: 30, stiffness: 300 },
   },
   exit: { y: "100%", transition: { duration: 0.2, ease: "easeIn" } },
-}
+};
 
 export const slideInFromLeft: Variants = {
   hidden: { x: "-100%" },
@@ -69,7 +69,7 @@ export const slideInFromLeft: Variants = {
     transition: { type: "spring", damping: 30, stiffness: 300 },
   },
   exit: { x: "-100%", transition: { duration: 0.2, ease: "easeIn" } },
-}
+};
 
 export const slideInFromRight: Variants = {
   hidden: { x: "100%" },
@@ -78,7 +78,7 @@ export const slideInFromRight: Variants = {
     transition: { type: "spring", damping: 30, stiffness: 300 },
   },
   exit: { x: "100%", transition: { duration: 0.2, ease: "easeIn" } },
-}
+};
 
 export const staggerContainer: Variants = {
   hidden: { opacity: 0 },
@@ -89,7 +89,7 @@ export const staggerContainer: Variants = {
       delayChildren: 0.1,
     },
   },
-}
+};
 
 export const staggerItem: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -98,7 +98,7 @@ export const staggerItem: Variants = {
     y: 0,
     transition: { duration: 0.4, ease: "easeOut" },
   },
-}
+};
 
 export const popIn: Variants = {
   hidden: { opacity: 0, scale: 0.8 },
@@ -116,32 +116,32 @@ export const popIn: Variants = {
     scale: 0.8,
     transition: { duration: 0.15, ease: "easeIn" },
   },
-}
+};
 
 export const shake: Variants = {
   shake: {
     x: [0, -10, 10, -10, 10, 0],
     transition: { duration: 0.4 },
   },
-}
+};
 
 export const pulse: Variants = {
   pulse: {
     scale: [1, 1.05, 1],
     transition: { duration: 0.3 },
   },
-}
+};
 
 // ============================================================================
 // MOTION COMPONENTS
 // ============================================================================
 
 interface MotionDivProps extends React.HTMLAttributes<HTMLDivElement> {
-  variants?: Variants
-  initial?: string
-  animate?: string
-  exit?: string
-  delay?: number
+  variants?: Variants;
+  initial?: string;
+  animate?: string;
+  exit?: string;
+  delay?: number;
 }
 
 export const MotionDiv = React.forwardRef<HTMLDivElement, MotionDivProps>(
@@ -157,59 +157,58 @@ export const MotionDiv = React.forwardRef<HTMLDivElement, MotionDivProps>(
     },
     ref
   ) => {
-    const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any
+    const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any;
     return (
-    <motion.div
-      ref={ref}
-      className={cn(className)}
-      variants={variants}
-      initial={initial}
-      animate={animate}
-      exit={exit}
-      transition={{ delay }}
+      <motion.div
+        ref={ref}
+        className={cn(className)}
+        variants={variants}
+        initial={initial}
+        animate={animate}
+        exit={exit}
+        transition={{ delay }}
         {...(motionProps as any)}
-    />
-  )
+      />
+    );
   }
-)
-MotionDiv.displayName = "MotionDiv"
+);
+MotionDiv.displayName = "MotionDiv";
 
 interface MotionContainerProps extends React.HTMLAttributes<HTMLDivElement> {
-  stagger?: number
-  delayChildren?: number
+  stagger?: number;
+  delayChildren?: number;
 }
 
-export const MotionContainer = React.forwardRef<
-  HTMLDivElement,
-  MotionContainerProps
->(({ className, stagger = 0.1, delayChildren = 0.1, children, ...props }, ref) => {
-  const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any
-  return (
-  <motion.div
-    ref={ref}
-    className={cn(className)}
-    variants={{
-      hidden: { opacity: 0 },
-      visible: {
-        opacity: 1,
-        transition: {
-          staggerChildren: stagger,
-          delayChildren,
-        },
-      },
-    }}
-    initial="hidden"
-    animate="visible"
-      {...(motionProps as any)}
-  >
-    {children}
-  </motion.div>
-  )
-})
-MotionContainer.displayName = "MotionContainer"
+export const MotionContainer = React.forwardRef<HTMLDivElement, MotionContainerProps>(
+  ({ className, stagger = 0.1, delayChildren = 0.1, children, ...props }, ref) => {
+    const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any;
+    return (
+      <motion.div
+        ref={ref}
+        className={cn(className)}
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: {
+              staggerChildren: stagger,
+              delayChildren,
+            },
+          },
+        }}
+        initial="hidden"
+        animate="visible"
+        {...(motionProps as any)}
+      >
+        {children}
+      </motion.div>
+    );
+  }
+);
+MotionContainer.displayName = "MotionContainer";
 
 interface MotionItemProps extends React.HTMLAttributes<HTMLDivElement> {
-  direction?: "up" | "down" | "left" | "right" | "scale"
+  direction?: "up" | "down" | "left" | "right" | "scale";
 }
 
 export const MotionItem = React.forwardRef<HTMLDivElement, MotionItemProps>(
@@ -217,19 +216,19 @@ export const MotionItem = React.forwardRef<HTMLDivElement, MotionItemProps>(
     const getVariants = (): Variants => {
       switch (direction) {
         case "down":
-          return fadeInDown
+          return fadeInDown;
         case "left":
-          return fadeInLeft
+          return fadeInLeft;
         case "right":
-          return fadeInRight
+          return fadeInRight;
         case "scale":
-          return scaleIn
+          return scaleIn;
         default:
-          return fadeInUp
+          return fadeInUp;
       }
-    }
+    };
 
-    const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any
+    const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any;
     return (
       <motion.div
         ref={ref}
@@ -239,19 +238,19 @@ export const MotionItem = React.forwardRef<HTMLDivElement, MotionItemProps>(
       >
         {children}
       </motion.div>
-    )
+    );
   }
-)
-MotionItem.displayName = "MotionItem"
+);
+MotionItem.displayName = "MotionItem";
 
 // ============================================================================
 // ANIMATED PRESENCE WRAPPER
 // ============================================================================
 
 interface AnimatedPresenceProps {
-  children: React.ReactNode
-  mode?: "wait" | "sync" | "popLayout"
-  initial?: boolean
+  children: React.ReactNode;
+  mode?: "wait" | "sync" | "popLayout";
+  initial?: boolean;
 }
 
 export function AnimatedPresenceWrapper({
@@ -263,7 +262,7 @@ export function AnimatedPresenceWrapper({
     <AnimatePresence mode={mode} initial={initial}>
       {children}
     </AnimatePresence>
-  )
+  );
 }
 
 // ============================================================================
@@ -271,15 +270,11 @@ export function AnimatedPresenceWrapper({
 // ============================================================================
 
 interface PageTransitionProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
-export function PageTransition({
-  children,
-  className,
-  ...props
-}: PageTransitionProps) {
-  const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any
+export function PageTransition({ children, className, ...props }: PageTransitionProps) {
+  const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any;
   return (
     <motion.div
       className={cn(className)}
@@ -291,7 +286,7 @@ export function PageTransition({
     >
       {children}
     </motion.div>
-  )
+  );
 }
 
 // ============================================================================
@@ -299,16 +294,11 @@ export function PageTransition({
 // ============================================================================
 
 interface HoverScaleProps extends React.HTMLAttributes<HTMLDivElement> {
-  scale?: number
+  scale?: number;
 }
 
-export function HoverScale({
-  children,
-  className,
-  scale = 1.02,
-  ...props
-}: HoverScaleProps) {
-  const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any
+export function HoverScale({ children, className, scale = 1.02, ...props }: HoverScaleProps) {
+  const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any;
   return (
     <motion.div
       className={cn(className)}
@@ -319,20 +309,15 @@ export function HoverScale({
     >
       {children}
     </motion.div>
-  )
+  );
 }
 
 interface HoverLiftProps extends React.HTMLAttributes<HTMLDivElement> {
-  lift?: number
+  lift?: number;
 }
 
-export function HoverLift({
-  children,
-  className,
-  lift = -4,
-  ...props
-}: HoverLiftProps) {
-  const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any
+export function HoverLift({ children, className, lift = -4, ...props }: HoverLiftProps) {
+  const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any;
   return (
     <motion.div
       className={cn(className)}
@@ -342,7 +327,7 @@ export function HoverLift({
     >
       {children}
     </motion.div>
-  )
+  );
 }
 
 // ============================================================================
@@ -368,7 +353,7 @@ export function LoadingDots({ className }: { className?: string }) {
         />
       ))}
     </div>
-  )
+  );
 }
 
 export function LoadingSpinner({ className }: { className?: string }) {
@@ -382,7 +367,7 @@ export function LoadingSpinner({ className }: { className?: string }) {
         ease: "linear",
       }}
     />
-  )
+  );
 }
 
 export function LoadingPulse({ className }: { className?: string }) {
@@ -399,7 +384,7 @@ export function LoadingPulse({ className }: { className?: string }) {
         ease: "easeInOut",
       }}
     />
-  )
+  );
 }
 
 // ============================================================================
@@ -407,39 +392,35 @@ export function LoadingPulse({ className }: { className?: string }) {
 // ============================================================================
 
 interface AnimatedCounterProps {
-  value: number
-  duration?: number
-  className?: string
+  value: number;
+  duration?: number;
+  className?: string;
 }
 
-export function AnimatedCounter({
-  value,
-  duration = 1,
-  className,
-}: AnimatedCounterProps) {
-  const [displayValue, setDisplayValue] = React.useState(0)
+export function AnimatedCounter({ value, duration = 1, className }: AnimatedCounterProps) {
+  const [displayValue, setDisplayValue] = React.useState(0);
 
   React.useEffect(() => {
-    const startTime = Date.now()
-    const startValue = displayValue
-    const difference = value - startValue
+    const startTime = Date.now();
+    const startValue = displayValue;
+    const difference = value - startValue;
 
     const animate = () => {
-      const elapsed = Date.now() - startTime
-      const progress = Math.min(elapsed / (duration * 1000), 1)
-      const easeProgress = 1 - Math.pow(1 - progress, 3) // easeOutCubic
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / (duration * 1000), 1);
+      const easeProgress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
 
-      setDisplayValue(Math.round(startValue + difference * easeProgress))
+      setDisplayValue(Math.round(startValue + difference * easeProgress));
 
       if (progress < 1) {
-        requestAnimationFrame(animate)
+        requestAnimationFrame(animate);
       }
-    }
+    };
 
-    requestAnimationFrame(animate)
-  }, [value, duration])
+    requestAnimationFrame(animate);
+  }, [value, duration]);
 
-  return <span className={className}>{displayValue}</span>
+  return <span className={className}>{displayValue}</span>;
 }
 
 // ============================================================================
@@ -447,9 +428,9 @@ export function AnimatedCounter({
 // ============================================================================
 
 interface AnimatedTextProps {
-  text: string
-  className?: string
-  delay?: number
+  text: string;
+  className?: string;
+  delay?: number;
 }
 
 export function AnimatedText({ text, className, delay = 0 }: AnimatedTextProps) {
@@ -485,7 +466,7 @@ export function AnimatedText({ text, className, delay = 0 }: AnimatedTextProps) 
         </motion.span>
       ))}
     </motion.span>
-  )
+  );
 }
 
 // ============================================================================
@@ -493,9 +474,9 @@ export function AnimatedText({ text, className, delay = 0 }: AnimatedTextProps) 
 // ============================================================================
 
 interface RevealOnScrollProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode
-  direction?: "up" | "down" | "left" | "right"
-  delay?: number
+  children: React.ReactNode;
+  direction?: "up" | "down" | "left" | "right";
+  delay?: number;
 }
 
 export function RevealOnScroll({
@@ -508,17 +489,17 @@ export function RevealOnScroll({
   const getInitial = () => {
     switch (direction) {
       case "down":
-        return { opacity: 0, y: -50 }
+        return { opacity: 0, y: -50 };
       case "left":
-        return { opacity: 0, x: 50 }
+        return { opacity: 0, x: 50 };
       case "right":
-        return { opacity: 0, x: -50 }
+        return { opacity: 0, x: -50 };
       default:
-        return { opacity: 0, y: 50 }
+        return { opacity: 0, y: 50 };
     }
-  }
+  };
 
-  const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any
+  const { onDrag, onDragStart, onDragEnd, ...motionProps } = props as any;
   return (
     <motion.div
       className={cn(className)}
@@ -530,9 +511,8 @@ export function RevealOnScroll({
     >
       {children}
     </motion.div>
-  )
+  );
 }
 
 // Re-export framer-motion utilities
-export { motion, AnimatePresence }
-
+export { motion, AnimatePresence };

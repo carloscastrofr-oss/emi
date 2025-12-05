@@ -4,19 +4,9 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  ArrowUpRight,
-  BarChart,
-  Users,
-  CheckCircle,
-  Package,
-  Search,
-  TrendingUp,
-  ShieldAlert,
-} from "lucide-react";
+import { ArrowUpRight, Users, CheckCircle, Package, TrendingUp, ShieldAlert } from "lucide-react";
 import { BrandBarChart } from "./brand-bar-chart";
 import { MetricCard } from "./metric-card";
-import type { Risk, RiskCategory, RiskStatus } from "@/types/risk";
 import dynamic from "next/dynamic";
 
 const mockBrands = [
