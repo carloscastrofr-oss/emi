@@ -40,11 +40,12 @@
 
 ## 📚 Documentación
 
-| Documento                                   | Descripción                                                          |
-| ------------------------------------------- | -------------------------------------------------------------------- |
-| [📘 Requerimientos](docs/requerimientos.md) | Especificación funcional completa, requisitos, arquitectura y flujos |
-| [📋 Tasks](docs/tasks.md)                   | Tareas estructuradas por módulos con estimaciones                    |
-| [📐 Blueprint](docs/blueprint.md)           | Diseño inicial y features core del producto                          |
+| Documento                                                  | Descripción                                                          |
+| ---------------------------------------------------------- | -------------------------------------------------------------------- |
+| [📘 Requerimientos](docs/requerimientos.md)                | Especificación funcional completa, requisitos, arquitectura y flujos |
+| [📋 Tasks](docs/tasks.md)                                  | Tareas estructuradas por módulos con estimaciones                    |
+| [📐 Blueprint](docs/blueprint.md)                          | Diseño inicial y features core del producto                          |
+| [🔧 Configuración de Ambientes](docs/environment-setup.md) | Guía completa de configuración de ambientes (dev, qa, prod)          |
 
 ---
 
@@ -133,11 +134,18 @@ npm install
 
 3. **Configurar variables de entorno**
 
+El proyecto utiliza archivos `.env` específicos para cada ambiente. Consulta la [documentación completa de configuración de ambientes](docs/environment-setup.md) para más detalles.
+
+**Configuración rápida:**
+
 ```bash
-cp .env.example .env.local
+# Crear archivos de entorno para cada ambiente
+cp .env.example .env.development
+cp .env.example .env.qa
+cp .env.example .env.production
 ```
 
-Edita `.env.local` con tus credenciales:
+Edita cada archivo con tus credenciales:
 
 ```env
 # Firebase
@@ -155,6 +163,8 @@ GOOGLE_GENAI_API_KEY=your_gemini_api_key
 DATABASE_URL=postgresql://...
 ```
 
+**El sistema detecta automáticamente el ambiente** basado en `APP_ENV`, `VERCEL_ENV` o `NODE_ENV`.
+
 4. **Iniciar servidor de desarrollo**
 
 ```bash
@@ -167,16 +177,25 @@ Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
 ## 📜 Scripts Disponibles
 
-| Script                 | Descripción                              |
-| ---------------------- | ---------------------------------------- |
-| `npm run dev`          | Inicia servidor de desarrollo            |
-| `npm run build`        | Compila para producción                  |
-| `npm run lint`         | Ejecuta ESLint en todo el proyecto       |
-| `npm run lint:fix`     | Ejecuta ESLint y corrige automáticamente |
-| `npm run format`       | Formatea código con Prettier             |
-| `npm run format:check` | Verifica formato sin modificar           |
-| `npm run typecheck`    | Verifica tipos de TypeScript             |
-| `npm run genkit:dev`   | Inicia Genkit para desarrollo de IA      |
+| Script               | Descripción                              |
+| -------------------- | ---------------------------------------- |
+| `npm run dev`        | Inicia servidor de desarrollo            |
+| `npm run dev:qa`     | Inicia servidor en modo QA               |
+| `npm run dev:prod`   | Inicia servidor en modo producción       |
+| `npm run build`      | Compila para producción                  |
+| `npm run build:dev`  | Compila para desarrollo                  |
+| `npm run build:qa`   | Compila para QA                          |
+| `npm run build:prod` | Compila para producción                  |
+| `npm run start`      | Inicia servidor de producción            |
+| `npm run start:dev`  | Inicia servidor en modo desarrollo       |
+| `npm run start:qa`   | Inicia servidor en modo QA               |
+| `npm run start:prod` | Inicia servidor en modo producción       |
+| `npm run lint`       | Ejecuta ESLint en todo el proyecto       |
+| `npm run lint:fix`   | Ejecuta ESLint y corrige automáticamente |
+| `npm run format`     | Formatea código con Prettier             |
+| `npm run format:fix` | Formatea código con Prettier             |
+| `npm run typecheck`  | Verifica tipos de TypeScript             |
+| `npm run genkit:dev` | Inicia Genkit para desarrollo de IA      |
 
 ---
 

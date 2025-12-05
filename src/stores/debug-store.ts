@@ -1,6 +1,7 @@
 /**
  * Store de debugging con persistencia
  * Este store persiste en localStorage para mantener la configuración entre sesiones
+ * Se sincroniza con el ambiente real detectado desde las variables de entorno
  */
 
 import { create } from "zustand";
@@ -22,6 +23,10 @@ interface DebugState {
   // Modo dev API (simula delays y usa mocks)
   devApi: boolean;
 
+  // Ambiente real detectado desde variables de entorno (solo lectura)
+  // Se establece desde el servidor mediante un script inyectado
+  detectedEnvironment: Environment;
+
   // UI state (no persiste)
   isDialogOpen: boolean;
 }
@@ -32,6 +37,7 @@ interface DebugActions {
   setSelectedRole: (role: Role) => void;
   setDevApi: (enabled: boolean) => void;
   toggleDevApi: () => void;
+  setDetectedEnvironment: (env: Environment) => void;
 
   // Dialog
   openDialog: () => void;
@@ -42,56 +48,107 @@ interface DebugActions {
 type DebugStore = DebugState & DebugActions;
 
 // =============================================================================
+// HELPER PARA OBTENER AMBIENTE DETECTADO
+// =============================================================================
+
+/**
+ * Obtiene el ambiente detectado desde el cliente
+ * Se establece mediante un script inyectado desde el servidor
+ */
+function getDetectedEnvironmentFromClient(): Environment {
+  if (typeof window === "undefined") {
+    return "DEV";
+  }
+  // Leer desde variable global inyectada por el servidor
+  return (window as any).__ENV__?.environment || "DEV";
+}
+
+// =============================================================================
 // STORE CON PERSISTENCIA
 // =============================================================================
 
 export const useDebugStore = create<DebugStore>()(
   persist(
-    (set, get) => ({
-      // Estado inicial
-      environment: "DEV",
-      selectedRole: "product_designer",
-      devApi: true, // Por defecto activado en desarrollo
-      isDialogOpen: false,
+    (set, get) => {
+      const detectedEnv = getDetectedEnvironmentFromClient();
 
-      // Setters con recarga de página
-      setEnvironment: (environment) => {
-        set({ environment });
-        if (typeof window !== "undefined") {
-          window.location.reload();
-        }
-      },
+      return {
+        // Estado inicial - sincronizado con el ambiente real
+        environment: detectedEnv,
+        detectedEnvironment: detectedEnv,
+        selectedRole: "product_designer",
+        devApi: true, // Por defecto activado en desarrollo
+        isDialogOpen: false,
 
-      setSelectedRole: (selectedRole) => {
-        set({ selectedRole });
-        if (typeof window !== "undefined") {
-          window.location.reload();
-        }
-      },
+        // Setters con recarga de página
+        // NOTA: En producción, cambiar el ambiente desde aquí no tiene efecto
+        // El ambiente real se determina desde las variables de entorno
+        setEnvironment: (environment) => {
+          // Solo permitir cambiar el ambiente en desarrollo/QA
+          const currentDetected = get().detectedEnvironment;
+          if (currentDetected === "PROD" && environment !== "PROD") {
+            console.warn(
+              "No se puede cambiar el ambiente en producción. El ambiente se determina desde las variables de entorno."
+            );
+            return;
+          }
+          set({ environment });
+          if (typeof window !== "undefined") {
+            window.location.reload();
+          }
+        },
 
-      // Dev API toggle (sin recarga)
-      setDevApi: (devApi) => {
-        set({ devApi });
-      },
+        setSelectedRole: (selectedRole) => {
+          set({ selectedRole });
+          if (typeof window !== "undefined") {
+            window.location.reload();
+          }
+        },
 
-      toggleDevApi: () => {
-        set({ devApi: !get().devApi });
-      },
+        // Dev API toggle (sin recarga)
+        setDevApi: (devApi) => {
+          set({ devApi });
+        },
 
-      // Dialog controls
-      openDialog: () => set({ isDialogOpen: true }),
-      closeDialog: () => set({ isDialogOpen: false }),
-      toggleDialog: () => set((state) => ({ isDialogOpen: !state.isDialogOpen })),
-    }),
+        toggleDevApi: () => {
+          set({ devApi: !get().devApi });
+        },
+
+        // Establecer el ambiente detectado (llamado desde el cliente después de la hidratación)
+        setDetectedEnvironment: (env) => {
+          set({ detectedEnvironment: env });
+          // Si estamos en producción, forzar el ambiente a PROD
+          if (env === "PROD") {
+            set({ environment: "PROD" });
+          }
+        },
+
+        // Dialog controls
+        openDialog: () => set({ isDialogOpen: true }),
+        closeDialog: () => set({ isDialogOpen: false }),
+        toggleDialog: () => set((state) => ({ isDialogOpen: !state.isDialogOpen })),
+      };
+    },
     {
       name: "emi-debug-storage",
       storage: createJSONStorage(() => localStorage),
-      // Solo persistir estas propiedades
+      // Solo persistir estas propiedades (detectedEnvironment no se persiste)
       partialize: (state) => ({
         environment: state.environment,
         selectedRole: state.selectedRole,
         devApi: state.devApi,
       }),
+      // Sincronizar el ambiente detectado al hidratar
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          const detectedEnv = getDetectedEnvironmentFromClient();
+          state.setDetectedEnvironment(detectedEnv);
+          // Si el ambiente guardado no coincide con el detectado y estamos en PROD, usar el detectado
+          if (state.environment !== detectedEnv && detectedEnv === "PROD") {
+            state.environment = detectedEnv;
+          }
+        }
+      },
     }
   )
 );
@@ -101,6 +158,8 @@ export const useDebugStore = create<DebugStore>()(
 // =============================================================================
 
 export const useDebugEnvironment = () => useDebugStore((state) => state.environment);
+export const useDebugDetectedEnvironment = () =>
+  useDebugStore((state) => state.detectedEnvironment);
 export const useDebugRole = () => useDebugStore((state) => state.selectedRole);
 export const useDebugDevApi = () => useDebugStore((state) => state.devApi);
 export const useDebugDialogOpen = () => useDebugStore((state) => state.isDialogOpen);

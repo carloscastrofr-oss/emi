@@ -4,7 +4,9 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { EnvInjector } from "@/components/debug";
 import { cn } from "@/lib/utils";
+import { getEnvironmentShort } from "@/lib/env";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -18,6 +20,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Obtener el ambiente detectado desde el servidor
+  const detectedEnvironment = getEnvironmentShort();
+
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
@@ -26,6 +31,12 @@ export default function RootLayout({
         <link
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet"
+        />
+        {/* Inyectar el ambiente detectado en el cliente */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.__ENV__ = { environment: "${detectedEnvironment}" };`,
+          }}
         />
       </head>
       <body className={cn("min-h-screen bg-background font-body antialiased", inter.variable)}>
@@ -38,6 +49,7 @@ export default function RootLayout({
           {children}
           <Toaster />
           <SonnerToaster />
+          <EnvInjector />
         </ThemeProvider>
       </body>
     </html>

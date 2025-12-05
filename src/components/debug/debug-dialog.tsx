@@ -24,6 +24,7 @@ import {
   useDebugStore,
   useDebugDialogOpen,
   useDebugEnvironment,
+  useDebugDetectedEnvironment,
   useDebugRole,
   useDebugDevApi,
   environments,
@@ -39,6 +40,7 @@ import type { Role } from "@/types/auth";
 export function DebugDialog() {
   const isOpen = useDebugDialogOpen();
   const environment = useDebugEnvironment();
+  const detectedEnvironment = useDebugDetectedEnvironment();
   const selectedRole = useDebugRole();
   const devApi = useDebugDevApi();
   const { closeDialog, setEnvironment, setSelectedRole, setDevApi } = useDebugStore();
@@ -72,30 +74,60 @@ export function DebugDialog() {
         <div className="space-y-6 py-4">
           {/* Environment Selector */}
           <div className="space-y-2">
-            <Label className="flex items-center gap-2 text-sm font-medium">
-              <Monitor className="h-4 w-4" />
-              Environment
-            </Label>
-            <Select value={environment} onValueChange={handleEnvironmentChange}>
+            <div className="flex items-center justify-between">
+              <Label className="flex items-center gap-2 text-sm font-medium">
+                <Monitor className="h-4 w-4" />
+                Environment
+              </Label>
+              {detectedEnvironment && (
+                <Badge
+                  variant="outline"
+                  className={`${envLabels[detectedEnvironment].color} text-white text-xs`}
+                >
+                  Detectado: {detectedEnvironment}
+                </Badge>
+              )}
+            </div>
+            <Select
+              value={environment}
+              onValueChange={handleEnvironmentChange}
+              disabled={detectedEnvironment === "PROD"}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {environments.map((env) => (
-                  <SelectItem key={env} value={env}>
+                  <SelectItem
+                    key={env}
+                    value={env}
+                    disabled={env === "PROD" && detectedEnvironment !== "PROD"}
+                  >
                     <div className="flex items-center gap-2">
                       <div className={`h-2 w-2 rounded-full ${envLabels[env].color}`} />
                       <span>{env}</span>
                       <span className="text-muted-foreground text-xs">
                         ({envLabels[env].label})
                       </span>
+                      {env === detectedEnvironment && (
+                        <Badge variant="outline" className="ml-2 text-xs">
+                          Actual
+                        </Badge>
+                      )}
                     </div>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Cambia el entorno de la aplicación. Esto recargará la página.
+              {detectedEnvironment === "PROD" ? (
+                <span className="text-amber-600">
+                  El ambiente está bloqueado en producción. Se determina desde las variables de
+                  entorno.
+                </span>
+              ) : (
+                "Cambia el entorno de la aplicación. Esto recargará la página."
+              )}
             </p>
           </div>
 
@@ -155,6 +187,11 @@ export function DebugDialog() {
             <Badge variant="outline" className={envLabels[environment].color + " text-white"}>
               {environment}
             </Badge>
+            {detectedEnvironment && detectedEnvironment !== environment && (
+              <Badge variant="outline" className="text-xs">
+                Detectado: {detectedEnvironment}
+              </Badge>
+            )}
             <Badge variant="secondary">{roleLabels[selectedRole]}</Badge>
             {devApi && (
               <Badge variant="outline" className="text-amber-600">

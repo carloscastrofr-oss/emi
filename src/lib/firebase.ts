@@ -1,23 +1,12 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { getFirestore, Firestore } from "firebase/firestore";
+import { env, isFirebaseConfigValid as validateFirebaseConfig } from "@/lib/env";
 
-export const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
+// Usar la configuración desde el módulo de ambiente
+export const firebaseConfig = env.firebase;
 
-export const isFirebaseConfigValid =
-  !!firebaseConfig.apiKey &&
-  !!firebaseConfig.authDomain &&
-  !!firebaseConfig.projectId &&
-  !!firebaseConfig.storageBucket &&
-  !!firebaseConfig.messagingSenderId &&
-  !!firebaseConfig.appId &&
-  !firebaseConfig.apiKey.includes("YOUR_API_KEY");
+// Validar la configuración usando el helper del módulo de ambiente
+export const isFirebaseConfigValid = validateFirebaseConfig();
 
 let app: FirebaseApp;
 let db: Firestore;

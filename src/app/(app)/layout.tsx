@@ -18,7 +18,7 @@ import {
 import { Logo } from "@/components/logo";
 import { AuthInitializer } from "@/components/auth/auth-initializer";
 import { AppHeader } from "@/components/layout";
-import { DebugDialog } from "@/components/debug";
+import { DebugDialog, EnvInjector } from "@/components/debug";
 import { useAuthStore } from "@/stores/auth-store";
 import { useDebugStore } from "@/stores/debug-store";
 import { getAllowedTabsConfig } from "@/lib/auth";
@@ -36,6 +36,8 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       {/* Debug dialog */}
       <DebugDialog />
+      {/* Environment injector */}
+      <EnvInjector />
 
       <div className="flex min-h-screen w-full">
         <Sidebar>
