@@ -26,4 +26,5 @@ pnpm-lock.yaml
 # Other
 .git/
 .husky/
+.cursor/
 
