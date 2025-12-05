@@ -1,0 +1,336 @@
+---
+description: Reglas para el uso del MCP Server de shadcn/ui en la generación de interfaces
+globs: ["**/*.tsx", "**/*.ts", "src/components/**/*", "src/app/**/*"]
+alwaysApply: false
+---
+
+# Reglas para uso del MCP de shadcn/ui
+
+Este proyecto utiliza el **MCP Server de shadcn** para la gestión y generación de componentes de UI. **Siempre** utiliza las herramientas del MCP cuando trabajes con interfaces.
+
+## Configuración del Proyecto
+
+- **Registry configurado**: `@shadcn`
+- **Estilo**: default
+- **RSC**: habilitado (React Server Components)
+- **Aliases**:
+  - Componentes: `@/components`
+  - UI: `@/components/ui`
+  - Utils: `@/lib/utils`
+  - Hooks: `@/hooks`
+- **Librería de iconos**: Lucide React
+
+## Flujo Obligatorio para Interfaces
+
+### 1. Antes de Crear Cualquier Componente UI
+
+**SIEMPRE** busca primero si existe un componente en el registry:
+
+```
+mcp_shadcn_search_items_in_registries(registries: ["@shadcn"], query: "nombre-componente")
+```
+
+### 2. Ver Detalles del Componente
+
+Antes de implementar, revisa los detalles y archivos del componente:
+
+```
+mcp_shadcn_view_items_in_registries(items: ["@shadcn/nombre-componente"])
+```
+
+### 3. Obtener Ejemplos de Uso
+
+**OBLIGATORIO** revisar ejemplos antes de implementar:
+
+```
+mcp_shadcn_get_item_examples_from_registries(registries: ["@shadcn"], query: "nombre-demo")
+```
+
+Patrones comunes de búsqueda de ejemplos:
+- `{component}-demo` (ej: `button-demo`, `card-demo`)
+- `{component} example`
+- `example-{feature}` (ej: `example-booking-form`)
+
+### 4. Instalar Componentes
+
+Obtén el comando de instalación:
+
+```
+mcp_shadcn_get_add_command_for_items(items: ["@shadcn/button", "@shadcn/card"])
+```
+
+### 5. Verificación Post-Implementación
+
+Después de crear o modificar componentes, ejecuta:
+
+```
+mcp_shadcn_get_audit_checklist()
+```
+
+## Estructura de Componentes
+
+Los componentes de shadcn se instalan en:
+- **Componentes UI base**: `src/components/ui/`
+- **Componentes compuestos**: `src/components/`
+
+## Reglas de Implementación
+
+### ✅ SIEMPRE
+
+1. **Buscar en el registry** antes de crear componentes desde cero
+2. **Revisar ejemplos** del componente antes de implementar
+3. **Usar los componentes instalados** de `@/components/ui`
+4. **Mantener consistencia** con el estilo default configurado
+5. **Usar CSS variables** para temas (ya configurado en tailwind)
+6. **Importar desde aliases**: 
+   ```tsx
+   import { Button } from "@/components/ui/button"
+   import { cn } from "@/lib/utils"
+   ```
+
+### ❌ NUNCA
+
+1. Crear componentes UI básicos desde cero si existen en shadcn
+2. Modificar directamente los archivos en `src/components/ui/` (son generados)
+3. Ignorar los ejemplos disponibles en el registry
+4. Usar estilos inline cuando existen variants en el componente
+
+## Comandos MCP Disponibles
+
+| Herramienta | Uso |
+|-------------|-----|
+| `mcp_shadcn_get_project_registries` | Ver registries configurados |
+| `mcp_shadcn_list_items_in_registries` | Listar todos los componentes disponibles |
+| `mcp_shadcn_search_items_in_registries` | Buscar componentes por nombre/descripción |
+| `mcp_shadcn_view_items_in_registries` | Ver detalles y código de componentes |
+| `mcp_shadcn_get_item_examples_from_registries` | Obtener ejemplos de implementación |
+| `mcp_shadcn_get_add_command_for_items` | Obtener comando CLI para instalar |
+| `mcp_shadcn_get_audit_checklist` | Verificar implementación |
+
+## Ejemplo de Flujo Completo
+
+Cuando el usuario pida crear un formulario con inputs y botones:
+
+1. **Buscar componentes necesarios**:
+   ```
+   search_items_in_registries(["@shadcn"], "form")
+   search_items_in_registries(["@shadcn"], "input")
+   search_items_in_registries(["@shadcn"], "button")
+   ```
+
+2. **Revisar ejemplos**:
+   ```
+   get_item_examples_from_registries(["@shadcn"], "form-demo")
+   ```
+
+3. **Ver detalles si es necesario**:
+   ```
+   view_items_in_registries(["@shadcn/form", "@shadcn/input", "@shadcn/button"])
+   ```
+
+4. **Obtener comando de instalación** (si no están instalados):
+   ```
+   get_add_command_for_items(["@shadcn/form", "@shadcn/input", "@shadcn/button"])
+   ```
+
+5. **Implementar** usando los ejemplos como referencia
+
+6. **Auditar**:
+   ```
+   get_audit_checklist()
+   ```
+
+## Componentes Ya Instalados
+
+Revisa `src/components/ui/` para ver qué componentes ya están disponibles en el proyecto. No es necesario reinstalarlos.
+
+## Personalización
+
+Si necesitas extender un componente de shadcn:
+1. Crea un nuevo componente en `src/components/` (no en `ui/`)
+2. Importa y compone sobre el componente base de `@/components/ui`
+3. Mantén la API consistente con shadcn cuando sea posible
+
+---
+
+## 🔄 Reglas de Migración a shadcn
+
+Cuando se migran componentes de otras fuentes (Material UI, Chakra, Ant Design, Bootstrap, componentes custom, etc.) a shadcn, seguir este proceso:
+
+### Flujo de Migración Obligatorio
+
+#### Paso 1: Análisis del Componente Original
+
+Antes de migrar, documenta:
+- **Props actuales**: Qué props recibe el componente
+- **Estados**: Estados internos y externos que maneja
+- **Eventos**: onClick, onChange, onSubmit, etc.
+- **Estilos custom**: Clases CSS, styled-components, estilos inline
+- **Dependencias**: Otros componentes que usa internamente
+
+#### Paso 2: Buscar Equivalente en shadcn
+
+```
+mcp_shadcn_search_items_in_registries(registries: ["@shadcn"], query: "componente-equivalente")
+```
+
+**Mapeo común de componentes:**
+
+| Fuente Original | Equivalente shadcn |
+|-----------------|-------------------|
+| MUI Button, Chakra Button | `@shadcn/button` |
+| MUI TextField, Chakra Input | `@shadcn/input` + `@shadcn/label` |
+| MUI Select, Chakra Select | `@shadcn/select` |
+| MUI Dialog, Chakra Modal | `@shadcn/dialog` |
+| MUI Drawer | `@shadcn/sheet` |
+| MUI Snackbar, Chakra Toast | `@shadcn/toast` + `@shadcn/sonner` |
+| MUI Tabs, Chakra Tabs | `@shadcn/tabs` |
+| MUI Card, Chakra Card | `@shadcn/card` |
+| MUI Accordion | `@shadcn/accordion` |
+| MUI Menu, Chakra Menu | `@shadcn/dropdown-menu` |
+| MUI Tooltip | `@shadcn/tooltip` |
+| MUI Checkbox | `@shadcn/checkbox` |
+| MUI Switch | `@shadcn/switch` |
+| MUI Slider | `@shadcn/slider` |
+| MUI Progress | `@shadcn/progress` |
+| MUI Avatar | `@shadcn/avatar` |
+| MUI Badge | `@shadcn/badge` |
+| MUI Alert | `@shadcn/alert` |
+| MUI Table | `@shadcn/table` |
+| MUI Skeleton | `@shadcn/skeleton` |
+| Form libraries | `@shadcn/form` (usa react-hook-form + zod) |
+
+#### Paso 3: Revisar API y Ejemplos del Componente shadcn
+
+```
+mcp_shadcn_view_items_in_registries(items: ["@shadcn/componente"])
+mcp_shadcn_get_item_examples_from_registries(registries: ["@shadcn"], query: "componente-demo")
+```
+
+#### Paso 4: Mapear Props y Variantes
+
+Crear una tabla de equivalencias:
+
+```markdown
+| Prop Original | Equivalente shadcn | Notas |
+|---------------|-------------------|-------|
+| variant="contained" | variant="default" | |
+| variant="outlined" | variant="outline" | |
+| color="primary" | (usar CSS variables) | |
+| size="small" | size="sm" | |
+| disabled | disabled | Sin cambios |
+| onClick | onClick | Sin cambios |
+```
+
+#### Paso 5: Migración del Código
+
+**Patrón de migración:**
+
+```tsx
+// ❌ ANTES (Material UI ejemplo)
+import { Button } from '@mui/material';
+
+<Button 
+  variant="contained" 
+  color="primary" 
+  size="small"
+  startIcon={<SaveIcon />}
+>
+  Guardar
+</Button>
+
+// ✅ DESPUÉS (shadcn)
+import { Button } from '@/components/ui/button';
+import { Save } from 'lucide-react';
+
+<Button variant="default" size="sm">
+  <Save className="mr-2 h-4 w-4" />
+  Guardar
+</Button>
+```
+
+#### Paso 6: Migrar Estilos Custom
+
+- **Estilos inline** → Usar `className` con Tailwind
+- **CSS Modules** → Convertir a Tailwind utilities
+- **Styled Components** → Convertir a Tailwind + `cn()` utility
+- **Theme tokens** → Usar CSS variables de shadcn
+
+```tsx
+// ❌ ANTES
+<Box sx={{ padding: 2, backgroundColor: 'primary.main' }}>
+
+// ✅ DESPUÉS  
+<div className="p-4 bg-primary">
+```
+
+#### Paso 7: Verificar y Testear
+
+```
+mcp_shadcn_get_audit_checklist()
+```
+
+Verificar:
+- [ ] El componente renderiza correctamente
+- [ ] Todos los eventos funcionan (onClick, onChange, etc.)
+- [ ] Los estados se manejan correctamente
+- [ ] La accesibilidad se mantiene (aria-labels, roles, etc.)
+- [ ] El componente es responsive
+- [ ] Los estilos son consistentes con el resto de la app
+
+### Consideraciones Especiales de Migración
+
+#### Formularios
+Si migras formularios, shadcn usa `react-hook-form` + `zod`:
+
+```tsx
+// Buscar ejemplos de forms
+mcp_shadcn_get_item_examples_from_registries(registries: ["@shadcn"], query: "form")
+```
+
+#### Iconos
+- Reemplazar iconos de otras librerías por **Lucide React**
+- Buscar equivalentes en: https://lucide.dev/icons
+
+```tsx
+// ❌ ANTES
+import { Add, Delete, Edit } from '@mui/icons-material';
+
+// ✅ DESPUÉS
+import { Plus, Trash2, Pencil } from 'lucide-react';
+```
+
+#### Temas y Colores
+- Los colores de shadcn usan CSS variables
+- Definidos en `globals.css`
+- Usar clases como `bg-primary`, `text-muted-foreground`, etc.
+
+#### Componentes Compuestos
+Si el componente original es compuesto (ej: Card con CardHeader, CardContent):
+
+```tsx
+// shadcn también usa composición
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+```
+
+### Checklist de Migración por Archivo
+
+Antes de marcar un archivo como migrado:
+
+- [ ] Eliminar imports de la librería anterior
+- [ ] Agregar imports de `@/components/ui`
+- [ ] Actualizar props a la API de shadcn
+- [ ] Convertir estilos a Tailwind
+- [ ] Reemplazar iconos por Lucide
+- [ ] Verificar accesibilidad
+- [ ] Probar interactividad
+- [ ] Ejecutar audit checklist del MCP
+
+### Migración Gradual
+
+Para proyectos grandes, migrar por módulos:
+
+1. **Identificar componentes más usados** → Migrar primero
+2. **Crear wrappers temporales** si es necesario para compatibilidad
+3. **Migrar página por página** para evitar breaking changes masivos
+4. **Eliminar dependencias antiguas** solo cuando toda la migración esté completa
