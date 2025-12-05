@@ -1,6 +1,6 @@
 "use client";
 
-import { Bug, Monitor, User, RefreshCw } from "lucide-react";
+import { Bug, Monitor, User, RefreshCw, Server } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -19,11 +19,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import {
   useDebugStore,
   useDebugDialogOpen,
   useDebugEnvironment,
   useDebugRole,
+  useDebugDevApi,
   environments,
   type Environment,
 } from "@/stores/debug-store";
@@ -38,7 +40,8 @@ export function DebugDialog() {
   const isOpen = useDebugDialogOpen();
   const environment = useDebugEnvironment();
   const selectedRole = useDebugRole();
-  const { closeDialog, setEnvironment, setSelectedRole } = useDebugStore();
+  const devApi = useDebugDevApi();
+  const { closeDialog, setEnvironment, setSelectedRole, setDevApi } = useDebugStore();
 
   const handleEnvironmentChange = (value: string) => {
     setEnvironment(value as Environment);
@@ -63,9 +66,7 @@ export function DebugDialog() {
             <Bug className="h-5 w-5" />
             Debugging Tools
           </DialogTitle>
-          <DialogDescription>
-            Configura el entorno de desarrollo y pruebas. Los cambios recargarán la página.
-          </DialogDescription>
+          <DialogDescription>Configura el entorno de desarrollo y pruebas.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
@@ -94,7 +95,7 @@ export function DebugDialog() {
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Cambia el entorno de la aplicación. Esto afecta las APIs y configuraciones.
+              Cambia el entorno de la aplicación. Esto recargará la página.
             </p>
           </div>
 
@@ -119,18 +120,47 @@ export function DebugDialog() {
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Simula un usuario con este rol para probar permisos y vistas.
+              Simula un usuario con este rol. Esto recargará la página.
             </p>
+          </div>
+
+          <Separator />
+
+          {/* Dev API Mode */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="flex items-center gap-2 text-sm font-medium">
+                <Server className="h-4 w-4" />
+                Modo Dev API
+              </Label>
+              <Switch checked={devApi} onCheckedChange={setDevApi} />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Activa delay de 2s en las APIs para simular latencia de red. Usa datos mock.
+            </p>
+            {devApi && (
+              <Badge
+                variant="outline"
+                className="bg-amber-500/10 text-amber-600 border-amber-500/30"
+              >
+                Delay activo: 2000ms
+              </Badge>
+            )}
           </div>
         </div>
 
         {/* Footer con estado actual */}
         <div className="flex items-center justify-between pt-4 border-t">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Badge variant="outline" className={envLabels[environment].color + " text-white"}>
               {environment}
             </Badge>
             <Badge variant="secondary">{roleLabels[selectedRole]}</Badge>
+            {devApi && (
+              <Badge variant="outline" className="text-amber-600">
+                Dev API
+              </Badge>
+            )}
           </div>
           <Button variant="ghost" size="sm" onClick={() => window.location.reload()}>
             <RefreshCw className="h-4 w-4 mr-2" />

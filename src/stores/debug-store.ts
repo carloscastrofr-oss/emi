@@ -19,6 +19,9 @@ interface DebugState {
   environment: Environment;
   selectedRole: Role;
 
+  // Modo dev API (simula delays y usa mocks)
+  devApi: boolean;
+
   // UI state (no persiste)
   isDialogOpen: boolean;
 }
@@ -27,6 +30,8 @@ interface DebugActions {
   // Setters
   setEnvironment: (env: Environment) => void;
   setSelectedRole: (role: Role) => void;
+  setDevApi: (enabled: boolean) => void;
+  toggleDevApi: () => void;
 
   // Dialog
   openDialog: () => void;
@@ -42,16 +47,16 @@ type DebugStore = DebugState & DebugActions;
 
 export const useDebugStore = create<DebugStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       // Estado inicial
       environment: "DEV",
       selectedRole: "product_designer",
+      devApi: true, // Por defecto activado en desarrollo
       isDialogOpen: false,
 
       // Setters con recarga de página
       setEnvironment: (environment) => {
         set({ environment });
-        // Recargar página para aplicar cambios
         if (typeof window !== "undefined") {
           window.location.reload();
         }
@@ -59,10 +64,18 @@ export const useDebugStore = create<DebugStore>()(
 
       setSelectedRole: (selectedRole) => {
         set({ selectedRole });
-        // Recargar página para aplicar cambios
         if (typeof window !== "undefined") {
           window.location.reload();
         }
+      },
+
+      // Dev API toggle (sin recarga)
+      setDevApi: (devApi) => {
+        set({ devApi });
+      },
+
+      toggleDevApi: () => {
+        set({ devApi: !get().devApi });
       },
 
       // Dialog controls
@@ -73,10 +86,11 @@ export const useDebugStore = create<DebugStore>()(
     {
       name: "emi-debug-storage",
       storage: createJSONStorage(() => localStorage),
-      // Solo persistir estas propiedades (no el estado del dialog)
+      // Solo persistir estas propiedades
       partialize: (state) => ({
         environment: state.environment,
         selectedRole: state.selectedRole,
+        devApi: state.devApi,
       }),
     }
   )
@@ -88,4 +102,5 @@ export const useDebugStore = create<DebugStore>()(
 
 export const useDebugEnvironment = () => useDebugStore((state) => state.environment);
 export const useDebugRole = () => useDebugStore((state) => state.selectedRole);
+export const useDebugDevApi = () => useDebugStore((state) => state.devApi);
 export const useDebugDialogOpen = () => useDebugStore((state) => state.isDialogOpen);
