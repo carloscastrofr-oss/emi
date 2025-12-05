@@ -1,0 +1,47 @@
+---
+description: Reglas y prácticas para mejorar la experiencia de desarrollo
+globs: ["**/*.tsx", "**/*.ts", "**/*.js", "**/*.jsx"]
+alwaysApply: true
+---
+
+# Reglas de Flujo de Desarrollo
+
+Este documento contiene reglas y prácticas para mantener la calidad del código y mejorar la experiencia de desarrollo.
+
+## Verificación Post-Cambios
+
+### ✅ SIEMPRE después de completar cambios
+
+Después de realizar cambios en el código y completar un proceso o tarea, **SIEMPRE** ejecuta:
+
+```bash
+npm run test:commit
+```
+
+Este comando verifica:
+- Formato del código (Prettier)
+- Linting (ESLint)
+- Verificación de tipos (TypeScript)
+
+**Proceso obligatorio:**
+1. Ejecutar `npm run test:commit`
+2. **Si hay errores, corregirlos inmediatamente**
+3. Volver a ejecutar hasta que pase sin errores
+4. Solo entonces considerar la tarea completada
+
+**Cuándo ejecutarlo:**
+- Después de completar una feature
+- Después de refactorizar código
+- Después de migrar componentes
+- Antes de considerar que una tarea está terminada
+- Después de hacer cambios significativos en múltiples archivos
+
+**No ejecutarlo:**
+- Durante el desarrollo activo (solo al finalizar)
+- Para cambios muy pequeños o exploratorios (a menos que afecten tipos o linting)
+
+---
+
+## Notas
+
+Este documento se irá expandiendo con más reglas y prácticas a medida que se identifiquen mejoras en el flujo de desarrollo.

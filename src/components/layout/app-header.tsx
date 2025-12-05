@@ -27,11 +27,9 @@ export function AppHeader() {
     <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
       {/* Mobile sidebar trigger */}
       <div className="md:hidden">
-        <SidebarTrigger asChild>
-          <Button variant="ghost" size="icon">
+        <SidebarTrigger>
             <PanelLeft className="h-6 w-6" />
             <span className="sr-only">Toggle Sidebar</span>
-          </Button>
         </SidebarTrigger>
       </div>
 

@@ -150,6 +150,10 @@ const ChipInput = ({ control, name, label, placeholder, limit }: ChipInputProps)
   const arrayError = errors[name];
 
   return (
+    <FormField
+      control={control}
+      name={name}
+      render={() => (
     <FormItem>
       <FormLabel>
         {label} ({fields.length}/{limit})
@@ -196,9 +200,11 @@ const ChipInput = ({ control, name, label, placeholder, limit }: ChipInputProps)
         ))}
       </div>
       {arrayError && typeof arrayError === "object" && "message" in arrayError && (
-        <p className="text-sm font-medium text-destructive">{arrayError.message as string}</p>
+            <FormMessage>{arrayError.message as string}</FormMessage>
+          )}
+        </FormItem>
       )}
-    </FormItem>
+    />
   );
 };
 
@@ -533,7 +539,11 @@ export default function StrategyPage() {
                     </FormItem>
                   )}
                 />
-                <FormMessage>{form.formState.errors.kpiWeights?.root?.message}</FormMessage>
+                {form.formState.errors.kpiWeights?.root?.message && (
+                  <p className="text-sm font-medium text-destructive">
+                    {form.formState.errors.kpiWeights.root.message}
+                  </p>
+                )}
               </CardContent>
             </Card>
           </div>

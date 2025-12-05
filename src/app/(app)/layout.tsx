@@ -74,9 +74,11 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton className="w-full justify-start">
-                  <Settings className="mr-2 h-5 w-5" />
-                  <span>Configuración</span>
+                <SidebarMenuButton asChild className="w-full justify-start">
+                  <Link href="/settings">
+                    <Settings className="mr-2 h-5 w-5" />
+                    <span>Configuración</span>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
