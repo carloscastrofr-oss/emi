@@ -1,0 +1,45 @@
+# Docker Compose para PostgreSQL local
+# Solo para desarrollo y tests - la aplicación Next.js corre fuera de Docker
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: emi-postgres-dev
+    environment:
+      POSTGRES_USER: emi_user
+      POSTGRES_PASSWORD: emi_dev_password
+      POSTGRES_DB: emi_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Opcional: montar scripts de inicialización
+      # - ./database/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U emi_user -d emi_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Opcional: pgAdmin para gestión visual de la DB
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: emi-pgadmin-dev
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@emi.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    profiles:
+      - tools
+
+volumes:
+  postgres_data:
+    driver: local

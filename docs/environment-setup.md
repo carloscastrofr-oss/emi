@@ -164,6 +164,18 @@ Ver comentarios en `src/lib/env.ts` para más detalles.
 - `NEXT_PUBLIC_ENABLE_DEBUG_TOOLS` - Habilitar herramientas de debug (default: true en dev/qa)
 - `NEXT_PUBLIC_ENABLE_ANALYTICS` - Habilitar analytics (default: true en prod)
 
+### Base de Datos
+
+- `DATABASE_URL` - Connection string de PostgreSQL (formato: `postgresql://user:password@host:port/database`)
+
+**Nota:** Para desarrollo local, consulta [docker-setup.md](./docker-setup.md) para configurar PostgreSQL en Docker.
+
+**Ejemplo para desarrollo local:**
+
+```env
+DATABASE_URL=postgresql://emi_user:emi_dev_password@localhost:5432/emi_dev
+```
+
 ### Ambiente
 
 - `APP_ENV` - Ambiente actual (development | qa | production)
