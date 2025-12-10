@@ -13,7 +13,14 @@ import {
 } from "firebase/auth";
 import { auth, isAuthAvailable } from "@/lib/firebase";
 import type { Role, SessionUser, Client } from "@/types/auth";
-import { setRoleCookie, clearRoleCookie, setAuthCookie, clearAuthCookie } from "@/lib/auth-cookies";
+import {
+  setRoleCookie,
+  clearRoleCookie,
+  setAuthCookie,
+  clearAuthCookie,
+  getAuthCookie,
+  isTokenExpired,
+} from "@/lib/auth-cookies";
 import { sessionStore } from "./session-store";
 
 // =============================================================================
@@ -63,6 +70,9 @@ interface AuthActions {
   // Inicializar auth (llamar al montar la app)
   initialize: () => Promise<void>;
 
+  // Verificar y renovar token si es necesario
+  checkAndRefreshToken: () => Promise<void>;
+
   // Actualizar usuario manualmente
   setUser: (user: SessionUser | null) => void;
 
@@ -70,7 +80,7 @@ interface AuthActions {
   setRole: (role: Role) => void;
 
   // Logout
-  logout: () => void;
+  logout: () => Promise<void>;
 
   // Reset error
   clearError: () => void;
@@ -228,6 +238,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     // Escuchar cambios en el ID token para renovarlo automáticamente
     // Esto asegura que el token se renueve cuando esté cerca de expirar
+    // También maneja el caso cuando Firebase hace logout automático (token revocado, etc.)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _unsubscribeToken = onIdTokenChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
@@ -237,7 +248,18 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           setAuthCookie(idToken);
         } catch (error) {
           console.error("Error refreshing ID token:", error);
+          // Si no podemos obtener el token, el usuario podría haber sido deshabilitado
+          // Firebase Auth manejará esto automáticamente, pero limpiamos nuestro estado
+          clearAuthCookie();
+          clearRoleCookie();
+          sessionStore.getState().clearSession();
         }
+      } else {
+        // Token revocado o usuario deslogueado
+        // Firebase Auth ya notificó a onAuthStateChanged, pero limpiamos cookies también
+        clearAuthCookie();
+        clearRoleCookie();
+        sessionStore.getState().clearSession();
       }
     });
 
@@ -263,6 +285,46 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({
         user: { ...currentUser, role },
       });
+    }
+  },
+
+  // Verificar y renovar token si es necesario
+  checkAndRefreshToken: async () => {
+    if (!isAuthAvailable() || !auth || !get().isAuthenticated) {
+      return;
+    }
+
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      // Usuario no autenticado, limpiar todo
+      get().logout();
+      return;
+    }
+
+    const token = getAuthCookie();
+    if (!token) {
+      // No hay token en cookie, obtener uno nuevo
+      try {
+        const idToken = await getIdToken(currentUser, false);
+        setAuthCookie(idToken);
+      } catch (error) {
+        console.error("Error getting new token:", error);
+        get().logout();
+      }
+      return;
+    }
+
+    // Verificar si el token está expirado o cerca de expirar
+    if (isTokenExpired(token, 60)) {
+      // Token expirado o cerca de expirar, renovar
+      try {
+        const idToken = await getIdToken(currentUser, true); // Forzar renovación
+        setAuthCookie(idToken);
+      } catch (error) {
+        console.error("Error refreshing expired token:", error);
+        // Si no podemos renovar, hacer logout
+        get().logout();
+      }
     }
   },
 
@@ -356,3 +418,12 @@ export const useIsAuthenticated = () => useAuthStore((state) => state.isAuthenti
  * Hook para obtener el estado de carga
  */
 export const useAuthLoading = () => useAuthStore((state) => state.isLoading);
+
+/**
+ * Hook para verificar y renovar token
+ * Útil para llamar antes de operaciones críticas o periódicamente
+ */
+export const useCheckAndRefreshToken = () => {
+  const checkAndRefreshToken = useAuthStore((state) => state.checkAndRefreshToken);
+  return checkAndRefreshToken;
+};

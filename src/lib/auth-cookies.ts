@@ -74,6 +74,74 @@ export function getAuthCookie(): string | null {
 }
 
 /**
+ * Decodifica un token JWT para obtener el payload
+ * Sin verificar la firma (solo para obtener información como expiración)
+ * Compatible con browser (usa atob en lugar de Buffer)
+ */
+function decodeJWT(token: string): { exp?: number; [key: string]: unknown } | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) {
+      return null;
+    }
+
+    const payload = parts[1];
+    if (!payload) {
+      return null;
+    }
+
+    // Decodificar base64 en browser (compatible con Node.js también)
+    let decoded: string;
+    if (typeof window !== "undefined") {
+      // Browser: usar atob
+      decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    } else {
+      // Node.js: usar Buffer
+      decoded = Buffer.from(payload, "base64").toString("utf-8");
+    }
+
+    return JSON.parse(decoded);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Verifica si un token JWT está expirado
+ * @param token - Token JWT de Firebase
+ * @param bufferSeconds - Segundos de buffer antes de considerar expirado (default: 60s)
+ * @returns true si el token está expirado o cerca de expirar
+ */
+export function isTokenExpired(token: string, bufferSeconds: number = 60): boolean {
+  const decoded = decodeJWT(token);
+  if (!decoded || !decoded.exp) {
+    return true; // Si no podemos decodificar, considerar expirado
+  }
+
+  const expirationTime = decoded.exp * 1000; // exp está en segundos, convertir a ms
+  const now = Date.now();
+  const bufferMs = bufferSeconds * 1000;
+
+  // Considerar expirado si ya expiró o está cerca de expirar (dentro del buffer)
+  return now >= expirationTime - bufferMs;
+}
+
+/**
+ * Obtiene el tiempo restante hasta la expiración del token en milisegundos
+ * @returns Tiempo en ms hasta expiración, o null si no se puede determinar
+ */
+export function getTokenTimeToExpiry(token: string): number | null {
+  const decoded = decodeJWT(token);
+  if (!decoded || !decoded.exp) {
+    return null;
+  }
+
+  const expirationTime = decoded.exp * 1000;
+  const now = Date.now();
+  return Math.max(0, expirationTime - now);
+}
+
+/**
  * Verifica que ambas cookies (auth y role) estén establecidas
  * Útil para verificar antes de redirigir después del login
  */

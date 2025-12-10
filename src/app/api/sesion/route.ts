@@ -160,7 +160,7 @@
 
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse, isDevApiMode, applyDevDelay } from "@/lib/api-utils";
-import { AUTH_COOKIE } from "@/lib/auth-cookies";
+import { validateAuth } from "@/lib/api-auth";
 import type {
   SessionData,
   SessionUserData,
@@ -169,56 +169,21 @@ import type {
   WorkspaceSettings,
 } from "@/types/session";
 
-/**
- * Decodifica un token JWT para obtener el payload (sin verificar la firma)
- * En producción, debería usarse firebase-admin para verificar la firma
- */
-function decodeJWT(token: string): { uid?: string; [key: string]: unknown } | null {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) {
-      return null;
-    }
-
-    const payload = parts[1];
-    if (!payload) {
-      return null;
-    }
-
-    const decoded = Buffer.from(payload, "base64").toString("utf-8");
-    return JSON.parse(decoded);
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Obtiene el userId del token de Firebase
- */
-function getUserIdFromToken(token: string): string | null {
-  const decoded = decodeJWT(token);
-  return (decoded?.uid as string) || (decoded?.user_id as string) || null;
-}
-
 export async function GET(request: NextRequest) {
   try {
     // Aplicar delay en modo dev si es necesario
     await applyDevDelay(request);
 
-    // Obtener token de la cookie
-    const authCookie = request.cookies.get(AUTH_COOKIE);
-    const token = authCookie?.value;
-
-    if (!token) {
-      return errorResponse("No se encontró token de autenticación", 401);
+    // Validar autenticación (verifica token, firma, expiración, etc.)
+    let auth;
+    try {
+      auth = await validateAuth(request);
+    } catch (error: any) {
+      const errorMessage = error.message || "Token de autenticación inválido";
+      return errorResponse(errorMessage, 401);
     }
 
-    // Decodificar token para obtener userId
-    const userId = getUserIdFromToken(token);
-
-    if (!userId) {
-      return errorResponse("Token de autenticación inválido", 401);
-    }
+    const { userId } = auth;
 
     // Si estamos en modo dev API, devolver datos mock
     if (isDevApiMode(request)) {

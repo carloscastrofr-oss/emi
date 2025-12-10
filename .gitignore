@@ -39,6 +39,10 @@ next-env.d.ts
 
 .genkit/*
 .env*
+# Firebase Admin service account keys
+*-service-account*.json
+firebase-service-account*.json
+**/firebase-admin*.json
 
 # firebase
 firebase-debug.log

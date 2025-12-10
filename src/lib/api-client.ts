@@ -4,7 +4,8 @@
  */
 
 import type { SessionData } from "@/types/session";
-import { getAuthCookie } from "@/lib/auth-cookies";
+import { getAuthCookie, isTokenExpired } from "@/lib/auth-cookies";
+import { useAuthStore } from "@/stores/auth-store";
 
 /**
  * Obtiene el estado de devApi desde localStorage
@@ -48,6 +49,16 @@ export async function getSessionData(): Promise<SessionData> {
 
   if (!authToken) {
     throw new Error("No hay token de autenticación. Por favor, inicia sesión.");
+  }
+
+  // Verificar si el token está expirado antes de hacer la request
+  if (isTokenExpired(authToken, 60)) {
+    // Intentar renovar el token antes de continuar
+    try {
+      await useAuthStore.getState().checkAndRefreshToken();
+    } catch {
+      throw new Error("Token expirado. Por favor, inicia sesión nuevamente.");
+    }
   }
 
   const response = await apiFetch("/api/sesion", {
