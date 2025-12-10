@@ -1,6 +1,7 @@
 "use client";
 
-import { Bug, Monitor, User, RefreshCw, Server } from "lucide-react";
+import { Bug, Monitor, User, RefreshCw, Server, Shield, Clock, AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +34,7 @@ import {
 import { roles } from "@/types/auth";
 import { roleLabels } from "@/config/auth";
 import type { Role } from "@/types/auth";
+import { TokenInfoSection } from "./token-info-section";
 
 /**
  * Dialog de configuración de herramientas de debugging
@@ -179,6 +181,11 @@ export function DebugDialog() {
               </Badge>
             )}
           </div>
+
+          <Separator />
+
+          {/* Token Information */}
+          <TokenInfoSection />
         </div>
 
         {/* Footer con estado actual */}
