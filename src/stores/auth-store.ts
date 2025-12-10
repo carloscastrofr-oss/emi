@@ -172,8 +172,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           });
 
           // Obtener datos de sesión después de autenticación exitosa
+          // Usar revalidateIfNeeded para no hacer llamadas innecesarias si hay cache válido
           try {
-            await sessionStore.getState().fetchSession();
+            await sessionStore.getState().revalidateIfNeeded();
+            // Si no hay datos en cache, hacer fetch forzado
+            if (!sessionStore.getState().sessionData) {
+              await sessionStore.getState().fetchSession(true);
+            }
           } catch (error) {
             console.error("Error fetching session data:", error);
             // No fallar la autenticación si falla la sesión, solo loggear
