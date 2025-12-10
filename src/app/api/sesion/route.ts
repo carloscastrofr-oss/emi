@@ -174,22 +174,22 @@ export async function GET(request: NextRequest) {
     // Aplicar delay en modo dev si es necesario
     await applyDevDelay(request);
 
-    // Validar autenticación (verifica token, firma, expiración, etc.)
-    let auth;
-    try {
-      auth = await validateAuth(request);
-    } catch (error: any) {
-      const errorMessage = error.message || "Token de autenticación inválido";
-      return errorResponse(errorMessage, 401);
-    }
-
-    const { userId } = auth;
-
-    // Si estamos en modo dev API, devolver datos mock
+    // IMPORTANTE: Verificar modo dev API ANTES de validar autenticación
+    // En modo dev, no necesitamos token válido, usamos datos mock
     if (isDevApiMode(request)) {
+      // En modo dev, usar userId del token si existe (puede estar expirado)
+      // o usar un userId mock
+      let mockUserId = "mock-user-id";
+      try {
+        const auth = await validateAuth(request);
+        mockUserId = auth.userId;
+      } catch {
+        // Si el token no es válido, usar userId mock (normal en modo dev)
+        mockUserId = "mock-user-id";
+      }
       const mockData: SessionData = {
         user: {
-          id: userId,
+          id: mockUserId,
           email: "usuario@example.com",
           displayName: "Usuario de Prueba",
           photoUrl: null,
@@ -236,8 +236,28 @@ export async function GET(request: NextRequest) {
       return successResponse(mockData);
     }
 
+    // Si NO estamos en modo dev, validar autenticación estrictamente
+    let auth;
+    try {
+      auth = await validateAuth(request);
+    } catch (error: any) {
+      const errorMessage = error.message || "Token de autenticación inválido";
+      return errorResponse(errorMessage, 401);
+    }
+
+    const { userId } = auth;
+
     // Consultar datos desde Prisma
     // Importación dinámica para evitar problemas de inicialización
+    // Asegurar que DATABASE_URL esté disponible antes de importar Prisma
+    if (!process.env.DATABASE_URL) {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { config } = require("dotenv");
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { resolve } = require("path");
+      config({ path: resolve(process.cwd(), ".env.local") });
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { prisma } = require("@/lib/prisma");
 

@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell, Shield, Globe, Database, Keyboard } from "lucide-react";
 import { AppearanceSection } from "./appearance-section";
+import { ClientWorkspaceSection } from "./client-workspace-section";
 
 export default function SettingsPage() {
   return (
@@ -16,6 +17,9 @@ export default function SettingsPage() {
       <div className="space-y-6">
         {/* Apariencia */}
         <AppearanceSection />
+
+        {/* Cliente y Workspace */}
+        <ClientWorkspaceSection />
 
         {/* Notificaciones - Placeholder para futuro */}
         <Card>

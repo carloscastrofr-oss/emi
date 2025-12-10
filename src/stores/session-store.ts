@@ -8,7 +8,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { SessionData, ClientWithWorkspaces, WorkspaceData } from "@/types/session";
 import { SessionService } from "@/lib/session-service";
-import { getSessionData } from "@/lib/api-client";
+import { getSessionData, updateSessionDefaults } from "@/lib/api-client";
 
 /**
  * Tiempo de cache (TTL) para datos de sesión
@@ -67,6 +67,9 @@ interface SessionActions {
 
   // Actualizar workspace por defecto (solo local, no persiste en servidor)
   setDefaultWorkspace: (workspaceId: string) => void;
+
+  // Actualizar defaults en el servidor y refrescar datos
+  updateDefaults: (clientId: string, workspaceId: string) => Promise<void>;
 }
 
 interface SessionGetters {
@@ -207,6 +210,22 @@ export const sessionStore = create<SessionStore>()(
             defaultWorkspace: workspaceId,
           },
         });
+      },
+
+      // Actualizar defaults en el servidor y refrescar datos
+      updateDefaults: async (clientId: string, workspaceId: string) => {
+        try {
+          // Actualizar en el servidor
+          await updateSessionDefaults(clientId, workspaceId);
+
+          // Refrescar datos de sesión para obtener los nuevos defaults
+          await get().fetchSession(true);
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : "Error al actualizar los defaults";
+          console.error("Error updating defaults:", error);
+          throw new Error(errorMessage);
+        }
       },
 
       // Getters derivados

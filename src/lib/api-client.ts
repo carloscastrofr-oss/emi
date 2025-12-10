@@ -89,3 +89,60 @@ export async function getSessionData(): Promise<SessionData> {
 
   return data.data as SessionData;
 }
+
+/**
+ * Actualiza los valores de cliente y workspace por defecto del usuario
+ * @param defaultClientId - ID del cliente por defecto
+ * @param defaultWorkspaceId - ID del workspace por defecto
+ * @returns Objeto con los defaults actualizados
+ */
+export async function updateSessionDefaults(
+  defaultClientId: string,
+  defaultWorkspaceId: string
+): Promise<{ defaultClientId: string; defaultWorkspaceId: string }> {
+  // Verificar y renovar el token antes de hacer la request
+  const checkToken = useAuthStore.getState().checkAndRefreshToken;
+  try {
+    await checkToken();
+  } catch (error) {
+    throw new Error(
+      error instanceof Error ? error.message : "Error al verificar el token de autenticación"
+    );
+  }
+
+  const authToken = getAuthCookie();
+
+  if (!authToken) {
+    throw new Error("No hay token de autenticación. Por favor, inicia sesión.");
+  }
+
+  const response = await apiFetch("/api/sesion/defaults", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({
+      defaultClientId,
+      defaultWorkspaceId,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({
+      error: { message: "Error al actualizar defaults" },
+    }));
+
+    throw new Error(
+      errorData.error?.message || `Error ${response.status}: No se pudieron actualizar los defaults`
+    );
+  }
+
+  const data = await response.json();
+
+  if (!data.success || !data.data) {
+    throw new Error("Respuesta inválida del servidor");
+  }
+
+  return data.data as { defaultClientId: string; defaultWorkspaceId: string };
+}
