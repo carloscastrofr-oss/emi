@@ -29,6 +29,10 @@ export const getApiDocs = () => {
           name: "Kit",
           description: "Operaciones relacionadas con kits de diseño",
         },
+        {
+          name: "Sesión",
+          description: "Operaciones relacionadas con la sesión del usuario",
+        },
       ],
     },
   });

@@ -14,6 +14,7 @@ import {
 import { auth, isAuthAvailable } from "@/lib/firebase";
 import type { Role, SessionUser, Client } from "@/types/auth";
 import { setRoleCookie, clearRoleCookie, setAuthCookie, clearAuthCookie } from "@/lib/auth-cookies";
+import { sessionStore } from "./session-store";
 
 // =============================================================================
 // HELPERS
@@ -169,6 +170,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
             isInitialized: true,
             error: null,
           });
+
+          // Obtener datos de sesión después de autenticación exitosa
+          try {
+            await sessionStore.getState().fetchSession();
+          } catch (error) {
+            console.error("Error fetching session data:", error);
+            // No fallar la autenticación si falla la sesión, solo loggear
+          }
         } catch (error) {
           console.error("Error getting ID token:", error);
           // Aún así establecer el usuario, pero sin token
@@ -186,6 +195,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         // Usuario no autenticado
         clearRoleCookie();
         clearAuthCookie(); // Limpiar cookie de autenticación
+        sessionStore.getState().clearSession(); // Limpiar datos de sesión
         set({
           user: null,
           isAuthenticated: false,
@@ -253,6 +263,23 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   // Logout
   logout: async () => {
+    // Limpiar datos de sesión primero
+    sessionStore.getState().clearSession();
+
+    // Limpiar localStorage de stores que persisten datos
+    try {
+      if (typeof window !== "undefined") {
+        // Limpiar debug store
+        localStorage.removeItem("emi-debug-storage");
+        // Limpiar preferences store si existe
+        localStorage.removeItem("emi-preferences-storage");
+        // Limpiar cualquier otro dato de sesión
+        localStorage.removeItem("emi-session-storage");
+      }
+    } catch (error) {
+      console.warn("Error limpiando localStorage:", error);
+    }
+
     if (!isAuthAvailable() || !auth) {
       // Si Firebase Auth no está disponible, solo limpiamos el estado local
       clearRoleCookie();
