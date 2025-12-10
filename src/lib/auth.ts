@@ -70,3 +70,44 @@ export function getAllowedTabsConfig(role: Role): SidebarTabConfig[] {
   const allowedTabs = getAllowedTabs(role);
   return sidebarTabsConfig.filter((tab) => allowedTabs.includes(tab.id));
 }
+
+/**
+ * Mapeo de rutas a tabs del sidebar (debe coincidir con middleware.ts)
+ */
+const routeToTab: Record<string, SidebarTab> = {
+  "/dashboard": "dashboard",
+  "/kit": "kit",
+  "/ai-writing": "ai_writing",
+  "/ai-flow": "ai_flow",
+  "/ai-toolkit": "ai_toolkit",
+  "/workbench": "workbench",
+  "/observer": "observer",
+  "/risk": "risk",
+  "/synthetic-users": "synthetic_users",
+  "/strategy": "strategy",
+  "/changelog": "changelog",
+  "/labs": "labs",
+  "/agent": "agent",
+  "/onboarding": "onboarding",
+};
+
+/**
+ * Obtiene el primer tab permitido para un rol
+ */
+function getFirstAllowedTab(role: Role): SidebarTab {
+  const allowedTabs = getAllowedTabs(role);
+  return allowedTabs[0] ?? "kit";
+}
+
+/**
+ * Obtiene la ruta del primer tab permitido para un rol
+ * Esta es la ruta a la que se debe redirigir después del login
+ */
+export function getFirstAllowedRoute(role: Role): string {
+  const tab = getFirstAllowedTab(role);
+  // Buscar la ruta que corresponde a este tab
+  for (const [route, tabId] of Object.entries(routeToTab)) {
+    if (tabId === tab) return route;
+  }
+  return "/kit"; // Fallback
+}

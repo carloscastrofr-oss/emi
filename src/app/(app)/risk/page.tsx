@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/page-header";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
-import { db, isFirebaseConfigValid } from "@/lib/firebase";
+import { db, isFirebaseConfigValid, isFirestoreAvailable } from "@/lib/firebase";
 import { Risk, RiskCategory, RiskStatus, riskCategoryCodes, riskCategories } from "@/types/risk";
 import { RiskScore } from "./risk-score";
 import { RiskFilters } from "./risk-filters";
@@ -149,7 +149,7 @@ export default function RiskPage() {
 
   useEffect(() => {
     setIsLoading(true);
-    if (!isFirebaseConfigValid) {
+    if (!isFirebaseConfigValid || !isFirestoreAvailable() || !db) {
       console.warn("Firebase not configured. Using mock data for risks.");
       setAllRisks(mockRisks);
       setIsLoading(false);

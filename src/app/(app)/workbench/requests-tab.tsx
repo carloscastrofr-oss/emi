@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { db, isFirebaseConfigValid } from "@/lib/firebase";
+import { db, isFirebaseConfigValid, isFirestoreAvailable } from "@/lib/firebase";
 import { useAuthStore } from "@/stores/auth-store";
 import { useToast } from "@/hooks/use-toast";
 
@@ -269,6 +269,11 @@ export function RequestsTab() {
           history: [{ status: "Solicitado", byUid: "dev789", at: Timestamp.now() }],
         },
       ]);
+      setIsLoading(false);
+      return;
+    }
+
+    if (!isFirestoreAvailable() || !db) {
       setIsLoading(false);
       return;
     }

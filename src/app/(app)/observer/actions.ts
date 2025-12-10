@@ -1,14 +1,14 @@
 "use server";
 
 import { collection, addDoc, serverTimestamp, Timestamp } from "firebase/firestore";
-import { db, isFirebaseConfigValid } from "@/lib/firebase";
+import { db, isFirebaseConfigValid, isFirestoreAvailable } from "@/lib/firebase";
 import { revalidatePath } from "next/cache";
 import type { ABTest } from "@/types/ab-test";
 
 type NewABTestPayload = Omit<ABTest, "id" | "status" | "createdAt" | "ownerUid">;
 
 export async function createABTest(payload: NewABTestPayload & { ownerUid: string }) {
-  if (!isFirebaseConfigValid) {
+  if (!isFirebaseConfigValid || !isFirestoreAvailable() || !db) {
     console.log("Firebase no está configurado. Saltando createABTest.");
     // For demo purposes, we can return a success message without actually saving.
     return { success: true, message: "Experimento A/B simulado creado." };

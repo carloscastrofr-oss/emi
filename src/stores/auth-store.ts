@@ -4,9 +4,16 @@
  */
 
 import { create } from "zustand";
+import {
+  onAuthStateChanged,
+  onIdTokenChanged,
+  User as FirebaseUser,
+  signOut as firebaseSignOut,
+  getIdToken,
+} from "firebase/auth";
+import { auth, isAuthAvailable } from "@/lib/firebase";
 import type { Role, SessionUser, Client } from "@/types/auth";
-import { setRoleCookie, clearRoleCookie } from "@/lib/auth-cookies";
-import { roleLabels } from "@/config/auth";
+import { setRoleCookie, clearRoleCookie, setAuthCookie, clearAuthCookie } from "@/lib/auth-cookies";
 
 // =============================================================================
 // HELPERS
@@ -71,33 +78,30 @@ interface AuthActions {
 type AuthStore = AuthState & AuthActions;
 
 // =============================================================================
-// MOCK: Simula fetch de perfil de Google Auth
+// HELPERS: Conversión de Firebase User a SessionUser
 // =============================================================================
 
 /**
- * Simula obtener el perfil del usuario desde Google Auth
- * Usa el rol del debug store si está disponible
- * TODO: Reemplazar con llamada real a Google Auth cuando esté implementado
+ * Convierte un Firebase User a SessionUser
+ * Por ahora usa un rol por defecto, en el futuro se puede obtener desde Firestore
  */
-async function fetchMockUserProfile(): Promise<SessionUser> {
-  // Simular delay de red
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
+function convertFirebaseUserToSessionUser(firebaseUser: FirebaseUser): SessionUser {
   // Obtener rol del debug store (si existe) o usar default
   const debugRole = getDebugRole();
   const role: Role = debugRole ?? "product_designer";
 
-  // Datos mock basados en el rol seleccionado
-  const mockUser: SessionUser = {
-    uid: "mock-uid-12345",
-    email: "designer@example.com",
-    displayName: roleLabels[role],
-    photoUrl: null,
+  return {
+    uid: firebaseUser.uid,
+    email: firebaseUser.email,
+    displayName: firebaseUser.displayName,
+    photoUrl: firebaseUser.photoURL,
     role,
     permissions: [],
-    emailVerified: true,
+    emailVerified: firebaseUser.emailVerified,
     lastLoginAt: new Date(),
-    createdAt: new Date("2024-01-01"),
+    createdAt: firebaseUser.metadata.creationTime
+      ? new Date(firebaseUser.metadata.creationTime)
+      : new Date(),
     onboarding: {
       completed: [],
       currentStep: undefined,
@@ -112,8 +116,6 @@ async function fetchMockUserProfile(): Promise<SessionUser> {
       },
     },
   };
-
-  return mockUser;
 }
 
 // =============================================================================
@@ -136,30 +138,97 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     set({ isLoading: true, error: null });
 
-    try {
-      // Fetch del perfil (mock por ahora)
-      const user = await fetchMockUserProfile();
-
-      // Guardar rol en cookie para el middleware
-      setRoleCookie(user.role);
-
-      set({
-        user,
-        isAuthenticated: true,
-        isLoading: false,
-        isInitialized: true,
-        error: null,
-      });
-    } catch (error) {
-      console.error("Error initializing auth:", error);
+    // Verificar si Firebase Auth está disponible
+    if (!isAuthAvailable() || !auth) {
+      console.warn(
+        "Firebase Auth no está disponible. Verifica que las variables de entorno estén configuradas correctamente."
+      );
       set({
         user: null,
         isAuthenticated: false,
         isLoading: false,
         isInitialized: true,
-        error: error instanceof Error ? error.message : "Error de autenticación",
+        error: "Firebase Auth no está configurado. Por favor, verifica las variables de entorno.",
       });
+      return;
     }
+
+    // Función helper para actualizar el token y el estado del usuario
+    const updateUserState = async (firebaseUser: FirebaseUser | null) => {
+      if (firebaseUser) {
+        // Usuario autenticado - obtener ID token y guardarlo
+        try {
+          const idToken = await getIdToken(firebaseUser, false);
+          const sessionUser = convertFirebaseUserToSessionUser(firebaseUser);
+          setRoleCookie(sessionUser.role);
+          setAuthCookie(idToken); // Establecer cookie con el ID token
+          set({
+            user: sessionUser,
+            isAuthenticated: true,
+            isLoading: false,
+            isInitialized: true,
+            error: null,
+          });
+        } catch (error) {
+          console.error("Error getting ID token:", error);
+          // Aún así establecer el usuario, pero sin token
+          const sessionUser = convertFirebaseUserToSessionUser(firebaseUser);
+          setRoleCookie(sessionUser.role);
+          set({
+            user: sessionUser,
+            isAuthenticated: true,
+            isLoading: false,
+            isInitialized: true,
+            error: null,
+          });
+        }
+      } else {
+        // Usuario no autenticado
+        clearRoleCookie();
+        clearAuthCookie(); // Limpiar cookie de autenticación
+        set({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+          isInitialized: true,
+          error: null,
+        });
+      }
+    };
+
+    // Escuchar cambios en el estado de autenticación de Firebase
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _unsubscribeAuth = onAuthStateChanged(auth, updateUserState, (error) => {
+      console.error("Error in auth state change:", error);
+      clearRoleCookie();
+      clearAuthCookie();
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        isInitialized: true,
+        error: error.message || "Error de autenticación",
+      });
+    });
+
+    // Escuchar cambios en el ID token para renovarlo automáticamente
+    // Esto asegura que el token se renueve cuando esté cerca de expirar
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _unsubscribeToken = onIdTokenChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        try {
+          // Obtener el nuevo token (forzar renovación si es necesario)
+          const idToken = await getIdToken(firebaseUser, true);
+          setAuthCookie(idToken);
+        } catch (error) {
+          console.error("Error refreshing ID token:", error);
+        }
+      }
+    });
+
+    // Guardar unsubscribe para limpiar cuando sea necesario
+    // Nota: En un store de Zustand, esto se puede manejar mejor con un cleanup
+    // Por ahora, el listener se mantiene activo durante toda la sesión
   },
 
   // Actualizar usuario
@@ -183,14 +252,47 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   // Logout
-  logout: () => {
-    // Limpiar cookie
-    clearRoleCookie();
-    set({
-      user: null,
-      isAuthenticated: false,
-      currentClient: null,
-    });
+  logout: async () => {
+    if (!isAuthAvailable() || !auth) {
+      // Si Firebase Auth no está disponible, solo limpiamos el estado local
+      clearRoleCookie();
+      clearAuthCookie();
+      set({
+        user: null,
+        isAuthenticated: false,
+        currentClient: null,
+      });
+      // Recargar la página para asegurar que el middleware redirija a /login
+      window.location.href = "/login";
+      return;
+    }
+
+    try {
+      await firebaseSignOut(auth);
+      // Limpiar cookies y estado
+      clearRoleCookie();
+      clearAuthCookie();
+      set({
+        user: null,
+        isAuthenticated: false,
+        currentClient: null,
+      });
+      // Recargar la página para asegurar que el middleware redirija a /login
+      // Esto garantiza que todas las cookies se limpien y el estado se resetee
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Error signing out:", error);
+      // Aún así limpiamos el estado local
+      clearRoleCookie();
+      clearAuthCookie();
+      set({
+        user: null,
+        isAuthenticated: false,
+        currentClient: null,
+      });
+      // Recargar la página incluso si hay error
+      window.location.href = "/login";
+    }
   },
 
   // Limpiar error

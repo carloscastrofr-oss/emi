@@ -10,7 +10,7 @@
 import { ai } from "@/ai/genkit";
 import { z } from "zod";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { db, isFirebaseConfigValid } from "@/lib/firebase";
+import { db, isFirebaseConfigValid, isFirestoreAvailable } from "@/lib/firebase";
 
 const OKRSchema = z.object({
   objective: z.string(),
@@ -173,7 +173,7 @@ const generateDesignStrategyFlow = ai.defineFlow(
       createdAt: serverTimestamp(),
     };
 
-    if (!isFirebaseConfigValid) {
+    if (!isFirebaseConfigValid || !isFirestoreAvailable() || !db) {
       console.warn(
         "Firebase no está configurado. Se devolverá una estrategia simulada sin guardarla."
       );

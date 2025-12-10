@@ -8,7 +8,7 @@ import {
   updateDoc,
   arrayUnion,
 } from "firebase/firestore";
-import { db, isFirebaseConfigValid } from "@/lib/firebase";
+import { db, isFirebaseConfigValid, isFirestoreAvailable } from "@/lib/firebase";
 import { revalidatePath } from "next/cache";
 import type { ComponentRequest, RequestStatus } from "@/types/component-request";
 
@@ -19,7 +19,7 @@ type NewRequestPayload = Pick<
 > & { requesterUid: string };
 
 export async function submitComponentRequest(payload: NewRequestPayload) {
-  if (!isFirebaseConfigValid) {
+  if (!isFirebaseConfigValid || !isFirestoreAvailable() || !db) {
     console.log("Firebase no está configurado. Saltando submitComponentRequest.");
     return { success: false, message: "La configuración de Firebase no es válida." };
   }

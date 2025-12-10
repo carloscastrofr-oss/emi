@@ -28,6 +28,15 @@ const AuthContext = createContext<AuthContextType>({
 
 // Helper function to create a default user profile in Firestore
 const createDefaultUserProfile = async (user: User) => {
+  if (!db || (typeof db === "object" && !("collection" in db))) {
+    // db is not a valid Firestore instance
+    return {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName || "New User",
+      role: "viewer" as UserRole,
+    };
+  }
   const userDocRef = doc(db, "users", user.uid);
   const defaultProfile = {
     email: user.email,
@@ -45,7 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     // If firebase config is not valid, app will be an empty object, so we check one of its properties
-    if (!app.options?.apiKey) {
+    if (!app || typeof app !== "object" || !("options" in app) || !app.options?.apiKey) {
       console.warn(
         "Firebase not initialized, using mock user. All gated features will be available."
       );
@@ -65,6 +74,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribeAuth = onAuthStateChanged(auth, (authUser) => {
       if (authUser) {
         setUser(authUser);
+
+        // Check if db is valid before using it
+        if (!db || (typeof db === "object" && !("collection" in db))) {
+          console.warn("Firestore not available, skipping user profile fetch");
+          setUserProfile({
+            uid: authUser.uid,
+            email: authUser.email,
+            displayName: authUser.displayName,
+            role: "viewer",
+          });
+          setLoading(false);
+          return;
+        }
+
         const userDocRef = doc(db, "users", authUser.uid);
 
         const unsubscribeSnapshot = onSnapshot(

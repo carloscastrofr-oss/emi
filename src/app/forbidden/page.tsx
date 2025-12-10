@@ -1,15 +1,26 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ShieldX, ArrowLeft, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/auth-store";
 import { getAllowedTabsConfig } from "@/lib/auth";
 import { roleLabels } from "@/config/auth";
 
+/**
+ * Página de acceso denegado (403)
+ * Solo se muestra cuando el usuario está autenticado pero no tiene permisos
+ * Si no está autenticado, el middleware redirige a /login
+ */
 export default function ForbiddenPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuthStore();
+
+  // Obtener información de debugging desde los query params
+  const fromPath = searchParams.get("from");
+  const reason = searchParams.get("reason");
+  const roleFromQuery = searchParams.get("role");
 
   // Obtener el primer tab permitido para redirigir
   const allowedTabs = user?.role ? getAllowedTabsConfig(user.role) : [];
@@ -46,6 +57,18 @@ export default function ForbiddenPage() {
           )}
         </p>
 
+        {/* Debug info - solo en desarrollo */}
+        {process.env.NODE_ENV === "development" && (
+          <div className="mb-4 rounded-md border border-destructive/20 bg-destructive/5 p-3 text-left text-xs">
+            <p className="font-semibold text-destructive">Debug Info:</p>
+            <p>From: {fromPath || "unknown"}</p>
+            <p>Reason: {reason || "unknown"}</p>
+            <p>Role from query: {roleFromQuery || "none"}</p>
+            <p>User role: {user?.role || "none"}</p>
+            <p>Is authenticated: {user ? "yes" : "no"}</p>
+          </div>
+        )}
+
         {/* Acciones */}
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button variant="outline" onClick={() => router.back()}>
@@ -59,11 +82,9 @@ export default function ForbiddenPage() {
         </div>
 
         {/* Info adicional */}
-        {user && (
-          <p className="mt-8 text-xs text-muted-foreground">
-            Si crees que deberías tener acceso, contacta a tu administrador.
-          </p>
-        )}
+        <p className="mt-8 text-xs text-muted-foreground">
+          Si crees que deberías tener acceso, contacta a tu administrador.
+        </p>
       </div>
     </div>
   );

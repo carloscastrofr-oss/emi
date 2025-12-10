@@ -147,14 +147,15 @@ function loadConfig(): EnvConfig {
     isProduction: environment === "production",
 
     // Firebase - variables específicas por ambiente
-    // Usamos valores por defecto vacíos, la validación se hace en isFirebaseConfigValid()
+    // En Next.js, las variables NEXT_PUBLIC_* se inyectan en tiempo de build
+    // Accedemos directamente a process.env que Next.js ya ha inyectado
     firebase: {
-      apiKey: getEnvVar("NEXT_PUBLIC_FIREBASE_API_KEY", ""),
-      authDomain: getEnvVar("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN", ""),
-      projectId: getEnvVar("NEXT_PUBLIC_FIREBASE_PROJECT_ID", ""),
-      storageBucket: getEnvVar("NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET", ""),
-      messagingSenderId: getEnvVar("NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID", ""),
-      appId: getEnvVar("NEXT_PUBLIC_FIREBASE_APP_ID", ""),
+      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
+      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "",
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "",
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "",
+      messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "",
+      appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "",
     },
 
     // API
@@ -208,16 +209,71 @@ export function getEnvironmentShort(): "DEV" | "QA" | "PROD" {
  */
 export function isFirebaseConfigValid(): boolean {
   const { firebase } = env;
-  return (
+
+  // Verificar que todas las variables existan y no sean placeholders
+  const hasAllValues =
     !!firebase.apiKey &&
     !!firebase.authDomain &&
     !!firebase.projectId &&
     !!firebase.storageBucket &&
     !!firebase.messagingSenderId &&
-    !!firebase.appId &&
-    !firebase.apiKey.includes("YOUR_API_KEY") &&
-    !firebase.apiKey.includes("placeholder")
-  );
+    !!firebase.appId;
+
+  // Verificar que no sean placeholders comunes
+  const placeholderChecks = {
+    apiKey:
+      firebase.apiKey.includes("YOUR_API_KEY") ||
+      firebase.apiKey.includes("your_dev_api_key") ||
+      firebase.apiKey.includes("placeholder"),
+    authDomain:
+      firebase.authDomain.includes("your_dev_project") ||
+      firebase.authDomain.includes("placeholder"),
+    projectId:
+      firebase.projectId.includes("your_dev_project") || firebase.projectId.includes("placeholder"),
+    storageBucket:
+      firebase.storageBucket.includes("your_dev_project") ||
+      firebase.storageBucket.includes("placeholder"),
+    messagingSenderId: firebase.messagingSenderId === "123456789",
+    appId: firebase.appId.includes("abcdef"),
+  };
+
+  const noPlaceholders = !Object.values(placeholderChecks).some((v) => v);
+  const isValid = hasAllValues && noPlaceholders;
+
+  // Log de debug en desarrollo para ayudar a identificar problemas
+  if (typeof window !== "undefined" && !isValid && env.isDevelopment) {
+    const missingVars = [];
+    if (!firebase.apiKey) missingVars.push("NEXT_PUBLIC_FIREBASE_API_KEY");
+    if (!firebase.authDomain) missingVars.push("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN");
+    if (!firebase.projectId) missingVars.push("NEXT_PUBLIC_FIREBASE_PROJECT_ID");
+    if (!firebase.storageBucket) missingVars.push("NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET");
+    if (!firebase.messagingSenderId) missingVars.push("NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID");
+    if (!firebase.appId) missingVars.push("NEXT_PUBLIC_FIREBASE_APP_ID");
+
+    if (missingVars.length > 0) {
+      console.warn(
+        `⚠️ Firebase: Faltan variables de entorno: ${missingVars.join(", ")}.\n` +
+          `Asegúrate de que estén en .env.local y reinicia el servidor de desarrollo.`
+      );
+    } else if (!noPlaceholders) {
+      const placeholderVars = [];
+      if (placeholderChecks.apiKey) placeholderVars.push("NEXT_PUBLIC_FIREBASE_API_KEY");
+      if (placeholderChecks.authDomain) placeholderVars.push("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN");
+      if (placeholderChecks.projectId) placeholderVars.push("NEXT_PUBLIC_FIREBASE_PROJECT_ID");
+      if (placeholderChecks.storageBucket)
+        placeholderVars.push("NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET");
+      if (placeholderChecks.messagingSenderId)
+        placeholderVars.push("NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID");
+      if (placeholderChecks.appId) placeholderVars.push("NEXT_PUBLIC_FIREBASE_APP_ID");
+
+      console.warn(
+        `⚠️ Firebase: Las siguientes variables contienen valores placeholder: ${placeholderVars.join(", ")}.\n` +
+          `Por favor, reemplaza estos valores en .env.local con tus credenciales reales de Firebase y reinicia el servidor.`
+      );
+    }
+  }
+
+  return isValid;
 }
 
 // =============================================================================

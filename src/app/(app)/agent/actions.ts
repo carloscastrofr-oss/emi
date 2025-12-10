@@ -1,7 +1,7 @@
 "use server";
 
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db, isFirebaseConfigValid } from "@/lib/firebase";
+import { db, isFirebaseConfigValid, isFirestoreAvailable } from "@/lib/firebase";
 
 // Import all agent flows
 import { agentAccessibility } from "@/ai/flows/agent-accessibility";
@@ -19,7 +19,7 @@ export interface Recommendation {
 }
 
 export async function addRecommendation(recommendation: Recommendation) {
-  if (!isFirebaseConfigValid) {
+  if (!isFirebaseConfigValid || !isFirestoreAvailable() || !db) {
     console.log("Firebase no está configurado. Saltando addRecommendation.");
     console.log("Datos de la recomendación:", recommendation);
     return;

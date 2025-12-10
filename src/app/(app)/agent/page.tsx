@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { collection, query, orderBy, onSnapshot, Timestamp } from "firebase/firestore";
-import { db, isFirebaseConfigValid } from "@/lib/firebase";
+import { db, isFirebaseConfigValid, isFirestoreAvailable } from "@/lib/firebase";
 import { PageHeader } from "@/components/page-header";
 import { AgentCard } from "./agent-card";
 import {
@@ -104,7 +104,7 @@ export default function AgentPage({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!isFirebaseConfigValid) {
+    if (!isFirebaseConfigValid || !isFirestoreAvailable() || !db) {
       setIsLoading(false);
       return;
     }

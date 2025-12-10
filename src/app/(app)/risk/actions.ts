@@ -1,7 +1,7 @@
 "use server";
 
 import { doc, updateDoc, arrayUnion, serverTimestamp } from "firebase/firestore";
-import { db, isFirebaseConfigValid } from "@/lib/firebase";
+import { db, isFirebaseConfigValid, isFirestoreAvailable } from "@/lib/firebase";
 import { revalidatePath } from "next/cache";
 
 export async function assignRisk(
@@ -10,7 +10,7 @@ export async function assignRisk(
   assigneeName: string,
   assignerUid: string
 ) {
-  if (!isFirebaseConfigValid) {
+  if (!isFirebaseConfigValid || !isFirestoreAvailable() || !db) {
     console.warn("Firebase no está configurado. Saltando assignRisk.");
     // For demo purposes, we can return a success message without actually saving.
     return { success: true, message: "Riesgo simulado asignado." };
