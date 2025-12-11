@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { PanelLeft, LogIn } from "lucide-react";
+import { PanelLeft, LogIn, Building2, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,7 +15,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/stores/auth-store";
+import { useSessionStore } from "@/stores/session-store";
+import { SessionService } from "@/lib/session-service";
 import { roleLabels } from "@/config/auth";
+import { useEffect } from "react";
 
 /**
  * Header principal de la aplicación
@@ -24,6 +27,45 @@ import { roleLabels } from "@/config/auth";
 export function AppHeader() {
   const router = useRouter();
   const { user, logout, isAuthenticated } = useAuthStore();
+  const fetchSession = useSessionStore((state) => state.fetchSession);
+
+  // Obtener cliente y workspace actuales desde el store
+  // Usar sessionData como selector para que se reactive cuando cambie
+  const currentClient = useSessionStore((state) => {
+    if (!state.sessionData) return null;
+    return SessionService.getDefaultClient(
+      state.sessionData.clients,
+      state.sessionData.defaultClient
+    );
+  });
+  const currentWorkspace = useSessionStore((state) => {
+    if (!state.sessionData) return null;
+    const client = SessionService.getDefaultClient(
+      state.sessionData.clients,
+      state.sessionData.defaultClient
+    );
+    if (!client) return null;
+    return SessionService.getDefaultWorkspace(client, state.sessionData.defaultWorkspace);
+  });
+
+  // Cargar sesión cuando el usuario esté autenticado
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const storeState = useSessionStore.getState();
+
+      // Si no hay datos de sesión, cargar forzadamente
+      if (!storeState.sessionData) {
+        storeState.fetchSession(true).catch((error) => {
+          console.error("Error cargando sesión:", error);
+        });
+      } else {
+        // Si ya hay datos, solo revalidar si es necesario (puede haber expirado)
+        storeState.revalidateIfNeeded().catch((error) => {
+          console.error("Error revalidando sesión:", error);
+        });
+      }
+    }
+  }, [isAuthenticated, user]);
 
   const handleLoginClick = () => {
     router.push("/login");
@@ -42,6 +84,26 @@ export function AppHeader() {
 
         {/* Spacer */}
         <div className="flex-1" />
+
+        {/* Cliente y Workspace actuales */}
+        {isAuthenticated && (currentClient || currentWorkspace) && (
+          <div className="hidden md:flex items-center gap-3 mr-4">
+            {currentClient && (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/60 hover:bg-muted/80 transition-colors border border-border/40">
+                <Building2 className="h-4 w-4 text-primary/70" />
+                <span className="text-sm font-medium text-foreground/90">{currentClient.name}</span>
+              </div>
+            )}
+            {currentWorkspace && (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/60 hover:bg-muted/80 transition-colors border border-border/40">
+                <FolderOpen className="h-4 w-4 text-primary/70" />
+                <span className="text-sm font-medium text-foreground/90">
+                  {currentWorkspace.name}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* User menu o Login button */}
         {isAuthenticated && user ? (
