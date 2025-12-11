@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/page-header";
 import {
@@ -23,12 +24,14 @@ import {
   ShoppingCart,
   ArrowRight,
   Search,
+  Plus,
   type LucideIcon,
 } from "lucide-react";
 import { RequireRole } from "@/components/auth/require-role";
-import type { Kit } from "@/mocks/kit";
+import type { Kit } from "@/types/kit";
 import type { ApiResponse } from "@/lib/api-utils";
 import { apiFetch } from "@/lib/api-client";
+import { CreateKitDialog } from "./create-kit-dialog";
 
 // Mapeo de nombres de iconos a componentes
 const iconMap: Record<string, LucideIcon> = {
@@ -41,7 +44,19 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 function getIcon(iconName: string): LucideIcon {
+  // Intentar obtener el icono del mapa, si no existe, usar Package
   return iconMap[iconName] ?? Package;
+}
+
+// Función para obtener cualquier icono de Lucide dinámicamente
+function getLucideIcon(iconName: string): LucideIcon {
+  try {
+    // Intentar importar dinámicamente el icono
+    const iconModule = require(`lucide-react`);
+    return (iconModule[iconName] as LucideIcon) ?? Package;
+  } catch {
+    return Package;
+  }
 }
 
 function KitCardSkeleton() {
@@ -63,10 +78,12 @@ function KitCardSkeleton() {
 }
 
 export default function KitPage() {
+  const router = useRouter();
   const [kits, setKits] = useState<Kit[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   // Fetch kits on mount
   useEffect(() => {
@@ -105,7 +122,17 @@ export default function KitPage() {
 
   return (
     <div>
-      <PageHeader title="Kit" description="Descarga kits de inicio para arrancar tus proyectos." />
+      <PageHeader
+        title="Kit"
+        description="Descarga kits de inicio para arrancar tus proyectos."
+        actions={
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Crear Kit
+          </Button>
+        }
+      />
+      <CreateKitDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
 
       {/* Search */}
       <div className="relative mb-8">
@@ -142,7 +169,7 @@ export default function KitPage() {
       {!isLoading && !error && (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredKits.map((kit) => {
-            const Icon = getIcon(kit.icon);
+            const Icon = getLucideIcon(kit.icon);
             return (
               <motion.div
                 key={kit.id}
@@ -163,7 +190,7 @@ export default function KitPage() {
                   <CardContent className="flex-grow" />
                   <CardFooter>
                     <RequireRole minRole="product_designer" showDisabled>
-                      <Button className="w-full">
+                      <Button className="w-full" onClick={() => router.push(`/kit/${kit.id}`)}>
                         <ArrowRight className="mr-2 h-4 w-4" />
                         Consultar
                       </Button>

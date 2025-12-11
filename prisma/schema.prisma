@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = []
 }
 
@@ -35,15 +35,19 @@ model Kit {
   id          String      @id @default(uuid())
   title       String
   description String
-  icon        String      // nombre del icono de Lucide
+  icon        String // nombre del icono de Lucide
   category    KitCategory
   downloadUrl String?
   docsUrl     String?
   tags        String[]    @default([])
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  createdBy   String?     // para futuro multi-tenant
+  createdBy   String? // para futuro multi-tenant
   isActive    Boolean     @default(true) // para soft deletes
+
+  // Relaciones
+  files KitFile[]
+  links KitLink[]
 
   @@index([category])
   @@index([isActive])
@@ -51,22 +55,58 @@ model Kit {
   @@map("kits")
 }
 
-model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  displayName   String?
-  photoUrl      String?
-  role          Role     @default(ux_ui_designer)
-  preferences   Json?    // UserPreferences como JSON
-  emailVerified Boolean  @default(false)
-  lastLoginAt   DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+model KitFile {
+  id         String   @id @default(uuid())
+  kitId      String
+  name       String
+  fileUrl    String // URL de Firebase Storage
+  fileSize   Int? // tamaño en bytes
+  mimeType   String?
+  uploadedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   // Relaciones
-  clientAccesses     UserClientAccess[]
-  workspaceAccesses  UserWorkspaceAccess[]
-  sessionConfig      UserSessionConfig?
+  kit Kit @relation(fields: [kitId], references: [id], onDelete: Cascade)
+
+  @@index([kitId])
+  @@index([uploadedAt])
+  @@map("kit_files")
+}
+
+model KitLink {
+  id          String   @id @default(uuid())
+  kitId       String
+  title       String
+  url         String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  kit Kit @relation(fields: [kitId], references: [id], onDelete: Cascade)
+
+  @@index([kitId])
+  @@index([createdAt])
+  @@map("kit_links")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  displayName   String?
+  photoUrl      String?
+  role          Role      @default(ux_ui_designer)
+  preferences   Json? // UserPreferences como JSON
+  emailVerified Boolean   @default(false)
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relaciones
+  clientAccesses    UserClientAccess[]
+  workspaceAccesses UserWorkspaceAccess[]
+  sessionConfig     UserSessionConfig?
 
   @@index([email])
   @@index([role])
@@ -80,14 +120,14 @@ model Client {
   slug      String     @unique
   logoUrl   String?
   plan      ClientPlan @default(free)
-  settings  Json?      // ClientSettings como JSON
+  settings  Json? // ClientSettings como JSON
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
   // Relaciones
-  workspaces      Workspace[]
-  userAccesses    UserClientAccess[]
-  sessionConfigs  UserSessionConfig[] @relation("ClientSessionConfig")
+  workspaces     Workspace[]
+  userAccesses   UserClientAccess[]
+  sessionConfigs UserSessionConfig[] @relation("ClientSessionConfig")
 
   @@index([slug])
   @@index([createdAt])
@@ -100,14 +140,14 @@ model Workspace {
   name        String
   slug        String
   description String?
-  settings    Json?    // WorkspaceSettings como JSON
+  settings    Json? // WorkspaceSettings como JSON
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   // Relaciones
-  client         Client               @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client         Client                @relation(fields: [clientId], references: [id], onDelete: Cascade)
   userAccesses   UserWorkspaceAccess[]
-  sessionConfigs UserSessionConfig[]  @relation("WorkspaceSessionConfig")
+  sessionConfigs UserSessionConfig[]   @relation("WorkspaceSessionConfig")
 
   @@unique([clientId, slug])
   @@index([clientId])
@@ -120,7 +160,7 @@ model UserClientAccess {
   id        String   @id @default(uuid())
   userId    String
   clientId  String
-  role      Role?    // Rol específico en este cliente
+  role      Role? // Rol específico en este cliente
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -138,7 +178,7 @@ model UserWorkspaceAccess {
   id          String   @id @default(uuid())
   userId      String
   workspaceId String
-  role        Role?    // Rol específico en este workspace
+  role        Role? // Rol específico en este workspace
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -153,16 +193,16 @@ model UserWorkspaceAccess {
 }
 
 model UserSessionConfig {
-  id               String   @id @default(uuid())
-  userId           String   @unique
-  defaultClientId  String?
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  defaultClientId    String?
   defaultWorkspaceId String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   // Relaciones
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  defaultClient   Client?   @relation("ClientSessionConfig", fields: [defaultClientId], references: [id], onDelete: SetNull)
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  defaultClient    Client?    @relation("ClientSessionConfig", fields: [defaultClientId], references: [id], onDelete: SetNull)
   defaultWorkspace Workspace? @relation("WorkspaceSessionConfig", fields: [defaultWorkspaceId], references: [id], onDelete: SetNull)
 
   @@index([userId])

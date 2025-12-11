@@ -3,17 +3,7 @@
  * Estos datos simulan lo que vendría del backend
  */
 
-export interface Kit {
-  id: string;
-  title: string;
-  description: string;
-  icon: string; // nombre del icono de lucide-react
-  category: "development" | "research" | "design" | "tokens";
-  downloadUrl?: string;
-  docsUrl?: string;
-  tags?: string[];
-  updatedAt: string;
-}
+import type { Kit } from "@/types/kit";
 
 export const kitsMock: Kit[] = [
   {
@@ -25,6 +15,7 @@ export const kitsMock: Kit[] = [
     downloadUrl: "https://github.com/example/design-system",
     docsUrl: "https://docs.example.com",
     tags: ["código", "documentación", "github"],
+    createdAt: "2024-12-01T10:00:00Z",
     updatedAt: "2024-12-01T10:00:00Z",
   },
   {
@@ -35,6 +26,7 @@ export const kitsMock: Kit[] = [
     category: "research",
     docsUrl: "https://research.example.com",
     tags: ["investigación", "usuarios", "hallazgos"],
+    createdAt: "2024-11-28T14:30:00Z",
     updatedAt: "2024-11-28T14:30:00Z",
   },
   {
@@ -45,6 +37,7 @@ export const kitsMock: Kit[] = [
     category: "design",
     downloadUrl: "https://brand.example.com/download",
     tags: ["marca", "logos", "colores", "tipografía"],
+    createdAt: "2024-11-25T09:00:00Z",
     updatedAt: "2024-11-25T09:00:00Z",
   },
   {
@@ -56,6 +49,7 @@ export const kitsMock: Kit[] = [
     downloadUrl: "https://npm.example.com/ui-kit",
     docsUrl: "https://components.example.com",
     tags: ["componentes", "UI", "react"],
+    createdAt: "2024-12-03T16:45:00Z",
     updatedAt: "2024-12-03T16:45:00Z",
   },
   {
@@ -67,6 +61,7 @@ export const kitsMock: Kit[] = [
     downloadUrl: "https://npm.example.com/tokens",
     docsUrl: "https://tokens.example.com",
     tags: ["tokens", "variables", "CSS"],
+    createdAt: "2024-12-02T11:20:00Z",
     updatedAt: "2024-12-02T11:20:00Z",
   },
   {
@@ -78,6 +73,7 @@ export const kitsMock: Kit[] = [
     downloadUrl: "https://npm.example.com/ecommerce-kit",
     docsUrl: "https://ecommerce.example.com",
     tags: ["e-commerce", "tienda", "checkout"],
+    createdAt: "2024-11-30T08:15:00Z",
     updatedAt: "2024-11-30T08:15:00Z",
   },
 ];
