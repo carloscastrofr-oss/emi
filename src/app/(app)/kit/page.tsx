@@ -43,16 +43,16 @@ const iconMap: Record<string, LucideIcon> = {
   ShoppingCart,
 };
 
-function getIcon(iconName: string): LucideIcon {
-  // Intentar obtener el icono del mapa, si no existe, usar Package
-  return iconMap[iconName] ?? Package;
-}
-
 // Función para obtener cualquier icono de Lucide dinámicamente
 function getLucideIcon(iconName: string): LucideIcon {
+  // Intentar obtener el icono del mapa primero
+  const mappedIcon = iconMap[iconName];
+  if (mappedIcon) return mappedIcon;
+
+  // Si no está en el mapa, intentar obtenerlo directamente de lucide-react
   try {
-    // Intentar importar dinámicamente el icono
-    const iconModule = require(`lucide-react`);
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const iconModule = require("lucide-react");
     return (iconModule[iconName] as LucideIcon) ?? Package;
   } catch {
     return Package;

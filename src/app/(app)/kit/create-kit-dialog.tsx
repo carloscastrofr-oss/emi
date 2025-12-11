@@ -36,7 +36,7 @@ import { Loader2 } from "lucide-react";
 import { IconPicker } from "@/components/icon-picker";
 import { apiFetch } from "@/lib/api-client";
 import type { ApiResponse } from "@/lib/api-utils";
-import type { Kit, KitCategory } from "@/types/kit";
+import type { Kit } from "@/types/kit";
 
 const formSchema = z.object({
   title: z.string().min(1, "El título es requerido"),

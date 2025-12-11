@@ -23,13 +23,7 @@
  */
 
 import { NextRequest } from "next/server";
-import {
-  successResponse,
-  errorResponse,
-  applyDevDelay,
-  isDevApiMode,
-  noBackendResponse,
-} from "@/lib/api-utils";
+import { successResponse, errorResponse, applyDevDelay, isDevApiMode } from "@/lib/api-utils";
 import { prisma } from "@/lib/prisma";
 import { kitsMock } from "@/mocks/kit";
 import type { Kit } from "@/types/kit";

@@ -116,8 +116,6 @@ const popularIcons = [
   "Banknote",
 ] as const;
 
-type IconName = (typeof popularIcons)[number];
-
 interface IconPickerProps {
   readonly value?: string;
   readonly onSelect: (iconName: string) => void;

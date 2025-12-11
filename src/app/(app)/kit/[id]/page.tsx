@@ -17,6 +17,7 @@ import {
   Trash2,
   type LucideIcon,
 } from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import { apiFetch } from "@/lib/api-client";
 import type { ApiResponse } from "@/lib/api-utils";
 import type { Kit, KitItem } from "@/types/kit";
@@ -26,12 +27,8 @@ import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 
 function getLucideIcon(iconName: string): LucideIcon {
-  try {
-    const iconModule = require(`lucide-react`);
-    return (iconModule[iconName] as LucideIcon) ?? FileText;
-  } catch {
-    return FileText;
-  }
+  const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as LucideIcon;
+  return IconComponent ?? FileText;
 }
 
 function formatFileSize(bytes?: number): string {
@@ -41,9 +38,8 @@ function formatFileSize(bytes?: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function KitItemCard({ item, onDelete }: { item: KitItem; onDelete: () => void }) {
+function KitItemCard({ item, onDelete: _onDelete }: { item: KitItem; onDelete: () => void }) {
   const { toast } = useToast();
-
   const handleDownload = () => {
     if (item.type === "file") {
       window.open(item.fileUrl, "_blank");
@@ -128,7 +124,6 @@ function KitItemCard({ item, onDelete }: { item: KitItem; onDelete: () => void }
 
 export default function KitDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const { toast } = useToast();
   const [kit, setKit] = useState<Kit | null>(null);
   const [items, setItems] = useState<KitItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);

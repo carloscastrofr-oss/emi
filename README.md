@@ -47,7 +47,7 @@
 | [📐 Blueprint](docs/blueprint.md)                          | Diseño inicial y features core del producto                          |
 | [🔧 Configuración de Ambientes](docs/environment-setup.md) | Guía completa de configuración de ambientes (dev, qa, prod)          |
 | [🗄️ Setup de Base de Datos](docs/database-setup-guide.md)  | Guía completa de setup y uso de base de datos desde cero             |
-| [🔄 Guía de Migraciones](docs/migrations-guide.md)         | Guía completa para crear y aplicar migraciones de Prisma              |
+| [🔄 Guía de Migraciones](docs/migrations-guide.md)         | Guía completa para crear y aplicar migraciones de Prisma             |
 
 ---
 

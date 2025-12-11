@@ -124,16 +124,10 @@
 
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { kitsMock, type Kit } from "@/mocks/kit";
-import {
-  successResponse,
-  errorResponse,
-  applyDevDelay,
-  isDevApiMode,
-  noBackendResponse,
-} from "@/lib/api-utils";
+import { kitsMock } from "@/mocks/kit";
+import type { Kit, KitCategory } from "@/types/kit";
+import { successResponse, errorResponse, applyDevDelay, isDevApiMode } from "@/lib/api-utils";
 import { prisma } from "@/lib/prisma";
-import type { KitCategory } from "@/types/kit";
 
 export async function GET(request: NextRequest) {
   try {
@@ -159,7 +153,7 @@ export async function GET(request: NextRequest) {
           (kit) =>
             kit.title.toLowerCase().includes(search) ||
             kit.description.toLowerCase().includes(search) ||
-            kit.tags?.some((tag) => tag.toLowerCase().includes(search))
+            kit.tags?.some((tag: string) => tag.toLowerCase().includes(search))
         );
       }
 

@@ -200,7 +200,7 @@ export function AddItemDialog({
                 <FormField
                   control={fileForm.control}
                   name="file"
-                  render={({ field: { value, onChange, ...field } }) => (
+                  render={({ field: { value: _value, onChange, ...field } }) => (
                     <FormItem>
                       <FormLabel>Archivo</FormLabel>
                       <FormControl>

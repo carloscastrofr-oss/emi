@@ -5,32 +5,41 @@
 ### Desarrollo Local
 
 #### Crear una nueva migración (recomendado)
+
 ```bash
 npm run db:migrate:dev -- --name nombre_de_la_migracion
 ```
+
 Crea una nueva migración sin validar contra shadow database. Úsalo cuando:
+
 - Quieres crear una nueva migración basada en cambios en el schema
 - No necesitas validación completa (más rápido)
 
 #### Aplicar migraciones existentes
+
 ```bash
 npm run db:migrate:dev:apply
 # o simplemente
 npm run db:migrate
 ```
+
 Aplica todas las migraciones pendientes a la base de datos.
 
 #### Crear y aplicar migración (validación completa)
+
 ```bash
 npm run db:migrate:dev:full -- --name nombre_de_la_migracion
 ```
+
 Crea y aplica la migración con validación completa contra shadow database.
 **Nota:** Puede fallar si hay problemas con el shadow database.
 
 #### Verificar estado de migraciones
+
 ```bash
 npm run db:migrate:status
 ```
+
 Muestra qué migraciones están aplicadas y cuáles están pendientes.
 
 ### Flujo Recomendado
@@ -38,11 +47,13 @@ Muestra qué migraciones están aplicadas y cuáles están pendientes.
 1. **Hacer cambios en `prisma/schema.prisma`**
 
 2. **Crear la migración:**
+
    ```bash
    npm run db:migrate:dev -- --name descripcion_cambios
    ```
 
 3. **Aplicar la migración:**
+
    ```bash
    npm run db:migrate:dev:apply
    ```
@@ -59,6 +70,7 @@ Muestra qué migraciones están aplicadas y cuáles están pendientes.
 Este error ocurre cuando Prisma intenta validar migraciones contra el shadow database y no encuentra las tablas necesarias.
 
 **Solución:**
+
 - Usa `npm run db:migrate:dev` (con `--create-only`) en lugar de `db:migrate:dev:full`
 - O aplica las migraciones existentes primero: `npm run db:migrate:dev:apply`
 
