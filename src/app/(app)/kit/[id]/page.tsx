@@ -24,7 +24,9 @@ import type { ApiResponse } from "@/lib/api-utils";
 import type { Kit, KitItem } from "@/types/kit";
 import { AddItemDialog } from "./add-item-dialog";
 import { SortControl, type SortOption } from "./sort-control";
+import { FilterControl, type FilterState } from "./filter-control";
 import { useToast } from "@/hooks/use-toast";
+import { useSessionData } from "@/stores/session-store";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -199,6 +201,9 @@ export default function KitDetailPage({ params }: { params: Promise<{ id: string
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [kitId, setKitId] = useState<string>("");
   const [sortOption, setSortOption] = useState<SortOption>("recent");
+  const [filters, setFilters] = useState<FilterState>({ type: undefined, myFiles: false });
+  const sessionData = useSessionData();
+  const currentUserEmail = sessionData?.user?.email;
 
   useEffect(() => {
     async function loadData() {
@@ -322,7 +327,30 @@ export default function KitDetailPage({ params }: { params: Promise<{ id: string
     setSortOption(directionMap[sortOption]);
   };
 
-  const sortedItems = sortItems(items, sortOption);
+  // Aplicar filtros (combinables)
+  const filteredItems = items.filter((item) => {
+    // Filtro por tipo
+    if (filters.type === "files-only" && item.type !== "file") {
+      return false;
+    }
+    if (filters.type === "links-only" && item.type !== "link") {
+      return false;
+    }
+
+    // Filtro por "mis archivos"
+    if (filters.myFiles && currentUserEmail) {
+      if (item.type === "file" && item.uploadedBy !== currentUserEmail) {
+        return false;
+      }
+      if (item.type === "link" && item.createdBy !== currentUserEmail) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  const sortedItems = sortItems(filteredItems, sortOption);
 
   if (isLoading) {
     return (
@@ -386,9 +414,14 @@ export default function KitDetailPage({ params }: { params: Promise<{ id: string
           </div>
         </div>
 
-        {/* Controles de ordenamiento */}
+        {/* Controles de filtrado y ordenamiento */}
         {items.length > 0 && (
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <FilterControl
+              filters={filters}
+              onFiltersChange={setFilters}
+              currentUserEmail={currentUserEmail}
+            />
             <SortControl
               value={sortOption}
               onValueChange={setSortOption}
@@ -407,7 +440,21 @@ export default function KitDetailPage({ params }: { params: Promise<{ id: string
 
       {/* Área de contenido con scroll independiente */}
       <div className="flex-1 min-h-0 overflow-hidden">
-        {items.length === 0 ? (
+        {filteredItems.length === 0 && items.length > 0 ? (
+          <Card className="py-12">
+            <CardContent className="text-center">
+              <p className="text-muted-foreground mb-4">
+                No hay elementos que coincidan con los filtros seleccionados.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => setFilters({ type: undefined, myFiles: false })}
+              >
+                Limpiar filtros
+              </Button>
+            </CardContent>
+          </Card>
+        ) : items.length === 0 ? (
           <Card className="py-12 h-full flex items-center justify-center">
             <CardContent className="text-center">
               <p className="text-muted-foreground mb-4">
