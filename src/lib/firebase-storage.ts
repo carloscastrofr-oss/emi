@@ -49,12 +49,12 @@ export async function uploadFile(
  * Genera una ruta única para un archivo de kit
  * @param kitId - ID del kit
  * @param fileName - Nombre original del archivo
- * @returns Ruta única para el archivo
+ * @returns Ruta única para el archivo con prefijo product-designer
  */
 export function generateKitFilePath(kitId: string, fileName: string): string {
   // Limpiar el nombre del archivo (remover caracteres especiales)
   const cleanFileName = fileName.replaceAll(/[^a-zA-Z0-9.-]/g, "_");
   // Agregar timestamp para evitar colisiones
   const timestamp = Date.now();
-  return `kits/${kitId}/${timestamp}_${cleanFileName}`;
+  return `product-designer/kits/${kitId}/${timestamp}_${cleanFileName}`;
 }

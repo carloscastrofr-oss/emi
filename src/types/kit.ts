@@ -4,6 +4,8 @@
 
 export type KitCategory = "development" | "research" | "design" | "tokens";
 
+export type KitItemScope = "workspace" | "client";
+
 export interface Kit {
   id: string;
   title: string;
@@ -24,10 +26,15 @@ export interface Kit {
 export interface KitFile {
   id: string;
   kitId: string;
-  name: string;
+  title: string; // Título personalizado del archivo
+  name: string; // Nombre original del archivo
   fileUrl: string; // URL de Firebase Storage
   fileSize?: number; // tamaño en bytes
   mimeType?: string;
+  scope: KitItemScope; // Alcance de visibilidad
+  uploadedBy: string; // Email del usuario que subió el archivo
+  workspaceId?: string; // ID del workspace donde se subió
+  clientId?: string; // ID del cliente donde se subió
   uploadedAt: string;
   createdAt: string;
   updatedAt: string;
@@ -39,6 +46,9 @@ export interface KitLink {
   title: string;
   url: string;
   description?: string;
+  scope: KitItemScope; // Alcance de visibilidad
+  workspaceId?: string; // ID del workspace donde se creó
+  clientId?: string; // ID del cliente donde se creó
   createdAt: string;
   updatedAt: string;
 }
@@ -57,12 +67,20 @@ export interface CreateKitInput {
 
 // Tipos para agregar archivos/enlaces
 export interface AddKitFileInput {
-  name: string;
+  title: string; // Título personalizado
+  name: string; // Nombre original del archivo
   file: File;
+  scope: KitItemScope;
+  uploadedBy: string; // Email del usuario
+  workspaceId?: string;
+  clientId?: string;
 }
 
 export interface AddKitLinkInput {
   title: string;
   url: string;
   description?: string;
+  scope: KitItemScope;
+  workspaceId?: string;
+  clientId?: string;
 }

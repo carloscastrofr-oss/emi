@@ -31,6 +31,11 @@ enum ClientPlan {
   enterprise
 }
 
+enum KitItemScope {
+  workspace
+  client
+}
+
 model Kit {
   id          String      @id @default(uuid())
   title       String
@@ -56,38 +61,52 @@ model Kit {
 }
 
 model KitFile {
-  id         String   @id @default(uuid())
-  kitId      String
-  name       String
-  fileUrl    String // URL de Firebase Storage
-  fileSize   Int? // tamaño en bytes
-  mimeType   String?
-  uploadedAt DateTime @default(now())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String       @id @default(uuid())
+  kitId       String
+  title       String // Título personalizado del archivo
+  name        String // Nombre original del archivo
+  fileUrl     String // URL de Firebase Storage
+  fileSize    Int? // tamaño en bytes
+  mimeType    String?
+  scope       KitItemScope @default(workspace) // Alcance de visibilidad
+  uploadedBy  String // Email del usuario que subió el archivo
+  workspaceId String? // ID del workspace donde se subió
+  clientId    String? // ID del cliente donde se subió
+  uploadedAt  DateTime     @default(now())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   // Relaciones
   kit Kit @relation(fields: [kitId], references: [id], onDelete: Cascade)
 
   @@index([kitId])
   @@index([uploadedAt])
+  @@index([workspaceId])
+  @@index([clientId])
+  @@index([scope])
   @@map("kit_files")
 }
 
 model KitLink {
-  id          String   @id @default(uuid())
+  id          String       @id @default(uuid())
   kitId       String
   title       String
   url         String
   description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  scope       KitItemScope @default(workspace) // Alcance de visibilidad
+  workspaceId String? // ID del workspace donde se creó
+  clientId    String? // ID del cliente donde se creó
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   // Relaciones
   kit Kit @relation(fields: [kitId], references: [id], onDelete: Cascade)
 
   @@index([kitId])
   @@index([createdAt])
+  @@index([workspaceId])
+  @@index([clientId])
+  @@index([scope])
   @@map("kit_links")
 }
 

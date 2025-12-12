@@ -22,6 +22,7 @@ import { apiFetch } from "@/lib/api-client";
 import type { ApiResponse } from "@/lib/api-utils";
 import type { Kit, KitItem } from "@/types/kit";
 import { AddItemDialog } from "./add-item-dialog";
+import { SortControl, type SortOption } from "./sort-control";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
@@ -70,16 +71,23 @@ function KitItemCard({ item, onDelete: _onDelete }: { item: KitItem; onDelete: (
             </div>
             <div className="flex-1 min-w-0">
               <CardTitle className="text-base truncate">
-                {item.type === "file" ? item.name : item.title}
+                {item.type === "file" ? item.title : item.title}
               </CardTitle>
-              <CardDescription className="text-sm">
-                {item.type === "file" ? (
+              <CardDescription className="text-sm space-y-1">
+                {item.type === "file" && (
                   <>
-                    {formatFileSize(item.fileSize)}
-                    {item.mimeType && ` • ${item.mimeType}`}
+                    <div className="text-xs text-muted-foreground/80">{item.name}</div>
+                    <div>
+                      {formatFileSize(item.fileSize)}
+                      {item.mimeType && ` • ${item.mimeType}`}
+                    </div>
                   </>
-                ) : (
-                  item.description || item.url
+                )}
+                {item.type === "link" && <div>{item.description || item.url}</div>}
+                {item.type === "file" && item.uploadedBy && (
+                  <div className="text-xs text-muted-foreground/70">
+                    Subido por: {item.uploadedBy}
+                  </div>
                 )}
               </CardDescription>
             </div>
@@ -130,6 +138,7 @@ export default function KitDetailPage({ params }: { params: Promise<{ id: string
   const [error, setError] = useState<string | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [kitId, setKitId] = useState<string>("");
+  const [sortOption, setSortOption] = useState<SortOption>("recent");
 
   useEffect(() => {
     async function loadData() {
@@ -181,6 +190,79 @@ export default function KitDetailPage({ params }: { params: Promise<{ id: string
       console.error("Error reloading items:", err);
     }
   };
+
+  // Función para ordenar items
+  const sortItems = (itemsToSort: KitItem[], option: SortOption): KitItem[] => {
+    const sorted = [...itemsToSort];
+
+    switch (option) {
+      case "alphabetical-asc":
+        return sorted.sort((a, b) => {
+          const titleA = a.type === "file" ? a.title : a.title;
+          const titleB = b.type === "file" ? b.title : b.title;
+          return titleA.localeCompare(titleB);
+        });
+
+      case "alphabetical-desc":
+        return sorted.sort((a, b) => {
+          const titleA = a.type === "file" ? a.title : a.title;
+          const titleB = b.type === "file" ? b.title : b.title;
+          return titleB.localeCompare(titleA);
+        });
+
+      case "recent":
+        return sorted.sort((a, b) => {
+          const dateA = a.type === "file" ? a.uploadedAt : a.createdAt;
+          const dateB = b.type === "file" ? b.uploadedAt : b.createdAt;
+          return new Date(dateB).getTime() - new Date(dateA).getTime();
+        });
+
+      case "oldest":
+        return sorted.sort((a, b) => {
+          const dateA = a.type === "file" ? a.uploadedAt : a.createdAt;
+          const dateB = b.type === "file" ? b.uploadedAt : b.createdAt;
+          return new Date(dateA).getTime() - new Date(dateB).getTime();
+        });
+
+      case "size-desc":
+        return sorted.sort((a, b) => {
+          if (a.type === "file" && b.type === "file") {
+            return (b.fileSize || 0) - (a.fileSize || 0);
+          }
+          if (a.type === "file") return -1;
+          if (b.type === "file") return 1;
+          return 0;
+        });
+
+      case "size-asc":
+        return sorted.sort((a, b) => {
+          if (a.type === "file" && b.type === "file") {
+            return (a.fileSize || 0) - (b.fileSize || 0);
+          }
+          if (a.type === "file") return -1;
+          if (b.type === "file") return 1;
+          return 0;
+        });
+
+      default:
+        return sorted;
+    }
+  };
+
+  const handleToggleDirection = () => {
+    // Invertir el orden actual
+    const directionMap: Record<SortOption, SortOption> = {
+      "alphabetical-asc": "alphabetical-desc",
+      "alphabetical-desc": "alphabetical-asc",
+      recent: "oldest",
+      oldest: "recent",
+      "size-desc": "size-asc",
+      "size-asc": "size-desc",
+    };
+    setSortOption(directionMap[sortOption]);
+  };
+
+  const sortedItems = sortItems(items, sortOption);
 
   if (isLoading) {
     return (
@@ -244,6 +326,17 @@ export default function KitDetailPage({ params }: { params: Promise<{ id: string
         </div>
       </div>
 
+      {/* Controles de ordenamiento */}
+      {items.length > 0 && (
+        <div className="mb-4 flex items-center justify-between">
+          <SortControl
+            value={sortOption}
+            onValueChange={setSortOption}
+            onToggleDirection={handleToggleDirection}
+          />
+        </div>
+      )}
+
       <AddItemDialog
         open={addDialogOpen}
         onOpenChange={setAddDialogOpen}
@@ -266,7 +359,7 @@ export default function KitDetailPage({ params }: { params: Promise<{ id: string
       ) : (
         <ScrollArea className="h-[calc(100vh-300px)]">
           <div className="space-y-4 pr-4">
-            {items.map((item) => (
+            {sortedItems.map((item) => (
               <KitItemCard key={item.id} item={item} onDelete={handleItemAdded} />
             ))}
           </div>
