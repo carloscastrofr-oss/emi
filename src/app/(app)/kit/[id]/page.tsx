@@ -15,6 +15,7 @@ import {
   Download,
   ExternalLink,
   Trash2,
+  Loader2,
   type LucideIcon,
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
@@ -39,8 +40,18 @@ function formatFileSize(bytes?: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function KitItemCard({ item, onDelete: _onDelete }: { item: KitItem; onDelete: () => void }) {
+function KitItemCard({
+  item,
+  kitId,
+  onDelete,
+}: {
+  item: KitItem;
+  kitId: string;
+  onDelete: () => void;
+}) {
   const { toast } = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const handleDownload = () => {
     if (item.type === "file") {
       window.open(item.fileUrl, "_blank");
@@ -50,11 +61,39 @@ function KitItemCard({ item, onDelete: _onDelete }: { item: KitItem; onDelete: (
   };
 
   const handleDelete = async () => {
-    // TODO: Implementar API de eliminación
-    toast({
-      title: "Eliminar",
-      description: "Funcionalidad de eliminación próximamente",
-    });
+    if (isDeleting) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await apiFetch(`/api/kit/${kitId}/files/${item.id}`, {
+        method: "DELETE",
+      });
+
+      const data: ApiResponse<{ deleted: boolean; type: string }> = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "Eliminado",
+          description: `El ${item.type === "file" ? "archivo" : "enlace"} ha sido eliminado exitosamente.`,
+        });
+        onDelete();
+      } else {
+        toast({
+          title: "Error",
+          description: data.error?.message || "Error al eliminar el elemento",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      toast({
+        title: "Error",
+        description: "Error de conexión al eliminar el elemento",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -119,9 +158,14 @@ function KitItemCard({ item, onDelete: _onDelete }: { item: KitItem; onDelete: (
               variant="ghost"
               size="sm"
               onClick={handleDelete}
+              disabled={isDeleting}
               className="h-8 px-2 text-destructive hover:text-destructive"
             >
-              <Trash2 className="h-4 w-4" />
+              {isDeleting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
             </Button>
           </div>
         </div>
@@ -363,7 +407,7 @@ export default function KitDetailPage({ params }: { params: Promise<{ id: string
           <ScrollArea className="h-full">
             <div className="space-y-4 pr-4">
               {sortedItems.map((item) => (
-                <KitItemCard key={item.id} item={item} onDelete={handleItemAdded} />
+                <KitItemCard key={item.id} item={item} kitId={kitId} onDelete={handleItemAdded} />
               ))}
             </div>
           </ScrollArea>
