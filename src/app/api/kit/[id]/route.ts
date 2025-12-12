@@ -94,6 +94,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         url: link.url,
         description: link.description || undefined,
         scope: link.scope,
+        createdBy: link.createdBy,
         workspaceId: link.workspaceId || undefined,
         clientId: link.clientId || undefined,
         createdAt: link.createdAt.toISOString(),

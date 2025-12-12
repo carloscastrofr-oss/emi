@@ -47,6 +47,7 @@ export interface KitLink {
   url: string;
   description?: string;
   scope: KitItemScope; // Alcance de visibilidad
+  createdBy: string; // Email del usuario que creó el enlace
   workspaceId?: string; // ID del workspace donde se creó
   clientId?: string; // ID del cliente donde se creó
   createdAt: string;
@@ -81,6 +82,7 @@ export interface AddKitLinkInput {
   url: string;
   description?: string;
   scope: KitItemScope;
+  createdBy: string; // Email del usuario
   workspaceId?: string;
   clientId?: string;
 }

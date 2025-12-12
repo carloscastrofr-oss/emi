@@ -188,6 +188,7 @@ export function AddItemDialog({
           url: values.url,
           description: values.description,
           scope: values.scope,
+          createdBy: userEmail,
           workspaceId: effectiveWorkspace?.id,
           clientId: effectiveClient?.id,
         }),

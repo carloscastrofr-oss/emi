@@ -96,10 +96,30 @@ function KitItemCard({
     }
   };
 
+  const dateText =
+    item.type === "file"
+      ? formatDistanceToNow(new Date(item.uploadedAt), {
+          addSuffix: true,
+          locale: es,
+        })
+      : formatDistanceToNow(new Date(item.createdAt), {
+          addSuffix: true,
+          locale: es,
+        });
+
+  const creatorText =
+    item.type === "file"
+      ? item.uploadedBy
+        ? `Subido por: ${item.uploadedBy}`
+        : null
+      : item.createdBy
+        ? `Creado por: ${item.createdBy}`
+        : null;
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3 flex-1 min-w-0">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
               {item.type === "file" ? (
@@ -109,23 +129,25 @@ function KitItemCard({
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-base truncate">
-                {item.type === "file" ? item.title : item.title}
-              </CardTitle>
+              <div className="flex items-start justify-between gap-2 mb-1.5">
+                <CardTitle className="text-base line-clamp-2 flex-1">{item.title}</CardTitle>
+                <span className="text-xs text-muted-foreground shrink-0 whitespace-nowrap">
+                  {dateText}
+                </span>
+              </div>
               <CardDescription className="text-sm space-y-1">
                 {item.type === "file" && (
                   <>
-                    <div className="text-xs text-muted-foreground/80">{item.name}</div>
-                    <div>
+                    <div className="text-xs text-muted-foreground/80 font-mono">{item.name}</div>
+                    <div className="text-xs">
                       {formatFileSize(item.fileSize)}
                       {item.mimeType && ` • ${item.mimeType}`}
                     </div>
                   </>
                 )}
-                {item.type === "link" && <div>{item.description || item.url}</div>}
-                {item.type === "file" && item.uploadedBy && (
-                  <div className="text-xs text-muted-foreground/70">
-                    Subido por: {item.uploadedBy}
+                {item.type === "link" && (
+                  <div className="text-xs text-muted-foreground/90 line-clamp-2">
+                    {item.description || item.url}
                   </div>
                 )}
               </CardDescription>
@@ -133,20 +155,14 @@ function KitItemCard({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>
-            {item.type === "file"
-              ? formatDistanceToNow(new Date(item.uploadedAt), {
-                  addSuffix: true,
-                  locale: es,
-                })
-              : formatDistanceToNow(new Date(item.createdAt), {
-                  addSuffix: true,
-                  locale: es,
-                })}
-          </span>
-          <div className="flex items-center gap-2">
+      <CardContent className="pt-0 pb-3">
+        <div className="flex items-center justify-between gap-2">
+          {creatorText ? (
+            <div className="text-xs text-muted-foreground/70 flex-1">{creatorText}</div>
+          ) : (
+            <div className="flex-1" />
+          )}
+          <div className="flex items-center gap-2 shrink-0">
             <Button variant="ghost" size="sm" onClick={handleDownload} className="h-8 px-2">
               {item.type === "file" ? (
                 <Download className="h-4 w-4" />

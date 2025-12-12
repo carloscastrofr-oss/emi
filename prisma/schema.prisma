@@ -94,6 +94,7 @@ model KitLink {
   url         String
   description String?
   scope       KitItemScope @default(workspace) // Alcance de visibilidad
+  createdBy   String // Email del usuario que creó el enlace
   workspaceId String? // ID del workspace donde se creó
   clientId    String? // ID del cliente donde se creó
   createdAt   DateTime     @default(now())
