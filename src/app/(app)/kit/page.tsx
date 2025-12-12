@@ -61,12 +61,13 @@ function getLucideIcon(iconName: string): LucideIcon {
 
 function KitCardSkeleton() {
   return (
-    <Card className="flex flex-col rounded-expressive shadow-e2 h-full">
+    <Card className="flex flex-col rounded-expressive shadow-e2 h-full min-h-[200px]">
       <CardHeader className="flex flex-row items-start gap-4">
         <Skeleton className="h-12 w-12 rounded-lg shrink-0" />
-        <div className="flex-1 space-y-2">
+        <div className="flex-1 space-y-2 min-w-0">
           <Skeleton className="h-5 w-3/4" />
           <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
         </div>
       </CardHeader>
       <CardContent className="flex-grow" />
@@ -158,7 +159,7 @@ export default function KitPage() {
 
       {/* Loading state */}
       {isLoading && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 6 }).map((_, i) => (
             <KitCardSkeleton key={i} />
           ))}
@@ -167,7 +168,7 @@ export default function KitPage() {
 
       {/* Kits grid */}
       {!isLoading && !error && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredKits.map((kit) => {
             const Icon = getLucideIcon(kit.icon);
             return (
@@ -177,18 +178,20 @@ export default function KitPage() {
                 whileHover={{ y: -4, boxShadow: "var(--tw-shadow-e8)" }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
-                <Card className="flex flex-col rounded-expressive shadow-e2 h-full">
-                  <CardHeader className="flex flex-row items-start gap-4">
+                <Card className="flex flex-col rounded-expressive shadow-e2 h-full min-h-[200px]">
+                  <CardHeader className="flex flex-row items-start gap-4 pb-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 shrink-0">
                       <Icon className="h-6 w-6 text-primary" />
                     </div>
-                    <div>
-                      <CardTitle>{kit.title}</CardTitle>
-                      <CardDescription>{kit.description}</CardDescription>
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="line-clamp-2 mb-2">{kit.title}</CardTitle>
+                      <CardDescription className="line-clamp-3 text-sm">
+                        {kit.description}
+                      </CardDescription>
                     </div>
                   </CardHeader>
                   <CardContent className="flex-grow" />
-                  <CardFooter>
+                  <CardFooter className="pt-4">
                     <RequireRole minRole="product_designer" showDisabled>
                       <Button className="w-full" onClick={() => router.push(`/kit/${kit.id}`)}>
                         <ArrowRight className="mr-2 h-4 w-4" />
