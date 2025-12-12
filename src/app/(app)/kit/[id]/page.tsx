@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSessionData } from "@/stores/session-store";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
+import { FilePreviewButton, FilePreviewDialog } from "@/components/file-preview";
 
 function getLucideIcon(iconName: string): LucideIcon {
   const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as LucideIcon;
@@ -46,13 +47,16 @@ function KitItemCard({
   item,
   kitId,
   onDelete,
+  allItems,
 }: {
   item: KitItem;
   kitId: string;
   onDelete: () => void;
+  allItems: KitItem[];
 }) {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const handleDownload = () => {
     if (item.type === "file") {
@@ -165,6 +169,7 @@ function KitItemCard({
             <div className="flex-1" />
           )}
           <div className="flex items-center gap-2 shrink-0">
+            <FilePreviewButton item={item} onClick={() => setPreviewOpen(true)} />
             <Button variant="ghost" size="sm" onClick={handleDownload} className="h-8 px-2">
               {item.type === "file" ? (
                 <Download className="h-4 w-4" />
@@ -188,6 +193,12 @@ function KitItemCard({
           </div>
         </div>
       </CardContent>
+      <FilePreviewDialog
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        item={item}
+        items={allItems}
+      />
     </Card>
   );
 }
@@ -470,7 +481,13 @@ export default function KitDetailPage({ params }: { params: Promise<{ id: string
           <ScrollArea className="h-full">
             <div className="space-y-4 pr-4">
               {sortedItems.map((item) => (
-                <KitItemCard key={item.id} item={item} kitId={kitId} onDelete={handleItemAdded} />
+                <KitItemCard
+                  key={item.id}
+                  item={item}
+                  kitId={kitId}
+                  onDelete={handleItemAdded}
+                  allItems={items}
+                />
               ))}
             </div>
           </ScrollArea>
