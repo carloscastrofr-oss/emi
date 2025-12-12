@@ -300,8 +300,9 @@ export default function KitDetailPage({ params }: { params: Promise<{ id: string
   const KitIcon = getLucideIcon(kit.icon);
 
   return (
-    <div>
-      <div className="mb-6">
+    <div className="flex flex-col h-[calc(100vh-4rem-2rem)] sm:h-[calc(100vh-4rem-3rem)] max-h-[calc(100vh-4rem-2rem)] sm:max-h-[calc(100vh-4rem-3rem)] overflow-hidden">
+      {/* Header fijo - no hace scroll */}
+      <div className="flex-shrink-0">
         <Button variant="ghost" onClick={() => router.push("/kit")} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Volver
@@ -316,7 +317,7 @@ export default function KitDetailPage({ params }: { params: Promise<{ id: string
             </Button>
           }
         />
-        <div className="flex items-center gap-2 mt-4">
+        <div className="flex items-center gap-2 mt-4 mb-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
             <KitIcon className="h-6 w-6 text-primary" />
           </div>
@@ -324,18 +325,18 @@ export default function KitDetailPage({ params }: { params: Promise<{ id: string
             {items.length} {items.length === 1 ? "elemento" : "elementos"}
           </div>
         </div>
-      </div>
 
-      {/* Controles de ordenamiento */}
-      {items.length > 0 && (
-        <div className="mb-4 flex items-center justify-between">
-          <SortControl
-            value={sortOption}
-            onValueChange={setSortOption}
-            onToggleDirection={handleToggleDirection}
-          />
-        </div>
-      )}
+        {/* Controles de ordenamiento */}
+        {items.length > 0 && (
+          <div className="mb-4 flex items-center justify-between">
+            <SortControl
+              value={sortOption}
+              onValueChange={setSortOption}
+              onToggleDirection={handleToggleDirection}
+            />
+          </div>
+        )}
+      </div>
 
       <AddItemDialog
         open={addDialogOpen}
@@ -344,27 +345,30 @@ export default function KitDetailPage({ params }: { params: Promise<{ id: string
         onItemAdded={handleItemAdded}
       />
 
-      {items.length === 0 ? (
-        <Card className="py-12">
-          <CardContent className="text-center">
-            <p className="text-muted-foreground mb-4">
-              Este kit está vacío. Agrega archivos o enlaces para comenzar.
-            </p>
-            <Button onClick={() => setAddDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Agregar elemento
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <ScrollArea className="h-[calc(100vh-300px)]">
-          <div className="space-y-4 pr-4">
-            {sortedItems.map((item) => (
-              <KitItemCard key={item.id} item={item} onDelete={handleItemAdded} />
-            ))}
-          </div>
-        </ScrollArea>
-      )}
+      {/* Área de contenido con scroll independiente */}
+      <div className="flex-1 min-h-0 overflow-hidden">
+        {items.length === 0 ? (
+          <Card className="py-12 h-full flex items-center justify-center">
+            <CardContent className="text-center">
+              <p className="text-muted-foreground mb-4">
+                Este kit está vacío. Agrega archivos o enlaces para comenzar.
+              </p>
+              <Button onClick={() => setAddDialogOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Agregar elemento
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <ScrollArea className="h-full">
+            <div className="space-y-4 pr-4">
+              {sortedItems.map((item) => (
+                <KitItemCard key={item.id} item={item} onDelete={handleItemAdded} />
+              ))}
+            </div>
+          </ScrollArea>
+        )}
+      </div>
     </div>
   );
 }
