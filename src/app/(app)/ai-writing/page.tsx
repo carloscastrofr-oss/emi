@@ -16,59 +16,84 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Loader2, Sparkles, MessageSquare } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Autocomplete } from "@/components/ui/autocomplete";
+import { Loader2, Sparkles, MessageSquare, FolderOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { generateAIWritingContent, generateInsights } from "./actions";
+import { KitResourcesDialog } from "./kit-resources-dialog";
+import aiWritingOptions from "@/config/ai-writing-options.json";
 
 const formSchema = z.object({
   topic: z.string().min(1, "El tópico es requerido."),
-  userType: z.string().min(1, "El tipo de usuario es requerido."),
+  userType: z.string().min(1, "El tipo de usuario es requerido"),
   clientType: z.string().min(1, "El tipo de cliente es requerido."),
   city: z.string().min(1, "La ciudad es requerida."),
   language: z.string().min(1, "El idioma es requerido."),
   tone: z.string().min(1, "El tono es requerido."),
-  blocks: z.string().min(1, "El número de bloques es requerido."),
+  blocks: z.number().min(1).max(10),
 });
 
 export default function AIWritingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [generatedContent, setGeneratedContent] = useState("");
+  const [userInsights, setUserInsights] = useState<string[]>([]);
+  const [includeKitResources, setIncludeKitResources] = useState(false);
+  const [selectedKitResourceIds, setSelectedKitResourceIds] = useState<string[]>([]);
+  const [kitDialogOpen, setKitDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      topic: "Créditos hipotecarios para jóvenes",
-      userType: "Joven profesional",
-      clientType: "Cliente nuevo",
-      city: "Ciudad de México",
-      language: "Español",
-      tone: "Amigable",
-      blocks: "2",
+      topic: "",
+      userType: "",
+      clientType: "",
+      city: "",
+      language: "",
+      tone: "",
+      blocks: 1,
     },
   });
 
-  async function onSubmit(_values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setGeneratedContent("");
+    setUserInsights([]);
+
     try {
-      // Mocking the API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      const mockResult = `### Tu Futuro Hogar Comienza Hoy
+      // Generar contenido
+      const result = await generateAIWritingContent({
+        topic: values.topic,
+        userType: values.userType,
+        clientType: values.clientType,
+        city: values.city,
+        language: values.language,
+        tone: values.tone,
+        blocks: values.blocks,
+        selectedKitResourceIds: includeKitResources ? selectedKitResourceIds : undefined,
+      });
 
-Sabemos que dar el primer paso para comprar tu casa es una gran decisión. En [Nombre del Banco], queremos que ese paso sea firme y seguro. Descubre nuestros créditos hipotecarios diseñados especialmente para jóvenes profesionales como tú, con tasas preferenciales y un proceso claro y sin complicaciones. Tu futuro te espera, y estamos aquí para abrirte la puerta.
+      setGeneratedContent(result.content);
 
-### ¿Por Qué un Crédito Hipotecario con Nosotros?
+      // Generar insights
+      try {
+        const insights = await generateInsights({
+          topic: values.topic,
+          userType: values.userType,
+          clientType: values.clientType,
+          city: values.city,
+          language: values.language,
+          tone: values.tone,
+          generatedContent: result.content,
+        });
+        setUserInsights(insights);
+      } catch (insightsError) {
+        console.error("Error generating insights:", insightsError);
+        // Continuar aunque falle la generación de insights
+      }
 
-Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu carrera en crecimiento, con asesoría personalizada para que tomes la mejor decisión financiera. Olvídate del papeleo interminable y de los términos que nadie entiende. Con nosotros, el camino a tu nuevo hogar es más fácil de lo que imaginas.`;
-      setGeneratedContent(mockResult);
       toast({
         title: "Contenido Generado",
         description: "El Agente de Contenido ha completado su tarea.",
@@ -84,12 +109,6 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
       setIsLoading(false);
     }
   }
-
-  const userInsights = [
-    "Los usuarios jóvenes valoran la transparencia y un lenguaje claro, evitando la jerga financiera compleja.",
-    "La percepción de 'proceso complicado' es la principal barrera para solicitar un crédito hipotecario en este segmento.",
-    "Los clientes nuevos responden positivamente a ofertas que demuestran que el banco entiende su etapa de vida (ej. primer empleo, matrimonio).",
-  ];
 
   return (
     <div className="space-y-8">
@@ -125,7 +144,13 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
                         <FormItem>
                           <FormLabel>Tipo de usuario</FormLabel>
                           <FormControl>
-                            <Input className="bg-background/80" {...field} />
+                            <Autocomplete
+                              options={aiWritingOptions.userTypes}
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              placeholder="Selecciona o escribe..."
+                              className="bg-background/80"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -138,7 +163,13 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
                         <FormItem>
                           <FormLabel>Tipo de cliente</FormLabel>
                           <FormControl>
-                            <Input className="bg-background/80" {...field} />
+                            <Autocomplete
+                              options={aiWritingOptions.clientTypes}
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              placeholder="Selecciona o escribe..."
+                              className="bg-background/80"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -166,7 +197,13 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
                         <FormItem>
                           <FormLabel>Idioma</FormLabel>
                           <FormControl>
-                            <Input className="bg-background/80" {...field} />
+                            <Autocomplete
+                              options={aiWritingOptions.languages}
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              placeholder="Selecciona o escribe..."
+                              className="bg-background/80"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -178,19 +215,15 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Tono</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="bg-background/80">
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="Amigable">Amigable</SelectItem>
-                              <SelectItem value="Profesional">Profesional</SelectItem>
-                              <SelectItem value="Divertido">Divertido</SelectItem>
-                              <SelectItem value="Formal">Formal</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormControl>
+                            <Autocomplete
+                              options={aiWritingOptions.tones}
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              placeholder="Selecciona o escribe..."
+                              className="bg-background/80"
+                            />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -201,24 +234,61 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Bloques</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="bg-background/80">
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="1">1</SelectItem>
-                              <SelectItem value="2">2</SelectItem>
-                              <SelectItem value="3">3</SelectItem>
-                              <SelectItem value="4">4</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="1"
+                              max="10"
+                              className="bg-background/80"
+                              {...field}
+                              value={field.value}
+                              onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 1)}
+                            />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                   </div>
+
+                  {/* Checkbox y botón para recursos de kit */}
+                  <div className="flex items-center gap-4 p-4 rounded-md bg-muted/50">
+                    <Checkbox
+                      id="include-kit-resources"
+                      checked={includeKitResources}
+                      onCheckedChange={(checked) => {
+                        setIncludeKitResources(checked === true);
+                        if (!checked) {
+                          setSelectedKitResourceIds([]);
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor="include-kit-resources"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex-1 cursor-pointer"
+                    >
+                      Incluir recursos de kit
+                    </label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setKitDialogOpen(true)}
+                      disabled={!includeKitResources || isLoading}
+                    >
+                      <FolderOpen className="mr-2 h-4 w-4" />
+                      Explorar recursos
+                    </Button>
+                  </div>
+
+                  {includeKitResources && selectedKitResourceIds.length > 0 && (
+                    <div className="text-sm text-muted-foreground">
+                      {selectedKitResourceIds.length} recurso
+                      {selectedKitResourceIds.length !== 1 ? "s" : ""} seleccionado
+                      {selectedKitResourceIds.length !== 1 ? "s" : ""}
+                    </div>
+                  )}
+
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -231,6 +301,13 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
               </Form>
             </CardContent>
           </Card>
+
+          <KitResourcesDialog
+            open={kitDialogOpen}
+            onOpenChange={setKitDialogOpen}
+            selectedResourceIds={selectedKitResourceIds}
+            onSelectionChange={setSelectedKitResourceIds}
+          />
 
           {generatedContent && (
             <motion.div
@@ -267,12 +344,21 @@ Porque entendemos tus metas. Te ofrecemos un plan flexible que se adapta a tu ca
               <CardDescription>Basado en el tópico y ciudad seleccionados.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {userInsights.map((insight, i) => (
-                <div key={i} className="flex items-start gap-3 text-sm p-3 rounded-md bg-muted/70">
-                  <MessageSquare className="h-4 w-4 mt-1 flex-shrink-0 text-muted-foreground" />
-                  <p className="text-muted-foreground">{insight}</p>
+              {userInsights.length > 0 ? (
+                userInsights.map((insight, i) => (
+                  <div
+                    key={i}
+                    className="flex items-start gap-3 text-sm p-3 rounded-md bg-muted/70"
+                  >
+                    <MessageSquare className="h-4 w-4 mt-1 flex-shrink-0 text-muted-foreground" />
+                    <p className="text-muted-foreground">{insight}</p>
+                  </div>
+                ))
+              ) : (
+                <div className="text-sm text-muted-foreground text-center py-4">
+                  Los insights se generarán después de crear contenido.
                 </div>
-              ))}
+              )}
             </CardContent>
           </Card>
         </div>
