@@ -18,7 +18,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Autocomplete } from "@/components/ui/autocomplete";
-import { Loader2, Sparkles, MessageSquare, FolderOpen } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Loader2, Sparkles, MessageSquare, FolderOpen, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { generateAIWritingContent, generateInsights } from "./actions";
@@ -42,6 +43,9 @@ export default function AIWritingPage() {
   const [includeKitResources, setIncludeKitResources] = useState(false);
   const [selectedKitResourceIds, setSelectedKitResourceIds] = useState<string[]>([]);
   const [kitDialogOpen, setKitDialogOpen] = useState(false);
+  const [discardedFiles, setDiscardedFiles] = useState<
+    Array<{ id: string; title: string; reason: string }>
+  >([]);
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -61,6 +65,7 @@ export default function AIWritingPage() {
     setIsLoading(true);
     setGeneratedContent("");
     setUserInsights([]);
+    setDiscardedFiles([]);
 
     try {
       // Generar contenido
@@ -77,6 +82,16 @@ export default function AIWritingPage() {
 
       setGeneratedContent(result.content);
 
+      // Mostrar alert si hay archivos descartados
+      if (result.discardedFiles && result.discardedFiles.length > 0) {
+        setDiscardedFiles(result.discardedFiles);
+        toast({
+          title: "Algunos archivos fueron descartados",
+          description: `${result.discardedFiles.length} archivo(s) no pudieron ser usados como contexto.`,
+          variant: "default",
+        });
+      }
+
       // Generar insights
       try {
         const insights = await generateInsights({
@@ -92,6 +107,12 @@ export default function AIWritingPage() {
       } catch (insightsError) {
         console.error("Error generating insights:", insightsError);
         // Continuar aunque falle la generación de insights
+        toast({
+          title: "Advertencia",
+          description:
+            "El contenido se generó correctamente, pero no se pudieron generar los insights.",
+          variant: "default",
+        });
       }
 
       toast({
@@ -100,9 +121,13 @@ export default function AIWritingPage() {
       });
     } catch (error) {
       console.error(error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "No se pudo generar el contenido. Por favor, inténtalo de nuevo.";
       toast({
         title: "Error",
-        description: "No se pudo generar el contenido. Por favor, inténtalo de nuevo.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -119,6 +144,27 @@ export default function AIWritingPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-2 space-y-8">
+          {/* Alert de archivos descartados */}
+          {discardedFiles.length > 0 && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Archivos descartados</AlertTitle>
+              <AlertDescription>
+                <p className="mb-2">
+                  Los siguientes archivos no pudieron ser usados como contexto porque no tienen
+                  suficiente información relevante para generar copys:
+                </p>
+                <ul className="list-disc list-inside space-y-1">
+                  {discardedFiles.map((file) => (
+                    <li key={file.id}>
+                      <strong>{file.title}</strong>: {file.reason}
+                    </li>
+                  ))}
+                </ul>
+              </AlertDescription>
+            </Alert>
+          )}
+
           <Card className="rounded-expressive bg-primary/5 border-primary/20">
             <CardContent className="p-6">
               <Form {...form}>

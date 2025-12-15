@@ -45,7 +45,7 @@ const generateAIWritingFlow = ai.defineFlow(
       model: "googleai/gemini-2.0-flash",
       input: { schema: GenerateAIWritingInputSchema },
       output: { schema: GenerateAIWritingOutputSchema },
-      prompt: `Eres un experto en copywriting y generación de contenido para productos digitales. Tu tarea es generar copy y micro-copy segmentado por ciudad y audiencia.
+      prompt: `Eres un experto en copywriting y generación de contenido para productos digitales. Tu tarea es generar copy y micro-copy segmentado por ciudad y audiencia usando RAG (Retrieval Augmented Generation) cuando esté disponible.
 
 **Contexto del Contenido:**
 - Tópico: {{topic}}
@@ -57,20 +57,32 @@ const generateAIWritingFlow = ai.defineFlow(
 - Número de Bloques: {{blocks}}
 
 {{#if kitResourcesContext}}
-**Recursos de Kit Seleccionados (Contexto Adicional):**
+**Recursos de Kit Seleccionados (Contexto RAG):**
 {{kitResourcesContext}}
 
-Estos recursos pueden incluir manuales de voz y tono, guías de estilo, o cualquier otro material de referencia. Úsalos para enriquecer el contexto y asegurar que el contenido generado sea consistente con la identidad de marca y las directrices establecidas.
+**Instrucciones para usar el contexto RAG:**
+1. **Voz y Tono**: Si los documentos incluyen manuales de voz y tono, extrae los principios clave y aplícalos consistentemente en todo el contenido generado. No copies frases literales, sino adapta los principios al contexto específico.
+
+2. **Terminología**: Usa la terminología exacta que aparece en los documentos cuando sea relevante. Si hay términos específicos de producto o marca, úsalos correctamente.
+
+3. **Valores y Propuestas de Valor**: Si los documentos mencionan valores de marca o propuestas de valor, refleja estos conceptos en el copy de manera natural y persuasiva.
+
+4. **Guías de Estilo**: Sigue cualquier regla de estilo, formato o estructura que se mencione en los documentos (ej: longitud de frases, uso de mayúsculas, estructura de mensajes).
+
+5. **Contexto de Marca**: Integra información sobre la empresa, producto o servicio que aparezca en los documentos para darle autenticidad y coherencia al copy.
+
+**IMPORTANTE**: Los documentos proporcionados han sido pre-validados para contener contexto útil. Úsalos como fuente de verdad para mantener consistencia, pero siempre adapta el contenido al contexto específico (ciudad, tipo de usuario, tipo de cliente) solicitado.
 {{/if}}
 
-**Instrucciones:**
+**Instrucciones Generales:**
 1. Genera {{blocks}} bloques de contenido estructurado en formato markdown.
 2. Cada bloque debe tener un título (###) seguido de contenido relevante.
 3. El contenido debe estar segmentado específicamente para la ciudad de {{city}} y el tipo de usuario {{userType}}.
 4. El tono debe ser {{tone}} y apropiado para {{clientType}}.
 5. El contenido debe estar en {{language}}.
 6. Asegúrate de que el copy sea claro, persuasivo y alineado con las mejores prácticas de UX writing.
-7. Si hay recursos de kit proporcionados, úsalos como referencia para mantener consistencia en voz, tono y estilo.
+7. Si hay recursos de kit proporcionados, úsalos como referencia para mantener consistencia en voz, tono, terminología y valores de marca.
+8. Evita repetir literalmente textos largos de los recursos; extrae principios y adáptalos al contexto específico.
 
 **Formato de Salida:**
 El contenido debe estar en formato markdown con títulos de nivel 3 (###) para cada bloque. Usa párrafos claros y concisos.
