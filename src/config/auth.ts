@@ -199,7 +199,7 @@ export const tabPermissionsByRole: Record<Role, SidebarTab[]> = {
 /**
  * Configuración por defecto de la cookie de sesión
  */
-export const defaultSessionCookieConfig: SessionCookieConfig = {
+const defaultSessionCookieConfig: SessionCookieConfig = {
   name: "emi_session",
   maxAge: 60 * 60 * 24 * 7, // 7 días
   secure: process.env.NODE_ENV === "production",

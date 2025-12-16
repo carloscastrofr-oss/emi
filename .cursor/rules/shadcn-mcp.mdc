@@ -1,9 +1,7 @@
 ---
 description: Reglas para el uso del MCP Server de shadcn/ui en la generación de interfaces
-globs: ["**/*.tsx", "**/*.ts", "src/components/**/*", "src/app/**/*"]
 alwaysApply: false
 ---
-
 # Reglas para uso del MCP de shadcn/ui
 
 Este proyecto utiliza el **MCP Server de shadcn** para la gestión y generación de componentes de UI. **Siempre** utiliza las herramientas del MCP cuando trabajes con interfaces.

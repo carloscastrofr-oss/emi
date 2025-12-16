@@ -11,7 +11,7 @@ import { agentQA } from "@/ai/flows/agent-qa";
 import { agentBusiness } from "@/ai/flows/agent-business";
 import { agentDesignDebt } from "@/ai/flows/agent-design-debt";
 
-export interface Recommendation {
+interface Recommendation {
   agent: "Accessibility" | "Design" | "Content" | "QA" | "Business" | "Design Debt";
   component: string;
   recommendation: string;

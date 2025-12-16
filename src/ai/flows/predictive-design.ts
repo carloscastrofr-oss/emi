@@ -57,8 +57,4 @@ const predictiveDesignFlow = ai.defineFlow(
 );
 
 // This function is now just a wrapper and might be deprecated if the new server action is used directly.
-export async function predictiveDesign(
-  input: PredictiveDesignInput
-): Promise<PredictiveDesignOutput> {
-  return predictiveDesignFlow(input);
-}
+// Removed unused export: predictiveDesign
