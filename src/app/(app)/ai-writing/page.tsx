@@ -25,6 +25,7 @@ import { motion } from "framer-motion";
 import { generateAIWritingContent, generateInsights } from "./actions";
 import { KitResourcesDialog } from "./kit-resources-dialog";
 import aiWritingOptions from "@/config/ai-writing-options.json";
+import { useLoadingStore } from "@/stores/loading-store";
 
 const formSchema = z.object({
   topic: z.string().min(1, "El tópico es requerido."),
@@ -47,6 +48,7 @@ export default function AIWritingPage() {
     Array<{ id: string; title: string; reason: string }>
   >([]);
   const { toast } = useToast();
+  const { startLoading, stopLoading } = useLoadingStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -67,8 +69,11 @@ export default function AIWritingPage() {
     setUserInsights([]);
     setDiscardedFiles([]);
 
+    // Activar loading global inmediatamente desde que se presiona el botón
+    const loadingId = startLoading("Generando contenido con IA...");
+
     try {
-      // Generar contenido
+      // Generar contenido (sin loading automático, ya lo manejamos manualmente)
       const result = await generateAIWritingContent({
         topic: values.topic,
         userType: values.userType,
@@ -91,6 +96,9 @@ export default function AIWritingPage() {
           variant: "default",
         });
       }
+
+      // Actualizar mensaje de loading para insights
+      useLoadingStore.getState().setLoadingMessage("Generando insights...");
 
       // Generar insights
       try {
@@ -132,6 +140,8 @@ export default function AIWritingPage() {
       });
     } finally {
       setIsLoading(false);
+      // Detener loading global
+      stopLoading(loadingId);
     }
   }
 

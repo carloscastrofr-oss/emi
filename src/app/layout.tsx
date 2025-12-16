@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { EnvInjector } from "@/components/debug";
+import { GlobalLoadingOverlayWrapper } from "@/components/loading/global-loading-overlay-wrapper";
 import { cn } from "@/lib/utils";
 import { getEnvironmentShort } from "@/lib/env";
 
@@ -50,6 +51,7 @@ export default function RootLayout({
           <Toaster />
           <SonnerToaster />
           <EnvInjector />
+          <GlobalLoadingOverlayWrapper />
         </ThemeProvider>
       </body>
     </html>

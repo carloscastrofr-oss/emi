@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { FileText, Folder, AlertTriangle } from "lucide-react";
 import { useCurrentWorkspace } from "@/stores/session-store";
 import { useToast } from "@/hooks/use-toast";
+import { apiService } from "@/lib/api-service";
 
 type KitFileTreeNode =
   | {
@@ -89,15 +90,14 @@ export function KitResourcesDialog({
       if (currentWorkspace?.id) {
         params.set("workspaceId", currentWorkspace.id);
       }
-      const res = await fetch(`/api/kit/tree${params.toString() ? `?${params}` : ""}`);
-      if (!res.ok) {
-        throw new Error(`Error ${res.status} al cargar árbol de recursos`);
-      }
-      const data: { success: boolean; data?: KitFileTreeResponse } = await res.json();
-      if (!data.success || !data.data) {
-        throw new Error("Respuesta inválida del endpoint de árbol de recursos");
-      }
-      setTree(data.data.items);
+      const data = await apiService.get<KitFileTreeResponse>(
+        `/api/kit/tree${params.toString() ? `?${params}` : ""}`,
+        {
+          loadingMessage: "Cargando recursos de kits...",
+          showLoading: false, // Ya tenemos nuestro propio loading state
+        }
+      );
+      setTree(data.items);
     } catch (error) {
       console.error("Error loading kit file tree:", error);
       setError("No se pudo cargar el árbol de recursos de kits.");

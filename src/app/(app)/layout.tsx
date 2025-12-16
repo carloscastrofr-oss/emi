@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Settings, BookUser, Bug } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useLoadingStore } from "@/stores/loading-store";
 
 import {
   Sidebar,
@@ -28,9 +29,39 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user } = useAuthStore();
   const { openDialog: openDebugDialog } = useDebugStore();
+  const { startLoading, stopLoading } = useLoadingStore();
 
   // Obtener las tabs permitidas para el rol del usuario
   const allowedTabs = user?.role ? getAllowedTabsConfig(user.role) : [];
+
+  // Integrar loading con navegación de Next.js
+  useEffect(() => {
+    let loadingId: string | undefined;
+
+    // Detectar cambios de ruta
+    const handlePathnameChange = () => {
+      if (loadingId) {
+        stopLoading(loadingId);
+      }
+      // Pequeño delay para detectar navegación
+      loadingId = startLoading("Cargando página...");
+      setTimeout(() => {
+        if (loadingId) {
+          stopLoading(loadingId);
+        }
+      }, 100);
+    };
+
+    // Escuchar cambios en pathname
+    const timeoutId = setTimeout(handlePathnameChange, 0);
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (loadingId) {
+        stopLoading(loadingId);
+      }
+    };
+  }, [pathname, startLoading, stopLoading]);
 
   return (
     <SidebarProvider>

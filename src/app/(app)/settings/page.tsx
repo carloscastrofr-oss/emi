@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Bell, Shield, Globe, Database, Keyboard } from "lucide-react";
 import { AppearanceSection } from "./appearance-section";
 import { ClientWorkspaceSection } from "./client-workspace-section";
+import { LoadingStateSection } from "./loading-state-section";
 
 export default function SettingsPage() {
   return (
@@ -20,6 +21,9 @@ export default function SettingsPage() {
 
         {/* Cliente y Workspace */}
         <ClientWorkspaceSection />
+
+        {/* Estado de Carga */}
+        <LoadingStateSection />
 
         {/* Notificaciones - Placeholder para futuro */}
         <Card>
