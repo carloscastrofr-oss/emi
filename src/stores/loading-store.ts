@@ -46,7 +46,7 @@ type LoadingStore = LoadingState & LoadingActions;
 // STORE
 // =============================================================================
 
-export const useLoadingStore = create<LoadingStore>((set, get) => ({
+export const useLoadingStore = create<LoadingStore>((set) => ({
   // Estado inicial
   operations: [],
   currentMessage: undefined,

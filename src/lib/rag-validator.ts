@@ -39,9 +39,6 @@ const ValidateMultipleDocumentsOutputSchema = z.object({
     .describe("Resultados de validación para cada documento"),
 });
 
-type ValidateDocumentContextInput = z.infer<typeof ValidateDocumentContextInputSchema>;
-type ValidateDocumentContextOutput = z.infer<typeof ValidateDocumentContextOutputSchema>;
-
 /**
  * Valida si un documento tiene suficiente contexto para ser usado en RAG
  * para generar copys y microcopys.

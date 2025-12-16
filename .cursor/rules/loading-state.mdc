@@ -1,0 +1,216 @@
+---
+alwaysApply: false
+---
+
+# Reglas para el uso del Loading State Global
+
+## Cuándo usar el Loading State
+
+Usa el loading state global de manera **inteligente** cuando:
+
+- **Procesos que bloquean la UI**: Cualquier proceso que tome tiempo y el usuario deba esperar
+- **Procesos multi-paso**: Operaciones que tienen varios pasos y quieres mostrar progreso
+- **Procesos largos**: Generación de contenido, procesamiento de archivos, operaciones de IA
+- **Navegación entre páginas**: Cambios de ruta que cargan datos
+
+**Uso inteligente del Loading State:**
+
+- **Inicia en el Call to Action**: Activa el loading state **inmediatamente** cuando el usuario presiona un botón o inicia una acción, no cuando se hace la llamada a la API
+- **Cubre todo el proceso**: El loading debe cubrir desde el inicio de la acción del usuario hasta que el proceso completo termine
+- **Muestra pasos progresivos**: Para procesos complejos, actualiza el mensaje para mostrar cada paso del proceso
+- **NO necesariamente en todas las APIs**: No uses loading automático en cada llamada a API. Úsalo cuando el proceso completo del usuario requiera feedback visual
+
+**NO uses loading state para:**
+- Operaciones instantáneas (< 100ms)
+- Animaciones o transiciones visuales
+- Actualizaciones de estado locales rápidas
+- Llamadas a API que son parte de un proceso más grande (usa loading manual que cubra todo el proceso)
+
+## Cómo usar el Loading State
+
+### Patrón recomendado: Iniciar en el Call to Action
+
+**SIEMPRE** inicia el loading state **inmediatamente** cuando el usuario presiona un botón o inicia una acción, no cuando se hace la llamada a la API:
+
+```typescript
+import { useLoadingStore } from "@/stores/loading-store";
+
+function MyComponent() {
+  const { startLoading, stopLoading } = useLoadingStore();
+
+  async function handleSubmit() {
+    // ✅ INICIAR INMEDIATAMENTE cuando el usuario presiona el botón
+    const loadingId = startLoading("Procesando...");
+    
+    try {
+      // Validación local (ya con loading visible)
+      validateData();
+      
+      // Preparación de datos (ya con loading visible)
+      const payload = preparePayload();
+      
+      // Llamada a API (loading ya está visible)
+      const result = await apiCall(payload);
+      
+      // Procesamiento de respuesta (loading sigue visible)
+      processResult(result);
+    } finally {
+      // Siempre detener en finally
+      stopLoading(loadingId);
+    }
+  }
+}
+```
+
+**❌ EVITA** activar el loading solo cuando se hace la llamada a la API:
+
+```typescript
+// ❌ MAL: El usuario no ve feedback inmediato
+async function handleSubmit() {
+  validateData(); // Sin loading
+  const payload = preparePayload(); // Sin loading
+  
+  // Solo aquí se activa el loading
+  const loadingId = startLoading("Procesando...");
+  const result = await apiCall(payload);
+  stopLoading(loadingId);
+}
+```
+
+### Actualizar mensaje durante el proceso (MOSTRAR PASOS)
+
+Para procesos complejos, **muestra los pasos uno por uno** actualizando el mensaje:
+
+```typescript
+import { useLoadingStore } from "@/stores/loading-store";
+
+async function handleMultiStepProcess() {
+  const { startLoading, stopLoading, setLoadingMessage } = useLoadingStore();
+  
+  // ✅ Iniciar INMEDIATAMENTE cuando el usuario presiona el botón
+  const loadingId = startLoading("Iniciando proceso...");
+  
+  try {
+    // Paso 1: Validación
+    setLoadingMessage("Paso 1: Validando datos...");
+    await validateData();
+    
+    // Paso 2: Preparación
+    setLoadingMessage("Paso 2: Preparando información...");
+    const prepared = await prepareData();
+    
+    // Paso 3: Procesamiento
+    setLoadingMessage("Paso 3: Procesando con IA...");
+    const result = await processWithAI(prepared);
+    
+    // Paso 4: Formateo
+    setLoadingMessage("Paso 4: Formateando resultado...");
+    const formatted = await formatResult(result);
+    
+    return formatted;
+  } finally {
+    stopLoading(loadingId);
+  }
+}
+```
+
+**Beneficios de mostrar pasos:**
+- El usuario sabe qué está pasando en cada momento
+- Reduce la percepción de tiempo de espera
+- Proporciona feedback claro del progreso
+
+### Uso con API Service (cuando es apropiado)
+
+El `apiService` tiene loading automático, pero **úsalo con cuidado**:
+
+```typescript
+import { apiService } from "@/lib/api-service";
+
+// ✅ Útil para llamadas simples y directas
+const data = await apiService.get("/api/endpoint", {
+  loadingMessage: "Cargando datos...",
+  showLoading: true,
+});
+
+// ⚠️ Para procesos complejos, usa loading manual
+// El loading automático solo cubre la llamada API,
+// no todo el proceso desde el call to action
+```
+
+**Cuándo usar `apiService` con loading automático:**
+- Llamadas simples y directas (fetch → mostrar resultado)
+- No hay procesamiento antes o después de la API
+- El proceso completo es solo la llamada a la API
+
+**Cuándo usar loading manual:**
+- Hay validación o preparación antes de la API
+- Hay procesamiento después de la API
+- Quieres mostrar pasos progresivos
+- El proceso completo es más que solo la llamada API
+
+## Mejores Prácticas
+
+1. **Inicia en el Call to Action**: Activa el loading **inmediatamente** cuando el usuario presiona un botón, no cuando se hace la llamada a la API
+2. **Cubre todo el proceso**: El loading debe cubrir desde la acción del usuario hasta que todo termine (validación, preparación, API, procesamiento)
+3. **Muestra pasos progresivos**: Para procesos complejos, actualiza el mensaje para mostrar cada paso del proceso
+4. **Siempre usa `finally`**: Asegúrate de detener el loading incluso si hay errores
+5. **Mensajes descriptivos**: Usa mensajes claros que indiquen qué está pasando en cada momento
+6. **No anidar innecesariamente**: El store maneja múltiples operaciones simultáneas automáticamente
+7. **Delay automático**: El sistema tiene un delay de 150ms por defecto para evitar flash en cargas rápidas
+
+## Ejemplo completo: Proceso multi-paso desde el Call to Action
+
+```typescript
+async function handleGenerateContent() {
+  const { startLoading, stopLoading, setLoadingMessage } = useLoadingStore();
+  
+  // ✅ INICIAR INMEDIATAMENTE cuando el usuario presiona el botón
+  const loadingId = startLoading("Iniciando generación de contenido...");
+  
+  try {
+    // Paso 1: Validar datos (ya con loading visible)
+    setLoadingMessage("Paso 1: Validando datos de entrada...");
+    await validateData();
+    
+    // Paso 2: Preparar contexto
+    setLoadingMessage("Paso 2: Preparando contexto...");
+    const context = await prepareContext();
+    
+    // Paso 3: Procesar con IA
+    setLoadingMessage("Paso 3: Generando contenido con IA...");
+    const result = await processWithAI(context);
+    
+    // Paso 4: Formatear resultado
+    setLoadingMessage("Paso 4: Formateando resultado...");
+    const formatted = await formatResult(result);
+    
+    // Paso 5: Generar insights
+    setLoadingMessage("Paso 5: Generando insights...");
+    const insights = await generateInsights(formatted);
+    
+    return { content: formatted, insights };
+  } catch (error) {
+    // El loading se detiene en finally, pero puedes actualizar el mensaje antes
+    setLoadingMessage("Error en el proceso");
+    throw error;
+  } finally {
+    // Siempre detener el loading
+    stopLoading(loadingId);
+  }
+}
+```
+
+**Puntos clave del ejemplo:**
+- ✅ Loading inicia **inmediatamente** en el handler del botón
+- ✅ Cubre **todo el proceso** desde validación hasta insights
+- ✅ Muestra **pasos progresivos** con mensajes claros
+- ✅ El usuario ve feedback desde el primer momento
+
+## Configuración
+
+El loading state se puede personalizar en `/settings`:
+- Variante del spinner (default, pulse, dots, bars)
+- Tamaño (sm, md, lg)
+- Delay antes de mostrar
+
+Las preferencias se guardan automáticamente en localStorage.
