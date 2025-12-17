@@ -1,0 +1,72 @@
+# Este archivo especifica archivos que *no* se deben subir a Google Cloud
+# usando `gcloud`. Se sigue el mismo formato que .gitignore, con la adición
+# de comentarios que comienzan con #.
+
+# Dependencies
+node_modules/
+
+# Next.js build outputs
+.next/
+out/
+build/
+dist/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Environment files (secrets se manejan con Secret Manager)
+.env*
+!.env.example
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentation (opcional, puede incluirse)
+# docs/
+
+# CI/CD configs (no necesarios en Cloud Build)
+.github/
+.bitbucket/
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Firebase local
+.firebase/
+firebase-debug.log
+firestore-debug.log
+*-service-account*.json
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Husky
+.husky/
+
+# Genkit
+.genkit/
+
+# Workspace
+workspace/
+
+# Nix
+.idx/
+dev.nix
+
+# Misc
+.DS_Store
+*.pem
+*.log
+
