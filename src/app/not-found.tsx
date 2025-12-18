@@ -1,27 +1,8 @@
-"use client";
-
-import { useRouter } from "next/navigation";
 import { FileQuestion, ArrowLeft, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/stores/auth-store";
-import { getAllowedTabsConfig } from "@/lib/auth";
+import Link from "next/link";
 
 export default function NotFoundPage() {
-  const router = useRouter();
-  const { user } = useAuthStore();
-
-  // Obtener el primer tab permitido para redirigir
-  const allowedTabs = user?.role ? getAllowedTabsConfig(user.role) : [];
-  const firstTab = allowedTabs[0];
-
-  const handleGoHome = () => {
-    if (firstTab) {
-      router.push(firstTab.href);
-    } else {
-      router.push("/");
-    }
-  };
-
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
       <div className="flex flex-col items-center text-center max-w-md">
@@ -41,13 +22,17 @@ export default function NotFoundPage() {
 
         {/* Acciones */}
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button variant="outline" onClick={() => router.back()}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver
+          <Button variant="outline" asChild>
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Volver al inicio
+            </Link>
           </Button>
-          <Button onClick={handleGoHome}>
-            <Home className="mr-2 h-4 w-4" />
-            Ir a {firstTab?.label ?? "Inicio"}
+          <Button asChild>
+            <Link href="/">
+              <Home className="mr-2 h-4 w-4" />
+              Ir a Inicio
+            </Link>
           </Button>
         </div>
       </div>

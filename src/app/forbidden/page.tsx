@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ShieldX, ArrowLeft, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,11 +9,10 @@ import { getAllowedTabsConfig } from "@/lib/auth";
 import { roleLabels } from "@/config/auth";
 
 /**
- * Página de acceso denegado (403)
- * Solo se muestra cuando el usuario está autenticado pero no tiene permisos
- * Si no está autenticado, el middleware redirige a /login
+ * Componente interno que usa useSearchParams
+ * Debe estar envuelto en Suspense para evitar errores en build
  */
-export default function ForbiddenPage() {
+function ForbiddenContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuthStore();
@@ -87,5 +87,31 @@ export default function ForbiddenPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+/**
+ * Página de acceso denegado (403)
+ * Solo se muestra cuando el usuario está autenticado pero no tiene permisos
+ * Si no está autenticado, el middleware redirige a /login
+ */
+export default function ForbiddenPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
+          <div className="flex flex-col items-center text-center max-w-md">
+            <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-destructive/10">
+              <ShieldX className="h-12 w-12 text-destructive" />
+            </div>
+            <h1 className="mb-2 text-4xl font-bold tracking-tight">403</h1>
+            <h2 className="mb-4 text-xl font-semibold text-muted-foreground">Acceso Denegado</h2>
+            <p className="mb-6 text-muted-foreground">Cargando...</p>
+          </div>
+        </div>
+      }
+    >
+      <ForbiddenContent />
+    </Suspense>
   );
 }

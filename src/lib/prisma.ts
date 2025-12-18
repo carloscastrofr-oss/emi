@@ -57,7 +57,19 @@ function getPrismaClient() {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { PrismaPg } = require("@prisma/adapter-pg");
 
-      const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+      // Configurar SSL para conexiones a GCloud PostgreSQL
+      // GCloud requiere SSL - usar solo sslmode en la URL
+      const connectionString = process.env.DATABASE_URL || "";
+      const isGCloud = connectionString.includes("34.46.6.96") || connectionString.includes("gcp");
+
+      // Para GCloud, agregar sslmode=no-verify a la URL
+      let finalConnectionString = connectionString;
+      if (isGCloud && !connectionString.includes("sslmode")) {
+        const separator = connectionString.includes("?") ? "&" : "?";
+        finalConnectionString = `${connectionString}${separator}sslmode=no-verify`;
+      }
+
+      const pool = new Pool({ connectionString: finalConnectionString });
       const adapter = new PrismaPg(pool);
 
       globalForPrisma.prisma = new PrismaClient({

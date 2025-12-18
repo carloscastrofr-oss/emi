@@ -1,0 +1,77 @@
+# Docker Compose para testing local de la aplicación
+# Uso: docker-compose -f docker-compose.app.yml up
+# O: npm run docker:app:up:build
+#
+# Configurado para usar APP_ENV=development
+# Esto carga variables desde .env.development (que tiene la DB real en GCloud)
+#
+# NOTA IMPORTANTE: Docker Compose lee automáticamente archivos .env (sin sufijo)
+# para los ARGs del build. Para usar .env.development, necesitamos:
+# 1. Exportar las variables antes de ejecutar usando load-env-for-docker.sh
+# 2. El script load-env.js hace merge de .env.development + .env.local
+
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+      # Build args - Las variables NEXT_PUBLIC_* se necesitan en build time
+      # Docker Compose lee estas variables desde el entorno del shell
+      # (exportadas por load-env-for-docker.sh desde .env.development)
+      args:
+        - APP_ENV=development
+        - NEXT_PUBLIC_FIREBASE_API_KEY=${NEXT_PUBLIC_FIREBASE_API_KEY}
+        - NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}
+        - NEXT_PUBLIC_FIREBASE_PROJECT_ID=${NEXT_PUBLIC_FIREBASE_PROJECT_ID}
+        - NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET}
+        - NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID}
+        - NEXT_PUBLIC_FIREBASE_APP_ID=${NEXT_PUBLIC_FIREBASE_APP_ID}
+    container_name: emi-app-prod
+    ports:
+      - "3000:3000"
+    # Leer variables de entorno desde archivos .env
+    # Para Docker, usamos directamente .env.development (tiene todo + DB real de GCloud)
+    # NO usamos .env.local porque tiene DATABASE_URL=localhost
+    env_file:
+      - .env.development # Usar directamente .env.development (tiene DB real de GCloud)
+      - .env # Fallback si .env.development no existe
+    environment:
+      - NODE_ENV=development
+      - APP_ENV=development
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      # Variables de Firebase (usar valores reales o desde .env)
+      - NEXT_PUBLIC_FIREBASE_API_KEY=${NEXT_PUBLIC_FIREBASE_API_KEY}
+      - NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}
+      - NEXT_PUBLIC_FIREBASE_PROJECT_ID=${NEXT_PUBLIC_FIREBASE_PROJECT_ID}
+      - NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET}
+      - NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID}
+      - NEXT_PUBLIC_FIREBASE_APP_ID=${NEXT_PUBLIC_FIREBASE_APP_ID}
+      # Database - Leer desde .env.development (tiene la URL real de GCloud)
+      # Prioridad: variable del entorno > .env.development > .env.local
+      - DATABASE_URL=${DATABASE_URL}
+      # Firebase Admin (opcional para testing local)
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+      - FIREBASE_ADMIN_CREDENTIALS=${FIREBASE_ADMIN_CREDENTIALS}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - emi-network
+
+networks:
+  emi-network:
+    driver: bridge

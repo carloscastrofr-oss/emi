@@ -39,7 +39,16 @@
     "db:migrate:status": "node scripts/load-env.js && ./scripts/prisma-wrapper.sh migrate status",
     "db:studio": "node scripts/load-env.js && ./scripts/prisma-wrapper.sh studio",
     "db:seed": "node scripts/load-env.js && tsx database/seeds/seed.ts",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "docker:db:up": "docker compose -f docker-compose.db.yml up -d",
+    "docker:db:down": "docker compose -f docker-compose.db.yml down",
+    "docker:db:logs": "docker compose -f docker-compose.db.yml logs -f",
+    "docker:app:build": "APP_ENV=development ./scripts/load-env-for-docker.sh docker compose -f docker-compose.app.yml build",
+    "docker:app:up": "APP_ENV=development ./scripts/load-env-for-docker.sh docker compose -f docker-compose.app.yml up",
+    "docker:app:up:build": "APP_ENV=development ./scripts/load-env-for-docker.sh docker compose -f docker-compose.app.yml up --build",
+    "docker:app:down": "docker compose -f docker-compose.app.yml down",
+    "docker:app:logs": "docker compose -f docker-compose.app.yml logs -f",
+    "docker:app:test": "docker compose -f docker-compose.app.yml up --build -d && sleep 10 && curl -s http://localhost:3000/api/health && docker compose -f docker-compose.app.yml down"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.13.0",
@@ -98,7 +107,6 @@
     "react-day-picker": "^9.11.3",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.68.0",
-    "react-joyride": "^2.8.2",
     "react-resizable-panels": "^3.0.6",
     "recharts": "^2.15.4",
     "sonner": "^2.0.7",
