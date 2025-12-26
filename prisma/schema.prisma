@@ -22,7 +22,10 @@ enum Role {
   product_designer
   product_design_lead
   admin
-  super_admin
+}
+
+enum ClientRole {
+  admin
 }
 
 enum ClientPlan {
@@ -116,7 +119,7 @@ model User {
   email         String    @unique
   displayName   String?
   photoUrl      String?
-  role          Role      @default(ux_ui_designer)
+  superAdmin    Boolean   @default(false)
   preferences   Json? // UserPreferences como JSON
   emailVerified Boolean   @default(false)
   lastLoginAt   DateTime?
@@ -129,7 +132,7 @@ model User {
   sessionConfig     UserSessionConfig?
 
   @@index([email])
-  @@index([role])
+  @@index([superAdmin])
   @@index([createdAt])
   @@map("users")
 }
@@ -177,12 +180,12 @@ model Workspace {
 }
 
 model UserClientAccess {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   userId    String
   clientId  String
-  role      Role? // Rol específico en este cliente
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      ClientRole? // Rol específico en este cliente (solo admin)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
   // Relaciones
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

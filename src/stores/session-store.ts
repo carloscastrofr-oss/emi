@@ -9,6 +9,9 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import type { SessionData, ClientWithWorkspaces, WorkspaceData } from "@/types/session";
 import { SessionService } from "@/lib/session-service";
 import { getSessionData, updateSessionDefaults } from "@/lib/api-client";
+import { setRoleCookie } from "@/lib/auth-cookies";
+import type { SessionUser } from "@/types/auth";
+import { hasUserAccess, applyDebugRoleOverride } from "@/lib/session-helpers";
 
 /**
  * Tiempo de cache (TTL) para datos de sesión
@@ -43,6 +46,30 @@ const SESSION_CACHE_TTL = (() => {
 // TIPOS DEL STORE
 // =============================================================================
 
+/**
+ * Estado de progreso granular para la carga de sesión
+ * Usado por /auth-loading para mostrar el estado actual
+ */
+export type FetchProgress =
+  | "idle"
+  | "validating"
+  | "loading-data"
+  | "setting-cookies"
+  | "complete"
+  | "error";
+
+/**
+ * Mensajes correspondientes a cada estado de progreso
+ */
+export const FETCH_PROGRESS_MESSAGES: Record<FetchProgress, string> = {
+  idle: "Iniciando...",
+  validating: "Verificando sesión...",
+  "loading-data": "Cargando permisos...",
+  "setting-cookies": "Preparando tu espacio...",
+  complete: "¡Listo!",
+  error: "Error al cargar",
+};
+
 interface SessionState {
   // Estado
   sessionData: SessionData | null;
@@ -50,6 +77,8 @@ interface SessionState {
   error: string | null;
   // Timestamp de última actualización para cache
   lastFetched: number | null;
+  // Estado de progreso granular para UI de loading
+  fetchProgress: FetchProgress;
 }
 
 interface SessionActions {
@@ -93,6 +122,12 @@ interface SessionGetters {
 type SessionStore = SessionState & SessionActions & SessionGetters;
 
 // =============================================================================
+// HELPERS
+// =============================================================================
+// Las funciones helper hasUserAccess y applyDebugRoleOverride están en @/lib/session-helpers
+// para facilitar testing y reutilización
+
+// =============================================================================
 // STORE
 // =============================================================================
 
@@ -105,9 +140,32 @@ export const sessionStore = create<SessionStore>()(
       isLoading: false,
       error: null,
       lastFetched: null,
+      fetchProgress: "idle" as FetchProgress,
 
       // Obtener datos de sesión
       fetchSession: async (force = false) => {
+        const fetchId = `fetch-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        console.log(`[Session Store] 🟢 fetchSession iniciado (${fetchId})`, {
+          force,
+          isLoading: get().isLoading,
+          hasSessionData: !!get().sessionData,
+          lastFetched: get().lastFetched,
+        });
+
+        // Verificar si estamos en proceso de logout antes de hacer cualquier petición
+        // Importar auth-store dinámicamente para evitar dependencia circular
+        try {
+          const { useAuthStore } = await import("./auth-store");
+          const authState = useAuthStore.getState();
+          if (authState.isLoggingOut) {
+            // Si estamos haciendo logout, no iniciar peticiones nuevas
+            console.log(`[Session Store] 🟡 fetchSession cancelado por logout (${fetchId})`);
+            return;
+          }
+        } catch {
+          // Si hay error al importar, continuar (no crítico)
+        }
+
         // Verificar si el cache está expirado
         const isCacheExpired = () => {
           const { lastFetched } = get();
@@ -117,32 +175,206 @@ export const sessionStore = create<SessionStore>()(
 
         // Si no es forzado y tenemos datos frescos, no hacer nada
         if (!force && !isCacheExpired() && get().sessionData) {
+          console.log(`[Session Store] ⚪ fetchSession omitido - cache válido (${fetchId})`);
           return;
         }
 
         // Evitar llamadas duplicadas
         if (get().isLoading) {
+          console.log(
+            `[Session Store] 🟡 fetchSession cancelado - ya hay una petición en curso (${fetchId})`
+          );
           return;
         }
 
-        set({ isLoading: true, error: null });
+        console.log(`[Session Store] 🔵 fetchSession iniciando petición HTTP (${fetchId})`);
+        set({ isLoading: true, error: null, fetchProgress: "validating" });
 
         try {
+          // Paso 1: Validar y obtener datos
+          set({ fetchProgress: "loading-data" });
+          console.log(`[Session Store] 📡 Llamando a getSessionData() (${fetchId})`);
           const sessionData = await getSessionData();
+          console.log(`[Session Store] ✅ getSessionData() completado exitosamente (${fetchId})`, {
+            userId: sessionData.user.id,
+            email: sessionData.user.email,
+            role: sessionData.user.role,
+            superAdmin: sessionData.user.superAdmin,
+          });
+
+          // Verificar si el usuario tiene acceso (rol global O acceso a clientes)
+          if (!hasUserAccess(sessionData)) {
+            // Usuario sin acceso - desloguear y redirigir a página especial
+            set({
+              sessionData: null,
+              isLoading: false,
+              error: null,
+              lastFetched: null,
+            });
+
+            // Importar auth-store dinámicamente para evitar dependencia circular
+            const { useAuthStore } = await import("./auth-store");
+            await useAuthStore.getState().logout();
+
+            // Redirigir a página de no acceso (se hace en logout, pero por si acaso)
+            if (typeof window !== "undefined") {
+              window.location.href = "/no-access";
+            }
+            return;
+          }
+
+          // Usuario tiene acceso - actualizar estado y cookie de rol
+          // Paso 2: Configurar cookies
+          set({ fetchProgress: "setting-cookies" });
+
+          const userRole = sessionData.user.role;
+          const isSuperAdmin = sessionData.user.superAdmin === true;
+          const defaultClient = sessionData.defaultClient;
+          const defaultWorkspace = sessionData.defaultWorkspace;
+
+          // IMPORTANTE: Establecer la cookie de rol ANTES de aplicar cualquier override
+          // El override solo afecta la UI, pero la cookie DEBE ser siempre el rol real de la BD
+          // El rol activo viene del workspace/cliente por defecto, incluso para superAdmin
+          if (userRole) {
+            // Actualizar cookie de rol con el rol real de la BD (del workspace/cliente por defecto)
+            setRoleCookie(userRole);
+
+            // Log para debugging (solo en desarrollo)
+            if (process.env.NODE_ENV === "development") {
+              console.log("[Session Store] ✅ Rol recibido del endpoint y establecido en cookie:", {
+                role: userRole,
+                superAdmin: isSuperAdmin,
+                defaultClient,
+                defaultWorkspace,
+                userId: sessionData.user.id,
+                email: sessionData.user.email,
+              });
+            }
+          } else if (isSuperAdmin) {
+            // Si es superAdmin sin rol activo en el workspace/cliente por defecto,
+            // establecer "admin" como cookie para el middleware
+            // El middleware necesita un rol válido, pero la lógica de permisos se maneja en el código
+            setRoleCookie("admin");
+
+            // Log para debugging (solo en desarrollo)
+            if (process.env.NODE_ENV === "development") {
+              console.log(
+                "[Session Store] ⚠️ Usuario superAdmin sin rol en workspace/cliente por defecto, estableciendo cookie 'admin' para middleware:",
+                {
+                  superAdmin: true,
+                  defaultClient,
+                  defaultWorkspace,
+                  userId: sessionData.user.id,
+                  email: sessionData.user.email,
+                  nota: "El superAdmin tiene acceso total, pero el middleware necesita un rol válido",
+                }
+              );
+            }
+          } else {
+            // Usuario sin rol y sin superAdmin - esto no debería pasar si hasUserAccess está funcionando correctamente
+            console.warn("[Session Store] ⚠️ Usuario sin rol asignado y sin superAdmin:", {
+              userId: sessionData.user.id,
+              email: sessionData.user.email,
+              superAdmin: isSuperAdmin,
+              defaultClient,
+              defaultWorkspace,
+            });
+          }
+
+          // Aplicar override de debug si está activo (solo para UI del store)
+          // El override solo afecta cómo se muestra el rol en la UI, NO las cookies ni middleware
+          // IMPORTANTE: Esto se hace DESPUÉS de establecer la cookie
+          const finalSessionData = applyDebugRoleOverride(sessionData, undefined);
+
+          // Log para debugging si hay override activo
+          if (process.env.NODE_ENV === "development") {
+            if (finalSessionData.user.role !== userRole) {
+              console.log("[Session Store] ⚠️ Debug override activo:", {
+                rolOriginal: userRole,
+                rolOverride: finalSessionData.user.role,
+                nota: "El override solo afecta la UI, la cookie tiene el rol real",
+              });
+            }
+          }
+
+          // Paso 3: Completar
           set({
-            sessionData,
+            sessionData: finalSessionData,
             isLoading: false,
             error: null,
             lastFetched: Date.now(),
+            fetchProgress: "complete",
           });
+
+          // Convertir SessionUserData a SessionUser para auth-store
+          const sessionUser: SessionUser = {
+            uid: finalSessionData.user.id,
+            email: finalSessionData.user.email,
+            displayName: finalSessionData.user.displayName || null,
+            photoUrl: finalSessionData.user.photoUrl || null,
+            role: finalSessionData.user.role, // Puede ser null si es superAdmin
+            superAdmin: finalSessionData.user.superAdmin,
+            permissions: [],
+            emailVerified: finalSessionData.user.emailVerified,
+            lastLoginAt: finalSessionData.user.lastLoginAt || new Date(),
+            createdAt: finalSessionData.user.createdAt,
+            preferences: finalSessionData.user.preferences || {
+              theme: "system",
+              language: "es",
+              notifications: {
+                email: true,
+                push: true,
+                inApp: true,
+              },
+            },
+            onboarding: {
+              completed: [],
+              currentStep: undefined,
+            },
+          };
+
+          // Actualizar usuario en auth-store para mantener sincronización
+          const { useAuthStore } = await import("./auth-store");
+          useAuthStore.getState().setUser(sessionUser);
         } catch (error) {
+          // Si el error es por cancelación (AbortError o DOMException con name 'AbortError'),
+          // no loggearlo como error - es normal cuando la página navega durante una petición
+          const isAbortError =
+            error instanceof Error &&
+            (error.name === "AbortError" ||
+              error.message.includes("canceled") ||
+              error.message.includes("aborted"));
+
+          if (isAbortError) {
+            // Petición cancelada - probablemente porque la página está navegando
+            // Solo resetear el estado de loading, no marcar como error
+            console.log(`[Session Store] 🔴 fetchSession cancelado (AbortError) (${fetchId})`, {
+              errorName: error instanceof Error ? error.name : "unknown",
+              errorMessage: error instanceof Error ? error.message : String(error),
+            });
+            set({
+              isLoading: false,
+            });
+            return;
+          }
+
           const errorMessage =
             error instanceof Error ? error.message : "Error al obtener datos de sesión";
-          console.error("Error fetching session:", error);
+          console.error(`[Session Store] ❌ Error fetching session (${fetchId}):`, error);
+          console.error(`[Session Store] Error details (${fetchId}):`, {
+            message: errorMessage,
+            error,
+            errorName: error instanceof Error ? error.name : "unknown",
+            errorStack: error instanceof Error ? error.stack : undefined,
+            hasAuthCookie:
+              typeof document !== "undefined" ? !!document.cookie.includes("emi_auth") : "N/A",
+            currentUrl: typeof window !== "undefined" ? window.location.href : "N/A",
+          });
           set({
             sessionData: null,
             isLoading: false,
             error: errorMessage,
+            fetchProgress: "error",
           });
         }
       },
@@ -163,6 +395,7 @@ export const sessionStore = create<SessionStore>()(
           error: null,
           isLoading: false,
           lastFetched: null,
+          fetchProgress: "idle",
         });
 
         // Limpiar cualquier dato persistido en localStorage relacionado con sesión
@@ -330,4 +563,18 @@ export const useRevalidateSession = () => {
 export const useRefreshSession = () => {
   const fetchSession = useSessionStore((state) => state.fetchSession);
   return () => fetchSession(true);
+};
+
+/**
+ * Hook para obtener el progreso de carga de sesión
+ * Útil para mostrar estados de carga en UI
+ */
+export const useFetchProgress = () => useSessionStore((state) => state.fetchProgress);
+
+/**
+ * Hook para obtener el mensaje de progreso actual
+ */
+export const useFetchProgressMessage = () => {
+  const progress = useSessionStore((state) => state.fetchProgress);
+  return FETCH_PROGRESS_MESSAGES[progress];
 };

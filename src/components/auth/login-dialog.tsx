@@ -9,9 +9,7 @@ import {
   getIdToken,
 } from "firebase/auth";
 import { auth, isAuthAvailable } from "@/lib/firebase";
-import { setAuthCookie, setRoleCookie, waitForAuthCookies } from "@/lib/auth-cookies";
-import { getFirstAllowedRoute } from "@/lib/auth";
-import type { Role } from "@/types/auth";
+import { setAuthCookie } from "@/lib/auth-cookies";
 import {
   Dialog,
   DialogContent,
@@ -63,21 +61,9 @@ export function LoginDialog({ open, onOpenChange, onSuccess }: LoginDialogProps)
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       // Obtener el ID token y guardarlo en la cookie
+      // NOTA: NO establecer cookie de rol aquí - se establecerá después desde session-store
       const idToken = await getIdToken(userCredential.user, false);
       setAuthCookie(idToken);
-
-      // Obtener y guardar el rol (usar el mismo rol por defecto que en auth-store)
-      const defaultRole: Role = "product_designer";
-      setRoleCookie(defaultRole);
-
-      // Obtener la primera ruta permitida para este rol
-      const firstAllowedRoute = getFirstAllowedRoute(defaultRole);
-
-      // Esperar a que las cookies estén realmente establecidas
-      const cookiesReady = await waitForAuthCookies(1000);
-      if (!cookiesReady) {
-        console.warn("Las cookies de autenticación no se establecieron correctamente");
-      }
 
       toast({
         title: "¡Bienvenido!",
@@ -89,18 +75,16 @@ export function LoginDialog({ open, onOpenChange, onSuccess }: LoginDialogProps)
       setEmail("");
       setPassword("");
 
-      // Esperar un momento adicional para que el toast se muestre y las cookies se establezcan completamente
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Usar window.location para forzar una recarga completa y asegurar que las cookies estén disponibles
-      // Redirigir a la primera ruta permitida según el rol
+      // Llamar onSuccess callback si existe
       if (onSuccess) {
-        // Pasar la ruta como parámetro si el callback lo acepta
         onSuccess();
-      } else {
-        // Redirigir directamente a la primera ruta permitida
-        window.location.href = firstAllowedRoute;
       }
+
+      // Redirigir a "/" inmediatamente
+      // El middleware redirigirá a /auth-loading si la cookie de rol no está lista
+      // La página /auth-loading esperará y redirigirá a la ruta correcta
+      console.log("[Login Dialog] 🚀 Login exitoso, redirigiendo a /");
+      window.location.href = "/";
     } catch (error) {
       const authError = error as AuthError;
       let errorMessage = "Error al iniciar sesión";
@@ -159,21 +143,9 @@ export function LoginDialog({ open, onOpenChange, onSuccess }: LoginDialogProps)
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       // Obtener el ID token y guardarlo en la cookie
+      // NOTA: NO establecer cookie de rol aquí - se establecerá después desde session-store
       const idToken = await getIdToken(result.user, false);
       setAuthCookie(idToken);
-
-      // Obtener y guardar el rol (usar el mismo rol por defecto que en auth-store)
-      const defaultRole: Role = "product_designer";
-      setRoleCookie(defaultRole);
-
-      // Obtener la primera ruta permitida para este rol
-      const firstAllowedRoute = getFirstAllowedRoute(defaultRole);
-
-      // Esperar a que las cookies estén realmente establecidas
-      const cookiesReady = await waitForAuthCookies(1000);
-      if (!cookiesReady) {
-        console.warn("Las cookies de autenticación no se establecieron correctamente");
-      }
 
       toast({
         title: "¡Bienvenido!",
@@ -183,17 +155,16 @@ export function LoginDialog({ open, onOpenChange, onSuccess }: LoginDialogProps)
       // Cerrar el diálogo primero
       onOpenChange(false);
 
-      // Esperar un momento adicional para que el toast se muestre y las cookies se establezcan completamente
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Usar window.location para forzar una recarga completa y asegurar que las cookies estén disponibles
-      // Redirigir a la primera ruta permitida según el rol
+      // Llamar onSuccess callback si existe
       if (onSuccess) {
         onSuccess();
-      } else {
-        // Redirigir directamente a la primera ruta permitida
-        window.location.href = firstAllowedRoute;
       }
+
+      // Redirigir a "/" inmediatamente
+      // El middleware redirigirá a /auth-loading si la cookie de rol no está lista
+      // La página /auth-loading esperará y redirigirá a la ruta correcta
+      console.log("[Login Dialog] 🚀 Login exitoso (Google), redirigiendo a /");
+      window.location.href = "/";
     } catch (error) {
       const authError = error as AuthError;
       let errorMessage = "Error al iniciar sesión con Google";

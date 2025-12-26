@@ -37,11 +37,11 @@ export function getHighestRole(userRoles: Role[]): Role {
 
 /**
  * Verifica si un usuario tiene un permiso específico
- * Los super_admin tienen todos los permisos por defecto
+ * Los superAdmin tienen todos los permisos por defecto
  */
 export function hasPermission(user: SessionUser | null, permission: Permission): boolean {
   if (!user) return false;
-  if (user.role === "super_admin") return true;
+  if (user.superAdmin === true) return true;
   return user.permissions?.includes(permission) ?? false;
 }
 
@@ -51,22 +51,34 @@ export function hasPermission(user: SessionUser | null, permission: Permission):
 
 /**
  * Verifica si un rol tiene acceso a una tab específica
+ * Si role es null (superAdmin), retorna true (acceso a todas las tabs)
  */
-export function canAccessTab(role: Role, tab: SidebarTab): boolean {
+export function canAccessTab(role: Role | null, tab: SidebarTab): boolean {
+  if (role === null) return true; // superAdmin tiene acceso a todas las tabs
   return tabPermissionsByRole[role]?.includes(tab) ?? false;
 }
 
 /**
  * Obtiene las tabs permitidas para un rol
+ * Si role es null (superAdmin), retorna todas las tabs
  */
-export function getAllowedTabs(role: Role): SidebarTab[] {
+export function getAllowedTabs(role: Role | null): SidebarTab[] {
+  if (role === null) {
+    // superAdmin tiene acceso a todas las tabs
+    return sidebarTabsConfig.map((tab) => tab.id);
+  }
   return tabPermissionsByRole[role] ?? [];
 }
 
 /**
  * Obtiene la configuración completa de tabs permitidas para un rol
+ * Si role es null (superAdmin), retorna todas las tabs configuradas
  */
-export function getAllowedTabsConfig(role: Role): SidebarTabConfig[] {
+export function getAllowedTabsConfig(role: Role | null): SidebarTabConfig[] {
+  if (role === null) {
+    // superAdmin tiene acceso a todas las tabs
+    return sidebarTabsConfig;
+  }
   const allowedTabs = getAllowedTabs(role);
   return sidebarTabsConfig.filter((tab) => allowedTabs.includes(tab.id));
 }
@@ -93,8 +105,13 @@ const routeToTab: Record<string, SidebarTab> = {
 
 /**
  * Obtiene el primer tab permitido para un rol
+ * Si role es null (superAdmin), retorna "dashboard" como tab por defecto
  */
-function getFirstAllowedTab(role: Role): SidebarTab {
+function getFirstAllowedTab(role: Role | null): SidebarTab {
+  if (role === null) {
+    // superAdmin por defecto va al dashboard
+    return "dashboard";
+  }
   const allowedTabs = getAllowedTabs(role);
   return allowedTabs[0] ?? "kit";
 }
@@ -102,8 +119,9 @@ function getFirstAllowedTab(role: Role): SidebarTab {
 /**
  * Obtiene la ruta del primer tab permitido para un rol
  * Esta es la ruta a la que se debe redirigir después del login
+ * Si role es null (superAdmin), retorna "/dashboard"
  */
-export function getFirstAllowedRoute(role: Role): string {
+export function getFirstAllowedRoute(role: Role | null): string {
   const tab = getFirstAllowedTab(role);
   // Buscar la ruta que corresponde a este tab
   for (const [route, tabId] of Object.entries(routeToTab)) {

@@ -2,13 +2,12 @@
 
 import { LoginDialog } from "@/components/auth/login-dialog";
 import { useAuthStore } from "@/stores/auth-store";
-import { getFirstAllowedRoute } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { isAuthenticated, isInitialized, initialize, user } = useAuthStore();
+  const { isAuthenticated, isInitialized, initialize } = useAuthStore();
   const [loginDialogOpen, setLoginDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -18,25 +17,20 @@ export default function LoginPage() {
       return;
     }
 
-    // Si ya está autenticado, redirigir a la primera ruta permitida según su rol
-    if (isAuthenticated && user?.role) {
-      const firstRoute = getFirstAllowedRoute(user.role);
-      router.replace(firstRoute);
-    } else if (!isAuthenticated) {
-      // Abrir el diálogo de login automáticamente
+    // Si ya está autenticado, el middleware se encargará de redirigir
+    // Solo abrir el diálogo si no está autenticado
+    if (!isAuthenticated) {
       setLoginDialogOpen(true);
+    } else {
+      // Si está autenticado, redirigir a home - el middleware redirigirá al primer tab
+      router.replace("/");
     }
-  }, [isAuthenticated, isInitialized, initialize, router, user]);
+  }, [isAuthenticated, isInitialized, initialize, router]);
 
   const handleLoginSuccess = () => {
-    // Obtener el rol del usuario (debería estar en el store después del login)
-    // Si no está disponible aún, usar el rol por defecto
-    const userRole = user?.role || "product_designer";
-    const firstRoute = getFirstAllowedRoute(userRole);
-
-    // Después de login exitoso, usar window.location para forzar recarga completa
-    // Esto asegura que las cookies estén disponibles para el middleware
-    window.location.href = firstRoute;
+    // El login-dialog ya maneja la redirección directamente a la ruta final
+    // Solo necesitamos cerrar el diálogo si es necesario
+    // No hacer redirección aquí - login-dialog lo hará
   };
 
   return (

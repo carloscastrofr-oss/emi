@@ -10,24 +10,24 @@ import type { Role, SidebarTab, SidebarTabConfig, SessionCookieConfig } from "@/
 
 /**
  * Labels legibles para mostrar en UI
+ * Nota: superAdmin ya no es un rol, es un atributo booleano en el usuario
  */
 export const roleLabels: Record<Role, string> = {
   ux_ui_designer: "UX/UI Designer",
   product_designer: "Product Designer",
   product_design_lead: "Product Design Lead",
   admin: "Admin",
-  super_admin: "Super Admin",
 };
 
 /**
  * Jerarquía de roles para comparaciones (mayor número = más permisos)
+ * Nota: superAdmin ya no es un rol, es un atributo booleano en el usuario
  */
 export const roleHierarchy: Record<Role, number> = {
   ux_ui_designer: 0,
   product_designer: 1,
   product_design_lead: 2,
   admin: 3,
-  super_admin: 4,
 };
 
 // =============================================================================
@@ -173,23 +173,8 @@ export const tabPermissionsByRole: Record<Role, SidebarTab[]> = {
     "onboarding",
   ],
 
-  // Super Admin: acceso total
-  super_admin: [
-    "dashboard",
-    "kit",
-    "ai_writing",
-    "ai_flow",
-    "ai_toolkit",
-    "workbench",
-    "observer",
-    "risk",
-    "synthetic_users",
-    "strategy",
-    "changelog",
-    "labs",
-    "agent",
-    "onboarding",
-  ],
+  // Nota: superAdmin ya no es un rol, es un atributo booleano en el usuario
+  // Los superAdmin tienen acceso a todas las tabs (se maneja en la lógica cuando role es null)
 };
 
 // =============================================================================

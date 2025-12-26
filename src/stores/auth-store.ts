@@ -14,7 +14,6 @@ import {
 import { auth, isAuthAvailable } from "@/lib/firebase";
 import type { Role, SessionUser, Client } from "@/types/auth";
 import {
-  setRoleCookie,
   clearRoleCookie,
   setAuthCookie,
   clearAuthCookie,
@@ -22,29 +21,6 @@ import {
   isTokenExpired,
 } from "@/lib/auth-cookies";
 import { sessionStore } from "./session-store";
-
-// =============================================================================
-// HELPERS
-// =============================================================================
-
-/**
- * Obtiene el rol seleccionado del debug store (desde localStorage)
- * Esto evita dependencia circular entre stores
- */
-function getDebugRole(): Role | null {
-  if (typeof window === "undefined") return null;
-
-  try {
-    const stored = localStorage.getItem("emi-debug-storage");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      return parsed.state?.selectedRole ?? null;
-    }
-  } catch {
-    // Ignorar errores de parsing
-  }
-  return null;
-}
 
 // =============================================================================
 // TIPOS DEL STORE
@@ -55,6 +31,7 @@ interface AuthState {
   isLoading: boolean;
   isInitialized: boolean;
   isAuthenticated: boolean;
+  isLoggingOut: boolean;
 
   // Usuario
   user: SessionUser | null;
@@ -89,47 +66,6 @@ interface AuthActions {
 type AuthStore = AuthState & AuthActions;
 
 // =============================================================================
-// HELPERS: Conversión de Firebase User a SessionUser
-// =============================================================================
-
-/**
- * Convierte un Firebase User a SessionUser
- * Por ahora usa un rol por defecto, en el futuro se puede obtener desde Firestore
- */
-function convertFirebaseUserToSessionUser(firebaseUser: FirebaseUser): SessionUser {
-  // Obtener rol del debug store (si existe) o usar default
-  const debugRole = getDebugRole();
-  const role: Role = debugRole ?? "product_designer";
-
-  return {
-    uid: firebaseUser.uid,
-    email: firebaseUser.email,
-    displayName: firebaseUser.displayName,
-    photoUrl: firebaseUser.photoURL,
-    role,
-    permissions: [],
-    emailVerified: firebaseUser.emailVerified,
-    lastLoginAt: new Date(),
-    createdAt: firebaseUser.metadata.creationTime
-      ? new Date(firebaseUser.metadata.creationTime)
-      : new Date(),
-    onboarding: {
-      completed: [],
-      currentStep: undefined,
-    },
-    preferences: {
-      theme: "system",
-      language: "es",
-      notifications: {
-        email: true,
-        push: true,
-        inApp: true,
-      },
-    },
-  };
-}
-
-// =============================================================================
 // STORE
 // =============================================================================
 
@@ -138,6 +74,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isLoading: true,
   isInitialized: false,
   isAuthenticated: false,
+  isLoggingOut: false,
   user: null,
   currentClient: null,
   error: null,
@@ -164,62 +101,119 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       return;
     }
 
-    // Función helper para actualizar el token y el estado del usuario
+    // Función helper para actualizar el estado del usuario cuando Firebase notifica cambios
+    // Esta función corre en BACKGROUND después de que la app ya se mostró
+    // Solo actualiza si hay cambios reales (ej: token revocado, usuario deshabilitado)
     const updateUserState = async (firebaseUser: FirebaseUser | null) => {
+      // Si estamos en proceso de logout, no hacer nada
+      if (get().isLoggingOut) return;
+
       if (firebaseUser) {
-        // Usuario autenticado - obtener ID token y guardarlo
+        // Usuario autenticado en Firebase - actualizar token en cookie
         try {
           const idToken = await getIdToken(firebaseUser, false);
-          const sessionUser = convertFirebaseUserToSessionUser(firebaseUser);
-          setRoleCookie(sessionUser.role);
-          setAuthCookie(idToken); // Establecer cookie con el ID token
-          set({
-            user: sessionUser,
-            isAuthenticated: true,
-            isLoading: false,
-            isInitialized: true,
-            error: null,
-          });
+          setAuthCookie(idToken);
 
-          // Obtener datos de sesión después de autenticación exitosa
-          // Usar revalidateIfNeeded para no hacer llamadas innecesarias si hay cache válido
-          try {
-            await sessionStore.getState().revalidateIfNeeded();
-            // Si no hay datos en cache, hacer fetch forzado
-            if (!sessionStore.getState().sessionData) {
-              await sessionStore.getState().fetchSession(true);
-            }
-          } catch (error) {
-            console.error("Error fetching session data:", error);
-            // No fallar la autenticación si falla la sesión, solo loggear
+          // Solo actualizar estado si no estaba autenticado antes
+          // Esto evita re-renders innecesarios
+          if (!get().isAuthenticated) {
+            set({
+              isAuthenticated: true,
+              isInitialized: true,
+              error: null,
+            });
+          }
+
+          // Obtener datos de sesión en background si no los tenemos
+          const sessionData = sessionStore.getState().sessionData;
+          if (!sessionData && !get().isLoggingOut) {
+            sessionStore
+              .getState()
+              .fetchSession(false)
+              .catch((error) => {
+                const isAbortError =
+                  error instanceof Error &&
+                  (error.name === "AbortError" ||
+                    error.message.includes("canceled") ||
+                    error.message.includes("aborted"));
+                if (!isAbortError) {
+                  console.warn("[Auth Store] Background fetchSession error:", error);
+                }
+              });
           }
         } catch (error) {
           console.error("Error getting ID token:", error);
-          // Aún así establecer el usuario, pero sin token
-          const sessionUser = convertFirebaseUserToSessionUser(firebaseUser);
-          setRoleCookie(sessionUser.role);
+          // Token inválido - limpiar todo y redirigir
+          clearRoleCookie();
+          clearAuthCookie();
+          sessionStore.getState().clearSession();
           set({
-            user: sessionUser,
-            isAuthenticated: true,
-            isLoading: false,
+            user: null,
+            isAuthenticated: false,
             isInitialized: true,
-            error: null,
+            error: error instanceof Error ? error.message : "Error de autenticación",
           });
+          // Redirigir a login
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
         }
       } else {
-        // Usuario no autenticado
+        // Usuario no autenticado en Firebase
+        // Solo actuar si TENÍAMOS una sesión activa (evitar limpiar en cold start)
+        const wasAuthenticated = get().isAuthenticated;
         clearRoleCookie();
-        clearAuthCookie(); // Limpiar cookie de autenticación
-        sessionStore.getState().clearSession(); // Limpiar datos de sesión
+        clearAuthCookie();
+        sessionStore.getState().clearSession();
         set({
           user: null,
           isAuthenticated: false,
-          isLoading: false,
           isInitialized: true,
           error: null,
         });
+        // Solo redirigir si el usuario estaba autenticado antes
+        if (wasAuthenticated && typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
       }
     };
+
+    // OPTIMIZACIÓN CRÍTICA: No esperar a Firebase Auth para mostrar la app
+    // Establecer estado inmediatamente basado en la cookie existente
+    // Firebase Auth corregirá el estado si es necesario (token inválido, etc.)
+    const authCookie = getAuthCookie();
+    if (!authCookie) {
+      // No hay cookie de token - usuario no autenticado
+      clearRoleCookie();
+      clearAuthCookie();
+      sessionStore.getState().clearSession();
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        isInitialized: true,
+        error: null,
+      });
+    } else {
+      // Hay cookie de token - CONFIAR en la cookie y mostrar app inmediatamente
+      // Este es el patrón estándar: la cookie es la fuente de verdad inicial
+      // Firebase Auth confirmará en background; si el token es inválido, corregirá
+      set({
+        isAuthenticated: true,
+        isLoading: false, // NO bloquear la UI esperando Firebase
+        isInitialized: true, // Marcar como inicializado INMEDIATAMENTE
+        error: null,
+      });
+
+      // Iniciar fetchSession en background (no bloquear)
+      // Si la sesión ya está en cache, no hará nada
+      sessionStore
+        .getState()
+        .fetchSession(false)
+        .catch((error) => {
+          console.warn("[Auth Store] Background fetchSession error:", error);
+        });
+    }
 
     // Escuchar cambios en el estado de autenticación de Firebase
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -268,20 +262,22 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     // Por ahora, el listener se mantiene activo durante toda la sesión
   },
 
-  // Actualizar usuario
+  // Actualizar usuario (usado desde session-store después de obtener datos de /api/sesion)
   setUser: (user) => {
+    // Si hay cookie de token, mantener isAuthenticated como true incluso si user es null
+    // (puede ser que el token exista pero fetchSession aún no haya completado)
+    const hasToken = getAuthCookie();
     set({
       user,
-      isAuthenticated: !!user,
+      isAuthenticated: !!user || !!hasToken,
     });
   },
 
   // Cambiar rol (útil para testing desde devtools)
+  // NOTA: Esta función ya no debería usarse normalmente, el rol viene de BD
   setRole: (role) => {
     const currentUser = get().user;
     if (currentUser) {
-      // Actualizar cookie
-      setRoleCookie(role);
       set({
         user: { ...currentUser, role },
       });
@@ -330,63 +326,72 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   // Logout
   logout: async () => {
+    // Marcar como logging out inmediatamente para feedback visual
+    set({ isLoggingOut: true });
+
     // Limpiar datos de sesión primero
     sessionStore.getState().clearSession();
 
-    // Limpiar localStorage de stores que persisten datos
+    // Limpiar TODO el localStorage (flush completo) - hacer esto primero para feedback inmediato
     try {
       if (typeof window !== "undefined") {
-        // Limpiar debug store
+        // Limpiar todos los items que empiezan con "emi-"
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith("emi-")) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach((key) => localStorage.removeItem(key));
+
+        // También limpiar items conocidos por si acaso
         localStorage.removeItem("emi-debug-storage");
-        // Limpiar preferences store si existe
         localStorage.removeItem("emi-preferences-storage");
-        // Limpiar cualquier otro dato de sesión
         localStorage.removeItem("emi-session-storage");
+        localStorage.removeItem("emi-loading-preferences-storage");
       }
     } catch (error) {
       console.warn("Error limpiando localStorage:", error);
     }
 
+    // Limpiar cookies y estado inmediatamente
+    clearRoleCookie();
+    clearAuthCookie();
+    set({
+      user: null,
+      isAuthenticated: false,
+      currentClient: null,
+    });
+
+    // Intentar hacer signOut de Firebase, pero con timeout para evitar delays
+    // Si Firebase Auth no está disponible o tarda mucho, simplemente redirigir
     if (!isAuthAvailable() || !auth) {
-      // Si Firebase Auth no está disponible, solo limpiamos el estado local
-      clearRoleCookie();
-      clearAuthCookie();
-      set({
-        user: null,
-        isAuthenticated: false,
-        currentClient: null,
-      });
-      // Recargar la página para asegurar que el middleware redirija a /login
+      // Si Firebase Auth no está disponible, redirigir inmediatamente
       window.location.href = "/login";
       return;
     }
 
+    // Intentar hacer signOut con timeout de 2 segundos máximo
+    // Si tarda más, simplemente redirigir (ya limpiamos todo)
     try {
-      await firebaseSignOut(auth);
-      // Limpiar cookies y estado
-      clearRoleCookie();
-      clearAuthCookie();
-      set({
-        user: null,
-        isAuthenticated: false,
-        currentClient: null,
-      });
-      // Recargar la página para asegurar que el middleware redirija a /login
-      // Esto garantiza que todas las cookies se limpien y el estado se resetee
-      window.location.href = "/login";
+      const signOutPromise = firebaseSignOut(auth);
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Timeout")), 2000)
+      );
+
+      await Promise.race([signOutPromise, timeoutPromise]);
     } catch (error) {
-      console.error("Error signing out:", error);
-      // Aún así limpiamos el estado local
-      clearRoleCookie();
-      clearAuthCookie();
-      set({
-        user: null,
-        isAuthenticated: false,
-        currentClient: null,
-      });
-      // Recargar la página incluso si hay error
-      window.location.href = "/login";
+      // Si hay error o timeout, no importa - ya limpiamos todo
+      // Solo loggear en desarrollo
+      if (process.env.NODE_ENV === "development") {
+        console.warn("SignOut timeout o error (no crítico):", error);
+      }
     }
+
+    // Redirigir inmediatamente después de limpiar todo
+    // No esperar más - ya limpiamos cookies, localStorage y estado
+    window.location.href = "/login";
   },
 
   // Limpiar error

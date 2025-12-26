@@ -57,7 +57,8 @@ export interface SessionUserData {
   email: string;
   displayName: string | null;
   photoUrl: string | null;
-  role: Role;
+  role: Role | null; // Puede ser null si el usuario es superAdmin
+  superAdmin: boolean;
   preferences: UserPreferences | null;
   emailVerified: boolean;
   lastLoginAt: Date | null;

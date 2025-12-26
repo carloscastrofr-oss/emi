@@ -74,4 +74,26 @@ export default [
       "no-undef": "off",
     },
   },
+  // Configuración específica para archivos de prueba
+  {
+    files: ["**/*.test.{ts,tsx,js,jsx}", "**/__tests__/**/*.{ts,tsx,js,jsx}", "jest.setup.js"],
+    languageOptions: {
+      globals: {
+        jest: "readonly",
+        describe: "readonly",
+        it: "readonly",
+        test: "readonly",
+        expect: "readonly",
+        beforeAll: "readonly",
+        afterAll: "readonly",
+        beforeEach: "readonly",
+        afterEach: "readonly",
+        URLSearchParams: "readonly",
+      },
+    },
+    rules: {
+      "@typescript-eslint/no-explicit-any": "warn",
+      "no-undef": "off",
+    },
+  },
 ];

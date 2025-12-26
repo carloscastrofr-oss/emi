@@ -43,7 +43,7 @@ async function checkDB() {
       console.log("\n👤 Ejemplo de usuario encontrado:");
       console.log(`  ID: ${userSample.id}`);
       console.log(`  Email: ${userSample.email}`);
-      console.log(`  Rol: ${userSample.role}`);
+      console.log(`  Super Admin: ${userSample.superAdmin}`);
     }
 
     // Verificar índices importantes

@@ -8,16 +8,23 @@
 
 /**
  * Roles disponibles en el sistema (de menor a mayor nivel de acceso)
+ * Nota: super_admin ya no es un rol, es un atributo booleano (superAdmin) en el modelo User
  */
 export const roles = [
   "ux_ui_designer",
   "product_designer",
   "product_design_lead",
   "admin",
-  "super_admin",
 ] as const;
 
 export type Role = (typeof roles)[number];
+
+/**
+ * Roles disponibles a nivel de cliente (solo admin)
+ */
+export const clientRoles = ["admin"] as const;
+
+export type ClientRole = (typeof clientRoles)[number];
 
 // =============================================================================
 // NAVEGACIÓN / TABS DEL SIDEBAR
@@ -141,7 +148,9 @@ export interface SessionUser {
   photoUrl?: string | null;
 
   // Rol y permisos
-  role: Role;
+  // role puede ser null si el usuario es superAdmin (acceso total sin rol específico)
+  role: Role | null;
+  superAdmin: boolean;
   permissions?: Permission[];
 
   // Contexto del cliente/workspace
@@ -205,7 +214,7 @@ export interface AuthError {
  */
 export interface SessionCookieData {
   uid: string;
-  role: Role;
+  role: Role | null; // Puede ser null si el usuario es superAdmin
   clientId?: string;
   exp: number;
 }

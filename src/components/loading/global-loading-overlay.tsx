@@ -1,10 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useIsLoading, useLoadingMessage, useLoadingStore } from "@/stores/loading-store";
 import { Spinner } from "./spinner";
 import { cn } from "@/lib/utils";
+
+/**
+ * Rutas donde el GlobalLoadingOverlay NO debe mostrarse
+ * Estas rutas tienen su propia experiencia de carga
+ */
+const EXCLUDED_ROUTES = ["/auth-loading", "/login", "/no-access", "/forbidden"];
 
 interface GlobalLoadingOverlayProps {
   /**
@@ -38,12 +45,22 @@ export function GlobalLoadingOverlay({
   spinnerVariant = "dots",
   spinnerSize = "lg",
 }: GlobalLoadingOverlayProps) {
+  const pathname = usePathname();
   const isLoading = useIsLoading();
   const message = useLoadingMessage();
   const clearStuckOperations = useLoadingStore((state) => state.clearStuckOperations);
   const [shouldShow, setShouldShow] = useState(false);
 
+  // Verificar si estamos en una ruta excluida
+  const isExcludedRoute = EXCLUDED_ROUTES.some((route) => pathname?.startsWith(route));
+
   useEffect(() => {
+    // No mostrar en rutas excluidas (tienen su propia experiencia de carga)
+    if (isExcludedRoute) {
+      setShouldShow(false);
+      return undefined;
+    }
+
     if (isLoading) {
       // Delay antes de mostrar (evitar flash en cargas rápidas)
       const delayTimer = setTimeout(() => {
@@ -69,7 +86,7 @@ export function GlobalLoadingOverlay({
     // Si no hay loading, ocultar inmediatamente
     setShouldShow(false);
     return undefined;
-  }, [isLoading, showDelay, timeout, clearStuckOperations]);
+  }, [isLoading, showDelay, timeout, clearStuckOperations, isExcludedRoute]);
 
   return (
     <AnimatePresence>

@@ -23,7 +23,8 @@ const prisma = new PrismaClient();
 async function seedUser() {
   try {
     const userEmail = "carloscastro.fr@multiplica.com";
-    const userRole: Role = "product_designer";
+    const userSuperAdmin = true;
+    const userWorkspaceRole: Role = "product_designer";
 
     console.log("🌱 Iniciando seed de usuario...\n");
 
@@ -38,13 +39,13 @@ async function seedUser() {
       console.log(`⚠️  Usuario con email ${userEmail} ya existe. Usando ID existente.`);
       userId = existingUser.id;
 
-      // Actualizar rol si es necesario
-      if (existingUser.role !== userRole) {
+      // Actualizar superAdmin si es necesario
+      if (existingUser.superAdmin !== userSuperAdmin) {
         await prisma.user.update({
           where: { id: userId },
-          data: { role: userRole },
+          data: { superAdmin: userSuperAdmin },
         });
-        console.log(`✅ Rol actualizado a: ${userRole}`);
+        console.log(`✅ SuperAdmin actualizado a: ${userSuperAdmin}`);
       }
     } else {
       // Generar un ID compatible con Firebase UID (formato similar)
@@ -58,7 +59,7 @@ async function seedUser() {
           email: userEmail,
           displayName: "Carlos Castro",
           photoUrl: null,
-          role: userRole,
+          superAdmin: userSuperAdmin,
           preferences: {
             theme: "system",
             language: "es",
@@ -214,7 +215,7 @@ async function seedUser() {
           data: {
             userId,
             clientId: client.id,
-            role: userRole,
+            role: "admin", // ClientRole solo puede ser "admin"
           },
         });
         console.log(`  ✅ Acceso creado para cliente: ${client.name}`);
@@ -241,7 +242,7 @@ async function seedUser() {
           data: {
             userId,
             workspaceId: workspace.id,
-            role: userRole,
+            role: userWorkspaceRole, // Rol a nivel de workspace
           },
         });
         console.log(`  ✅ Acceso creado para workspace: ${workspace.name}`);
@@ -296,7 +297,8 @@ async function seedUser() {
     console.log(`\n📊 Resumen:`);
     console.log(`   Usuario: ${userEmail}`);
     console.log(`   ID: ${userId}`);
-    console.log(`   Rol: ${userRole}`);
+    console.log(`   SuperAdmin: ${userSuperAdmin}`);
+    console.log(`   Rol en Workspaces: ${userWorkspaceRole}`);
     console.log(`   Clientes: ${createdClients.length}`);
     console.log(`   Workspaces: ${createdWorkspaces.length}`);
     console.log(`\n💡 Puedes usar este usuario para probar el endpoint /api/sesion\n`);

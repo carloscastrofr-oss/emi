@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ShieldX, ArrowLeft, Home } from "lucide-react";
+import { ShieldX, ArrowLeft, Home, LogOut, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/auth-store";
 import { getAllowedTabsConfig } from "@/lib/auth";
@@ -15,12 +15,17 @@ import { roleLabels } from "@/config/auth";
 function ForbiddenContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useAuthStore();
+  const { user, logout, isAuthenticated, isLoggingOut } = useAuthStore();
+  const [isLoggingOutLocal, setIsLoggingOutLocal] = useState(false);
 
   // Obtener información de debugging desde los query params
   const fromPath = searchParams.get("from");
   const reason = searchParams.get("reason");
   const roleFromQuery = searchParams.get("role");
+
+  // Verificar si el problema es que no hay rol (token existe pero no rol)
+  const isNoRole = reason === "no-role";
+  const hasTokenButNoRole = isNoRole && !user?.role;
 
   // Obtener el primer tab permitido para redirigir
   const allowedTabs = user?.role ? getAllowedTabsConfig(user.role) : [];
@@ -33,6 +38,19 @@ function ForbiddenContent() {
       router.push("/");
     }
   };
+
+  const handleLogout = async () => {
+    setIsLoggingOutLocal(true);
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Error en logout:", error);
+      // Aún así redirigir
+      window.location.href = "/login";
+    }
+  };
+
+  const isLoading = isLoggingOut || isLoggingOutLocal;
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
@@ -48,11 +66,21 @@ function ForbiddenContent() {
 
         {/* Descripción */}
         <p className="mb-6 text-muted-foreground">
-          No tienes permisos para acceder a esta página.
-          {user?.role && (
+          {hasTokenButNoRole ? (
             <>
-              {" "}
-              Tu rol actual es <strong>{roleLabels[user.role]}</strong>.
+              Tu sesión no tiene un rol asignado. Esto puede ocurrir si tu cuenta no está
+              completamente configurada en el sistema. Por favor, cierra sesión e inicia sesión
+              nuevamente, o contacta a tu administrador.
+            </>
+          ) : (
+            <>
+              No tienes permisos para acceder a esta página.
+              {user?.role && (
+                <>
+                  {" "}
+                  Tu rol actual es <strong>{roleLabels[user.role]}</strong>.
+                </>
+              )}
             </>
           )}
         </p>
@@ -65,20 +93,48 @@ function ForbiddenContent() {
             <p>Reason: {reason || "unknown"}</p>
             <p>Role from query: {roleFromQuery || "none"}</p>
             <p>User role: {user?.role || "none"}</p>
-            <p>Is authenticated: {user ? "yes" : "no"}</p>
+            <p>Is authenticated: {isAuthenticated ? "yes" : "no"}</p>
+            <p>Has token but no role: {hasTokenButNoRole ? "yes" : "no"}</p>
           </div>
         )}
 
         {/* Acciones */}
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button variant="outline" onClick={() => router.back()}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver
-          </Button>
-          <Button onClick={handleGoHome}>
-            <Home className="mr-2 h-4 w-4" />
-            Ir a {firstTab?.label ?? "Inicio"}
-          </Button>
+          {hasTokenButNoRole ? (
+            <>
+              <Button
+                onClick={handleLogout}
+                variant="destructive"
+                className="w-full sm:w-auto"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Cerrando sesión...
+                  </>
+                ) : (
+                  <>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Cerrar Sesión
+                  </>
+                )}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" onClick={() => router.back()}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Volver
+              </Button>
+              {firstTab && (
+                <Button onClick={handleGoHome}>
+                  <Home className="mr-2 h-4 w-4" />
+                  Ir a {firstTab.label}
+                </Button>
+              )}
+            </>
+          )}
         </div>
 
         {/* Info adicional */}

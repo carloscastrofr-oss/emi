@@ -27,6 +27,12 @@ interface DebugState {
   // Se establece desde el servidor mediante un script inyectado
   detectedEnvironment: Environment;
 
+  // Override de rol para UI (solo para desarrollo/testing)
+  // NOTA: Esto solo afecta la UI del store, NO afecta cookies ni middleware
+  // El middleware y las cookies SIEMPRE usan el rol real de la BD
+  useRoleOverride: boolean;
+  overrideRole: Role | null;
+
   // UI state (no persiste)
   isDialogOpen: boolean;
 }
@@ -38,6 +44,10 @@ interface DebugActions {
   setDevApi: (enabled: boolean) => void;
   toggleDevApi: () => void;
   setDetectedEnvironment: (env: Environment) => void;
+
+  // Role override (solo para UI, no afecta seguridad)
+  setUseRoleOverride: (enabled: boolean) => void;
+  setOverrideRole: (role: Role | null) => void;
 
   // Dialog
   openDialog: () => void;
@@ -77,7 +87,9 @@ export const useDebugStore = create<DebugStore>()(
         environment: detectedEnv,
         detectedEnvironment: detectedEnv,
         selectedRole: "product_designer",
-        devApi: true, // Por defecto activado en desarrollo
+        devApi: false, // Por defecto desactivado para facilitar pruebas
+        useRoleOverride: false, // Por defecto desactivado - override solo para UI
+        overrideRole: null,
         isDialogOpen: false,
 
         // Setters con recarga de página
@@ -123,6 +135,23 @@ export const useDebugStore = create<DebugStore>()(
           }
         },
 
+        // Role override controls (solo para UI, no afecta cookies ni middleware)
+        setUseRoleOverride: (enabled) => {
+          set({ useRoleOverride: enabled });
+          // Si se desactiva, limpiar el override role
+          if (!enabled) {
+            set({ overrideRole: null });
+          }
+        },
+
+        setOverrideRole: (role) => {
+          set({ overrideRole: role });
+          // Si se establece un rol, activar el override automáticamente
+          if (role !== null) {
+            set({ useRoleOverride: true });
+          }
+        },
+
         // Dialog controls
         openDialog: () => set({ isDialogOpen: true }),
         closeDialog: () => set({ isDialogOpen: false }),
@@ -137,6 +166,8 @@ export const useDebugStore = create<DebugStore>()(
         environment: state.environment,
         selectedRole: state.selectedRole,
         devApi: state.devApi,
+        useRoleOverride: state.useRoleOverride,
+        overrideRole: state.overrideRole,
       }),
       // Sincronizar el ambiente detectado al hidratar
       onRehydrateStorage: () => (state) => {
@@ -163,3 +194,5 @@ export const useDebugDetectedEnvironment = () =>
 export const useDebugRole = () => useDebugStore((state) => state.selectedRole);
 export const useDebugDevApi = () => useDebugStore((state) => state.devApi);
 export const useDebugDialogOpen = () => useDebugStore((state) => state.isDialogOpen);
+export const useDebugRoleOverride = () => useDebugStore((state) => state.useRoleOverride);
+export const useDebugOverrideRole = () => useDebugStore((state) => state.overrideRole);

@@ -96,7 +96,12 @@
  *           nullable: true
  *         role:
  *           type: string
- *           enum: [ux_ui_designer, product_designer, product_design_lead, admin, super_admin]
+ *           nullable: true
+ *           enum: [ux_ui_designer, product_designer, product_design_lead, admin]
+ *           description: Rol activo del usuario. null si es superAdmin (acceso total)
+ *         superAdmin:
+ *           type: boolean
+ *           description: Indica si el usuario es superAdmin (acceso total al sistema)
  *         preferences:
  *           type: object
  *           nullable: true
@@ -161,6 +166,7 @@
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse, isDevApiMode, applyDevDelay } from "@/lib/api-utils";
 import { validateAuth } from "@/lib/api-auth";
+import { getActiveRoleFromUser } from "@/lib/session-helpers";
 import type {
   SessionData,
   SessionUserData,
@@ -170,6 +176,16 @@ import type {
 } from "@/types/session";
 
 export async function GET(request: NextRequest) {
+  const requestId = `api-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  console.log(`[API /sesion] 🟢 GET request iniciado (${requestId})`, {
+    url: request.url,
+    method: request.method,
+    headers: {
+      cookie: request.headers.get("cookie") ? "present" : "missing",
+      "user-agent": request.headers.get("user-agent")?.substring(0, 50) || "N/A",
+    },
+  });
+
   try {
     // Aplicar delay en modo dev si es necesario
     await applyDevDelay(request);
@@ -177,6 +193,7 @@ export async function GET(request: NextRequest) {
     // IMPORTANTE: Verificar modo dev API ANTES de validar autenticación
     // En modo dev, no necesitamos token válido, usamos datos mock
     if (isDevApiMode(request)) {
+      console.log(`[API /sesion] 🟡 Modo dev API activo (${requestId})`);
       // En modo dev, usar userId del token si existe (puede estar expirado)
       // o usar un userId mock
       let mockUserId = "mock-user-id";
@@ -194,6 +211,7 @@ export async function GET(request: NextRequest) {
           displayName: "Usuario de Prueba",
           photoUrl: null,
           role: "product_designer",
+          superAdmin: false, // Mock data siempre tiene superAdmin false
           preferences: {
             theme: "system",
             language: "es",
@@ -233,19 +251,26 @@ export async function GET(request: NextRequest) {
         defaultWorkspace: "workspace-1",
       } as SessionData;
 
+      console.log(`[API /sesion] ✅ Retornando datos mock (${requestId})`);
       return successResponse(mockData);
     }
 
     // Si NO estamos en modo dev, validar autenticación estrictamente
+    console.log(`[API /sesion] 🔐 Validando autenticación (${requestId})`);
     let auth;
     try {
       auth = await validateAuth(request);
+      console.log(`[API /sesion] ✅ Autenticación válida (${requestId})`, {
+        userId: auth.userId,
+      });
     } catch (error: any) {
       const errorMessage = error.message || "Token de autenticación inválido";
+      console.log(`[API /sesion] ❌ Error de autenticación (${requestId}):`, errorMessage);
       return errorResponse(errorMessage, 401);
     }
 
     const { userId } = auth;
+    console.log(`[API /sesion] 🔍 Consultando datos del usuario (${requestId})`, { userId });
 
     // Consultar datos desde Prisma
     // Importación dinámica para evitar problemas de inicialización
@@ -292,25 +317,52 @@ export async function GET(request: NextRequest) {
       return errorResponse("Usuario no encontrado", 404);
     }
 
-    // 2. Formatear datos del usuario
+    // 2. Obtener configuraciones por defecto (necesario para calcular rol activo)
+    const defaultClientId = user.sessionConfig?.defaultClientId || null;
+    const defaultWorkspaceId = user.sessionConfig?.defaultWorkspaceId || null;
+
+    // 3. Calcular el rol activo según la prioridad: superAdmin > workspace role > client role
+    // Nota: Si la migración no se ha ejecutado, user.superAdmin puede ser undefined/null, usar false como fallback
+    const userSuperAdmin = user.superAdmin ?? false;
+
+    const activeRole = getActiveRoleFromUser(
+      {
+        superAdmin: userSuperAdmin,
+        clientAccesses: user.clientAccesses.map((access: (typeof user.clientAccesses)[0]) => ({
+          clientId: access.clientId,
+          role: access.role,
+        })),
+        workspaceAccesses: user.workspaceAccesses.map(
+          (access: (typeof user.workspaceAccesses)[0]) => ({
+            workspaceId: access.workspaceId,
+            role: access.role,
+          })
+        ),
+      },
+      defaultClientId,
+      defaultWorkspaceId
+    );
+
+    // 4. Formatear datos del usuario
     const userData: SessionUserData = {
       id: user.id,
       email: user.email,
       displayName: user.displayName,
       photoUrl: user.photoUrl,
-      role: user.role,
+      role: activeRole, // Rol activo calculado (puede ser null si es superAdmin)
+      superAdmin: userSuperAdmin,
       preferences: (user.preferences as unknown) || null,
       emailVerified: user.emailVerified,
       lastLoginAt: user.lastLoginAt,
       createdAt: user.createdAt,
     };
 
-    // 3. Obtener IDs de clientes a los que tiene acceso
+    // 5. Obtener IDs de clientes a los que tiene acceso
     const accessibleClientIds = new Set(
       user.clientAccesses.map((access: (typeof user.clientAccesses)[0]) => access.clientId)
     );
 
-    // 4. Agrupar workspaces por cliente
+    // 6. Agrupar workspaces por cliente
     type WorkspaceAccess = (typeof user.workspaceAccesses)[0];
     const workspacesByClient = new Map<string, WorkspaceAccess[]>();
     user.workspaceAccesses.forEach((access: WorkspaceAccess) => {
@@ -322,7 +374,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // 5. Formatear clientes con sus workspaces accesibles
+    // 7. Formatear clientes con sus workspaces accesibles
     const clients: ClientWithWorkspaces[] = user.clientAccesses.map(
       (access: (typeof user.clientAccesses)[0]) => {
         const client = access.client;
@@ -350,11 +402,7 @@ export async function GET(request: NextRequest) {
       }
     );
 
-    // 6. Obtener configuraciones por defecto
-    const defaultClientId = user.sessionConfig?.defaultClientId || null;
-    const defaultWorkspaceId = user.sessionConfig?.defaultWorkspaceId || null;
-
-    // Construir respuesta
+    // 8. Construir respuesta
     const sessionData: SessionData = {
       user: userData,
       clients,
@@ -362,9 +410,17 @@ export async function GET(request: NextRequest) {
       defaultWorkspace: defaultWorkspaceId,
     };
 
+    console.log(`[API /sesion] ✅ Retornando datos de sesión exitosamente (${requestId})`, {
+      userId: userData.id,
+      email: userData.email,
+      role: userData.role,
+      superAdmin: userData.superAdmin,
+      clientsCount: clients.length,
+    });
+
     return successResponse(sessionData);
   } catch (error) {
-    console.error("Error al obtener datos de sesión:", error);
+    console.error(`[API /sesion] ❌ Error al obtener datos de sesión (${requestId}):`, error);
     return errorResponse("Error al obtener datos de sesión", 500, error);
   }
 }

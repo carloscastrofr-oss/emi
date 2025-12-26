@@ -61,6 +61,13 @@ export async function getSessionData(): Promise<SessionData> {
     }
   }
 
+  const requestId = `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  console.log(`[API Client] 📡 getSessionData() iniciando petición (${requestId})`, {
+    url: "/api/sesion",
+    hasAuthCookie: typeof document !== "undefined" ? !!document.cookie.includes("emi_auth") : "N/A",
+    currentUrl: typeof window !== "undefined" ? window.location.href : "N/A",
+  });
+
   const response = await apiFetch("/api/sesion", {
     method: "GET",
     headers: {
@@ -68,6 +75,12 @@ export async function getSessionData(): Promise<SessionData> {
       // El token se enviará vía cookie automáticamente
     },
     credentials: "include",
+  });
+
+  console.log(`[API Client] ✅ getSessionData() respuesta recibida (${requestId})`, {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok,
   });
 
   if (!response.ok) {
