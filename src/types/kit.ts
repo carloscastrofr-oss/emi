@@ -4,7 +4,7 @@
 
 export type KitCategory = "development" | "research" | "design" | "tokens";
 
-export type KitItemScope = "workspace" | "client";
+export type KitItemScope = "personal" | "workspace" | "client";
 
 export interface Kit {
   id: string;
@@ -12,12 +12,16 @@ export interface Kit {
   description: string;
   icon: string; // nombre del icono de lucide-react
   category: KitCategory;
+  scope: KitItemScope;
+  ownerId?: string; // ID del usuario (para scope personal)
+  clientId?: string; // ID del cliente (para scope client)
+  workspaceId?: string; // ID del workspace (para scope workspace)
   downloadUrl?: string;
   docsUrl?: string;
   tags?: string[];
   createdAt: string;
   updatedAt: string;
-  createdBy?: string;
+  createdBy?: string; // Email o nombre del creador para mostrar en UI
   isActive?: boolean;
   files?: KitFile[];
   links?: KitLink[];
@@ -31,10 +35,7 @@ export interface KitFile {
   fileUrl: string; // URL de Firebase Storage
   fileSize?: number; // tamaño en bytes
   mimeType?: string;
-  scope: KitItemScope; // Alcance de visibilidad
   uploadedBy: string; // Email del usuario que subió el archivo
-  workspaceId?: string; // ID del workspace donde se subió
-  clientId?: string; // ID del cliente donde se subió
   uploadedAt: string;
   createdAt: string;
   updatedAt: string;
@@ -46,10 +47,7 @@ export interface KitLink {
   title: string;
   url: string;
   description?: string;
-  scope: KitItemScope; // Alcance de visibilidad
   createdBy: string; // Email del usuario que creó el enlace
-  workspaceId?: string; // ID del workspace donde se creó
-  clientId?: string; // ID del cliente donde se creó
   createdAt: string;
   updatedAt: string;
 }
@@ -63,7 +61,11 @@ export interface CreateKitInput {
   description: string;
   icon: string;
   category: KitCategory;
+  scope: KitItemScope;
   tags?: string[];
+  ownerId?: string;
+  clientId?: string;
+  workspaceId?: string;
 }
 
 // Tipos para agregar archivos/enlaces
@@ -71,18 +73,12 @@ export interface AddKitFileInput {
   title: string; // Título personalizado
   name: string; // Nombre original del archivo
   file: File;
-  scope: KitItemScope;
   uploadedBy: string; // Email del usuario
-  workspaceId?: string;
-  clientId?: string;
 }
 
 export interface AddKitLinkInput {
   title: string;
   url: string;
   description?: string;
-  scope: KitItemScope;
   createdBy: string; // Email del usuario
-  workspaceId?: string;
-  clientId?: string;
 }

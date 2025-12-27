@@ -28,27 +28,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload, Link as LinkIcon } from "lucide-react";
 import { apiFetch } from "@/lib/api-client";
 import type { ApiResponse } from "@/lib/api-utils";
-import type { KitItem, KitItemScope } from "@/types/kit";
+import type { KitItem } from "@/types/kit";
 import { uploadFile, generateKitFilePath } from "@/lib/firebase-storage";
-import {
-  useSessionData,
-  useCurrentWorkspace,
-  useCurrentClient,
-  useSessionStore,
-} from "@/stores/session-store";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useSessionData } from "@/stores/session-store";
 
 const fileSchema = z.object({
   type: z.literal("file"),
   title: z.string().min(1, "El título es requerido"),
   file: z.instanceof(File, { message: "Debes seleccionar un archivo" }),
-  scope: z.enum(["workspace", "client"]),
 });
 
 const linkSchema = z.object({
@@ -56,7 +43,6 @@ const linkSchema = z.object({
   title: z.string().min(1, "El título es requerido"),
   url: z.string().url("La URL es inválida"),
   description: z.string().optional(),
-  scope: z.enum(["workspace", "client"]),
 });
 
 type FileFormData = z.infer<typeof fileSchema>;
@@ -79,22 +65,13 @@ export function AddItemDialog({
   const [selectedFileName, setSelectedFileName] = useState<string>("");
 
   const sessionData = useSessionData();
-  const currentWorkspace = useCurrentWorkspace();
-  const currentClient = useCurrentClient();
-  const allClients = useSessionStore((state) => state.allClients);
-
   const userEmail = sessionData?.user?.email || "";
-
-  // Si no hay cliente/workspace actual, usar el primero disponible
-  const effectiveClient = currentClient || allClients[0] || null;
-  const effectiveWorkspace = currentWorkspace || effectiveClient?.workspaces?.[0] || null;
 
   const fileForm = useForm<FileFormData>({
     resolver: zodResolver(fileSchema),
     defaultValues: {
       type: "file",
       title: "",
-      scope: "workspace",
     },
   });
 
@@ -105,7 +82,6 @@ export function AddItemDialog({
       title: "",
       url: "",
       description: "",
-      scope: "workspace",
     },
   });
 
@@ -124,17 +100,8 @@ export function AddItemDialog({
         fileUrl: url,
         fileSize: size,
         mimeType,
-        scope: values.scope,
         uploadedBy: userEmail,
-        workspaceId: effectiveWorkspace?.id,
-        clientId: effectiveClient?.id,
       };
-
-      console.log("[AddItemDialog] Enviando archivo con datos:", payload);
-      console.log("[AddItemDialog] currentWorkspace:", currentWorkspace);
-      console.log("[AddItemDialog] currentClient:", currentClient);
-      console.log("[AddItemDialog] workspaceId:", currentWorkspace?.id);
-      console.log("[AddItemDialog] clientId:", currentClient?.id);
 
       const response = await apiFetch(`/api/kit/${kitId}/files`, {
         method: "POST",
@@ -187,10 +154,7 @@ export function AddItemDialog({
           title: values.title,
           url: values.url,
           description: values.description,
-          scope: values.scope,
           createdBy: userEmail,
-          workspaceId: effectiveWorkspace?.id,
-          clientId: effectiveClient?.id,
         }),
       });
 
@@ -293,28 +257,6 @@ export function AddItemDialog({
                   )}
                 />
 
-                <FormField
-                  control={fileForm.control}
-                  name="scope"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Alcance</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona el alcance" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="workspace">Workspace</SelectItem>
-                          <SelectItem value="client">Cliente</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 <DialogFooter>
                   <Button
                     type="button"
@@ -378,28 +320,6 @@ export function AddItemDialog({
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={linkForm.control}
-                  name="scope"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Alcance</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona el alcance" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="workspace">Workspace</SelectItem>
-                          <SelectItem value="client">Cliente</SelectItem>
-                        </SelectContent>
-                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

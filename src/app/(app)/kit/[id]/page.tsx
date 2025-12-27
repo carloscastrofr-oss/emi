@@ -26,10 +26,31 @@ import { AddItemDialog } from "./add-item-dialog";
 import { SortControl, type SortOption } from "./sort-control";
 import { FilterControl, type FilterState } from "./filter-control";
 import { useToast } from "@/hooks/use-toast";
-import { useSessionData } from "@/stores/session-store";
+import { useSessionData, useCurrentClient, useCurrentWorkspace } from "@/stores/session-store";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { FilePreviewButton, FilePreviewDialog } from "@/components/file-preview";
+import { Badge } from "@/components/ui/badge";
+import { Users, User, Building2, Globe } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const scopeConfig = {
+  personal: {
+    label: "Personal",
+    icon: User,
+    className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+  },
+  workspace: {
+    label: "Equipo",
+    icon: Users,
+    className: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
+  },
+  client: {
+    label: "Empresa",
+    icon: Building2,
+    className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+  },
+};
 
 function getLucideIcon(iconName: string): LucideIcon {
   const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as LucideIcon;
@@ -416,12 +437,32 @@ export default function KitDetailPage({ params }: { params: Promise<{ id: string
             </Button>
           }
         />
-        <div className="flex items-center gap-2 mt-4 mb-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+        <div className="flex items-center gap-4 mt-4 mb-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 shrink-0">
             <KitIcon className="h-6 w-6 text-primary" />
           </div>
-          <div className="text-sm text-muted-foreground">
-            {items.length} {items.length === 1 ? "elemento" : "elementos"}
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="secondary"
+                className={cn(
+                  "px-2 py-0 h-5 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1",
+                  scopeConfig[kit.scope as keyof typeof scopeConfig]?.className
+                )}
+              >
+                {(() => {
+                  const Icon = scopeConfig[kit.scope as keyof typeof scopeConfig]?.icon || Globe;
+                  return <Icon className="h-3 w-3" />;
+                })()}
+                {scopeConfig[kit.scope as keyof typeof scopeConfig]?.label || kit.scope}
+              </Badge>
+              {kit.createdBy && (
+                <span className="text-xs text-muted-foreground">Creado por {kit.createdBy}</span>
+              )}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {items.length} {items.length === 1 ? "elemento" : "elementos"}
+            </div>
           </div>
         </div>
 

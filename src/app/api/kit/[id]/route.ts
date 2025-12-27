@@ -24,7 +24,6 @@
 
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse, applyDevDelay, isDevApiMode } from "@/lib/api-utils";
-import { prisma } from "@/lib/prisma";
 import { kitsMock } from "@/mocks/kit";
 import type { Kit } from "@/types/kit";
 
@@ -32,6 +31,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const { id } = await params;
     const isDevMode = isDevApiMode(request);
+
+    console.log(`[API /kit/${id}] 🔍 Solicitando kit...`);
 
     // En modo dev, usar mocks
     if (isDevMode) {
@@ -46,6 +47,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Modo producción: usar Prisma
+    const { prisma } = require("@/lib/prisma");
+    console.log(`[API /kit/${id}] 🔍 Buscando kit en base de datos...`);
+
     const kit = await prisma.kit.findUnique({
       where: { id },
       include: {
@@ -55,8 +59,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     });
 
     if (!kit) {
+      console.error(`[API /kit/${id}] ❌ Kit no encontrado en la base de datos`);
       return errorResponse("Kit no encontrado", 404);
     }
+
+    console.log(`[API /kit/${id}] ✅ Kit encontrado: "${kit.title}" (Scope: ${kit.scope})`);
 
     const response: Kit = {
       id: kit.id,
@@ -64,6 +71,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       description: kit.description,
       icon: kit.icon,
       category: kit.category,
+      scope: kit.scope,
+      ownerId: kit.ownerId || undefined,
+      clientId: kit.clientId || undefined,
+      workspaceId: kit.workspaceId || undefined,
       downloadUrl: kit.downloadUrl || undefined,
       docsUrl: kit.docsUrl || undefined,
       tags: kit.tags,
@@ -71,7 +82,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       updatedAt: kit.updatedAt.toISOString(),
       createdBy: kit.createdBy || undefined,
       isActive: kit.isActive,
-      files: kit.files.map((file) => ({
+      files: kit.files.map((file: any) => ({
         id: file.id,
         kitId: file.kitId,
         title: file.title,
@@ -79,24 +90,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         fileUrl: file.fileUrl,
         fileSize: file.fileSize || undefined,
         mimeType: file.mimeType || undefined,
-        scope: file.scope,
         uploadedBy: file.uploadedBy,
-        workspaceId: file.workspaceId || undefined,
-        clientId: file.clientId || undefined,
         uploadedAt: file.uploadedAt.toISOString(),
         createdAt: file.createdAt.toISOString(),
         updatedAt: file.updatedAt.toISOString(),
       })),
-      links: kit.links.map((link) => ({
+      links: kit.links.map((link: any) => ({
         id: link.id,
         kitId: link.kitId,
         title: link.title,
         url: link.url,
         description: link.description || undefined,
-        scope: link.scope,
         createdBy: link.createdBy,
-        workspaceId: link.workspaceId || undefined,
-        clientId: link.clientId || undefined,
         createdAt: link.createdAt.toISOString(),
         updatedAt: link.updatedAt.toISOString(),
       })),

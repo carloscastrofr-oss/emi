@@ -6,6 +6,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { useMemo } from "react";
 import type { SessionData, ClientWithWorkspaces, WorkspaceData } from "@/types/session";
 import { SessionService } from "@/lib/session-service";
 import { getSessionData, updateSessionDefaults } from "@/lib/api-client";
@@ -531,12 +532,25 @@ export const useSessionData = () => useSessionStore((state) => state.sessionData
 /**
  * Hook para obtener el cliente actual
  */
-export const useCurrentClient = () => useSessionStore((state) => state.currentClient);
+export const useCurrentClient = () => {
+  const sessionData = useSessionStore((state) => state.sessionData);
+  return useMemo(() => {
+    if (!sessionData) return null;
+    return SessionService.getDefaultClient(sessionData.clients, sessionData.defaultClient);
+  }, [sessionData]);
+};
 
 /**
  * Hook para obtener el workspace actual
  */
-export const useCurrentWorkspace = () => useSessionStore((state) => state.currentWorkspace);
+export const useCurrentWorkspace = () => {
+  const currentClient = useCurrentClient();
+  const sessionData = useSessionStore((state) => state.sessionData);
+  return useMemo(() => {
+    if (!sessionData || !currentClient) return null;
+    return SessionService.getDefaultWorkspace(currentClient, sessionData.defaultWorkspace);
+  }, [sessionData, currentClient]);
+};
 
 /**
  * Hook para obtener el estado de carga

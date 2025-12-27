@@ -1,8 +1,6 @@
 import { NextRequest } from "next/server";
 import { successResponse, errorResponse, applyDevDelay, isDevApiMode } from "@/lib/api-utils";
 import { validateAuth } from "@/lib/api-auth";
-import { prisma } from "@/lib/prisma";
-import type { KitItemScope } from "@/types/kit";
 
 type KitFileTreeNode =
   | {
@@ -63,16 +61,18 @@ export async function GET(request: NextRequest) {
 
     const workspaceId = request.nextUrl.searchParams.get("workspaceId") ?? undefined;
 
-    const whereClause =
-      isDevMode || !workspaceId
-        ? {}
-        : {
-            files: {
-              some: {
-                workspaceId,
-              },
-            },
-          };
+    const { prisma } = require("@/lib/prisma");
+
+    const whereClause: any = {
+      isActive: true,
+    };
+
+    if (!isDevMode && workspaceId) {
+      whereClause.OR = [
+        { scope: "workspace", workspaceId },
+        { scope: "client", clientId: { not: null } }, // Permitir todos los de cliente por ahora
+      ];
+    }
 
     const kits = await prisma.kit.findMany({
       where: whereClause,
@@ -84,15 +84,15 @@ export async function GET(request: NextRequest) {
       orderBy: { title: "asc" },
     });
 
-    const items: KitFileTreeNode[] = kits.map((kit) => {
-      const children: KitFileTreeNode[] = kit.files.map((file) => ({
+    const items: KitFileTreeNode[] = kits.map((kit: any) => {
+      const children: KitFileTreeNode[] = kit.files.map((file: any) => ({
         id: file.id,
         name: file.title || file.name,
         kind: "file",
         kitId: file.kitId,
         mimeType: file.mimeType ?? undefined,
         isSupportedForAi: isMimeTypeSupportedForAi(file.mimeType, file.name),
-        workspaceId: file.workspaceId ?? undefined,
+        workspaceId: kit.workspaceId ?? undefined,
       }));
 
       return {
